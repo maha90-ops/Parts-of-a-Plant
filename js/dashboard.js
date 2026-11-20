@@ -56,6 +56,7 @@
             <ol class="timeline">${p.pathHistory.map((h) => `<li>${D.PATHS[h.path].icon} ${D.PATHS[h.path].name} <small class="muted">${h.source === 'diagnostic' ? 'بعد التشخيص' : 'بعد إعادة التقييم'}</small></li>`).join('')}</ol></div>
         </section>
       </div>
+      <div class="fun-row"><section class="card fun-card" id="d-village"></section><section class="card fun-card" id="d-puzzle"></section></div>
       <section class="card">
         <h2 class="h-sm">🏅 الشارات</h2>
         <div class="badges">${Object.entries(D.BADGES).map(([id, b]) => { const has = p.badges.includes(id); return `<div class="badge ${has ? '' : 'is-locked'}"><div class="badge-medal ${has ? '' : 'locked'}">${b.icon}</div><b>${b.name}</b><small class="muted">${has ? b.desc : '🔒 لم تُفتح بعد'}</small></div>`; }).join('')}</div>
@@ -66,6 +67,9 @@
         <ul class="decisions">${recent.map((d) => `<li><small class="muted">${new Date(d.at).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' })}</small> ${esc(d.text)}</li>`).join('') || '<li>لا توجد قرارات بعد.</li>'}</ul>
         <div class="row"><span class="chip">💡 التلميحات: ${ar(p.hintsUsed)}</span><span class="chip">✗ الأخطاء المسجّلة: ${ar(p.mistakes.length)}</span><span class="chip">📝 الاستجابات: ${ar(p.responses.length)}</span></div>
       </section>`;
+    $('#d-village').innerHTML = PR.village.panel(p);
+    PR.village.mount($('#d-village'), p);
+    $('#d-puzzle').innerHTML = PR.puzzle.panel(p);
     PR.nabti.say(`${top.text} اضغط «ابدأ التدريب».`, 'happy');
   };
 })();

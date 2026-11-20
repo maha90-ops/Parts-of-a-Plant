@@ -30,8 +30,8 @@
   --radius-sm: 12px;
   --shadow: 0 1px 2px rgba(40, 25, 5, .06), 0 8px 24px rgba(40, 25, 5, .08);
   --shadow-lg: 0 2px 4px rgba(40, 25, 5, .06), 0 18px 48px rgba(40, 25, 5, .14);
-  --f-body: 'Tajawal', 'Segoe UI', 'Noto Sans Arabic', Tahoma, sans-serif;
-  --f-head: 'Tajawal', 'Segoe UI', 'Noto Sans Arabic', Tahoma, sans-serif;
+  --f-body: 'Cairo', 'Segoe UI', 'Noto Sans Arabic', Tahoma, sans-serif;
+  --f-head: 'Cairo', 'Segoe UI', 'Noto Sans Arabic', Tahoma, sans-serif;
   color-scheme: light;
 }
 html.hc {
@@ -288,3 +288,55 @@ textarea.input { min-height: 110px; resize: vertical; line-height: 1.7; }
   body { background: #fff !important; }
   .card { box-shadow: none; break-inside: avoid; }
 }
+
+/* =========================================================================
+   الثيم الفلسطيني (الإصدار ٢) — مستوحى من تصميم «تحدي الخيمة والزيتون»:
+   شريط علوي أسود + شريط العلم، كتّان بشبكة الكوفية، أشرطة تطريز عند حواف الأقسام
+   ========================================================================= */
+:root {
+  --ink: #141414; --ink-2: #2b2925; --muted: #5b5348;
+  --paper: #f6f1e6; --paper-2: #efe6d2; --card: #ffffff; --line: #e4d9c3; --band: #fbf7ee;
+  --green: #007a3d; --green-d: #005a2c; --green-l: #e2f2e8;
+  --red: #ce1126; --red-d: #a00d1e; --red-l: #fbe8e9;
+  --gold: #d99a1e; --gold-l: #fff1cc; --blue: #0e5a7a; --blue-l: #e3f1f7;
+  --net: rgba(20, 20, 20, .045);
+  --radius: 22px;
+  --shadow: 0 14px 30px -22px rgba(0, 0, 0, .45);
+  --shadow-lg: 0 18px 34px -20px rgba(0, 0, 0, .5);
+}
+body {
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(45deg, var(--net) 0 2px, transparent 2px 14px), repeating-linear-gradient(-45deg, var(--net) 0 2px, transparent 2px 14px);
+  background-size: auto;
+}
+h1, h2, h3, h4 { font-weight: 900; }
+
+/* الشريط العلوي الأسود */
+.app-header { background: #141414; border-bottom: 0; backdrop-filter: none; }
+html.hc .app-header { background: #000; }
+.brand { color: #fff; }
+.brand-mark { background: var(--green); }
+.main-nav a { color: #fff; border: 2px solid rgba(255, 255, 255, .22); background: rgba(255, 255, 255, .06); border-radius: 12px; margin-inline: 2px; font-weight: 800; }
+.main-nav a:hover { background: rgba(255, 255, 255, .18); }
+.main-nav a[aria-current="page"] { background: #fff; color: #141414; border-color: #fff; box-shadow: inset 0 -3px 0 var(--red); }
+.app-header .chip { background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .25); color: #fff; }
+.app-header .chip-level { background: var(--green); border-color: var(--green); }
+.app-header .icon-btn { background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .3); color: #fff; }
+/* شريط العلم */
+.flag-ribbon { height: 14px; border-top: 2px solid #2a2a2a; position: relative; background: linear-gradient(180deg, #141414 0 33.4%, #fff 33.4% 66.7%, #007a3d 66.7%); }
+.flag-ribbon::before { content: ''; position: absolute; top: 0; bottom: 0; right: 0; width: 40px; background: #ce1126; clip-path: polygon(100% 0, 0 50%, 100% 100%); }
+/* شريط التطريز */
+.tatreez-strip { height: 30px; background-color: var(--band); background-size: auto 22px; border-bottom: 1px solid var(--line); }
+.app-header .tatreez-strip { height: 26px; }
+
+/* البطاقات والأزرار */
+.card { border-radius: var(--radius); box-shadow: var(--shadow); }
+.btn { border-radius: 14px; font-weight: 900; }
+.btn-primary { background: var(--green); border-color: var(--green-d); box-shadow: 0 3px 0 var(--green-d); }
+.btn-red { background: var(--red); border-color: var(--red-d); box-shadow: 0 3px 0 var(--red-d); }
+.opt { border-radius: 16px; font-weight: 800; background: #fbf8f1; }
+.opt:hover:not(:disabled) { border-color: var(--gold); background: var(--gold-l); }
+.chip { border-radius: 12px; }
+.modal { border-top: 0; }
+.modal::before { content: ''; display: block; height: 14px; margin: -26px -22px 18px; background: linear-gradient(180deg, #141414 0 33.4%, #fff 33.4% 66.7%, #007a3d 66.7%); border-radius: 22px 22px 0 0; }
+.app-footer { background: #141414; }

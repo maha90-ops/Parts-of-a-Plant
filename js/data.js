@@ -133,6 +133,7 @@
     flower_friend:    { name: 'صديق الأزهار', icon: '🌸', desc: 'اكتشفت دور الزهرة في التكاثر.' },
     little_scientist: { name: 'العالم النباتي الصغير', icon: '🔬', desc: 'أكملت تجارب المختبر النباتي.' },
     lulu_savior:      { name: 'منقذ لولو', icon: '🏆', desc: 'أنقذت لولو وأعدت إليها عافيتها.' },
+    dome_builder:     { name: 'بنّاء قبة الصخرة', icon: '🕌', desc: 'أكملت بازل قبة الصخرة بإجاباتك الصحيحة.' },
   };
   const LEVELS = [
     { min: 0, name: 'بذرة', icon: '🌰' },

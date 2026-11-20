@@ -122,6 +122,12 @@
     PR.nabti.say('لقد أنقذتَ لولو! انظر كيف عادت إليها الحياة 🌺 بقي التقييم النهائي القصير.', 'cheer');
     p.rescue = { caseId: C.id, clues: [...seen], completedAt: new Date().toISOString() };
     PR.progress.save(p);
+    if (PR.village) {
+      const rr = p.responses.filter((r) => r.zone === 'rescue').map((r) => r.credit);
+      const vrec = PR.village.record(p, 'rescue', rr.length ? rr.reduce((a, b) => a + b, 0) / rr.length : 1);
+      PR.progress.save(p);
+      await PR.village.celebrate(p, vrec);
+    }
     $('#heal-go').outerHTML = '<button class="btn btn-red lg" id="post-go">📝 ابدأ التقييم النهائي</button>';
     $('#post-go').focus();
     await new Promise((r) => { $('#post-go').onclick = r; });

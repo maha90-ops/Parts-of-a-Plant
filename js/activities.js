@@ -362,6 +362,13 @@
     PR.ui.reward(res.reward);
     return res;
   }
+  /* قرية لولو: نتيجة المحطة تبني بيتًا أو تُسقط زيتونة */
+  async function villageStep(ctx, key, credit) {
+    if (!PR.village) return;
+    const rec = PR.village.record(ctx.p, key, credit);
+    PR.progress.save(ctx.p);
+    await PR.village.celebrate(ctx.p, rec);
+  }
   function decision(ctx, text) { PR.progress.log(ctx.p, 'adapt', text); ctx.decisions.push(text); PR.progress.save(ctx.p); }
 
   const STEPS = {
@@ -445,13 +452,14 @@
       PR.nabti.say(level === 1 ? 'نشاط بسيط: خذ وقتك، وأنا هنا لمساعدتك.' : level === 3 ? 'نشاط متقدم: فكّر وجرّب كالعلماء!' : 'حان وقت النشاط التفاعلي!', 'happy');
       ctx.stage.innerHTML = '<div class="card activity reveal" id="act-box"></div>';
       const r = await ACTIVITIES[ctx.zone.activity]($('#act-box'), level, ctx);
-      record(ctx, { qid: `${ctx.zone.id}-activity`, activity: ctx.zone.activity, skill: 'apply', part: ctx.zone.part, level, correct: true, attempts: 1 + Math.min(r.mistakes, 4), hints: r.hints, timeMs: r.timeMs, errors: r.errorsDetail.map((e) => e.errorType), errorsDetail: r.errorsDetail, zone: ctx.zone.id });
+      const ra = record(ctx, { qid: `${ctx.zone.id}-activity`, activity: ctx.zone.activity, skill: 'apply', part: ctx.zone.part, level, correct: true, attempts: 1 + Math.min(r.mistakes, 4), hints: r.hints, timeMs: r.timeMs, errors: r.errorsDetail.map((e) => e.errorType), errorsDetail: r.errorsDetail, zone: ctx.zone.id });
       // سؤال «لماذا؟»
       const why = Object.assign({}, WHY[ctx.zone.id], { level: Math.min(level, 2) });
       if (ctx.p.currentPath === 'remediation') why.options = why.options.slice(0, 3);
       ctx.stage.innerHTML = '<div id="why-box"></div>';
       const resp = await PR.QuestionCard($('#why-box'), why, { path: ctx.p.currentPath, zone: ctx.zone.id, label: 'سؤال بعد النشاط', onDecision: (t) => decision(ctx, t) });
-      record(ctx, resp);
+      const rw = record(ctx, resp);
+      await villageStep(ctx, `${ctx.zone.id}-act`, (ra.credit + rw.credit) / 2);
     },
 
     async questions(ctx) {
@@ -475,6 +483,7 @@
         if (ad.event === 'level-up') { PR.toast('⬆️ إجابات متتالية ممتازة! رفعنا مستوى التحدي.'); decision(ctx, `رفع مستوى الصعوبة إلى ${state.level}`); }
         if (ad.event === 'level-down') { PR.toast('🤝 سنخفف الصعوبة قليلًا لنثبّت الفكرة.'); decision(ctx, `خفض مستوى الصعوبة إلى ${state.level}`); }
       }
+      await villageStep(ctx, `${ctx.zone.id}-q`, qResps.length ? qResps.reduce((s, r) => s + E.responseCredit(r), 0) / qResps.length : 1);
       if (E.shouldEnrich(qResps, path)) {
         const extra = pool.find((q) => q.level === 3 && !asked.includes(q.id));
         decision(ctx, 'إتقان متكرر ← عرض نشاط إثرائي');
@@ -608,6 +617,9 @@
     }
     PR.progress.completeActivity(p, 'train-' + (skill || part || 'mix'), { score: Math.round(ctx.credits.reduce((a, b) => a + b, 0) / (ctx.credits.length || 1) * 100) });
     p.drops += 2; p.recommendations = E.recommendations(p);
+    const avgCr = ctx.credits.reduce((a, b) => a + b, 0) / (ctx.credits.length || 1);
+    const repaired = avgCr >= 0.6 && PR.village ? PR.village.repairTent(p) : null;
+    if (repaired) { PR.progress.save(p); await PR.village.celebrate(p, repaired); }
     const re = E.reevaluatePath(p);
     if (re.changed) PR.progress.setPath(p, re.path, re.reasons, 'training');
     PR.progress.save(p); PR.ui.refreshStats();

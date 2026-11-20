@@ -214,7 +214,7 @@
         <nav class="main-nav" aria-label="التنقل الرئيس">${NAV.map((n) => `<a href="${n.href}" ${n.id === page || (page === 'certificate' && n.id === 'report') ? 'aria-current="page"' : ''}><span aria-hidden="true">${n.i}</span> <span class="nav-t">${n.t}</span></a>`).join('')}</nav>
         <div class="hdr-end"><div id="hdr-stats" class="hdr-stats" aria-label="إحصاءاتي"></div>
         <button class="icon-btn" id="a11y-open" aria-haspopup="dialog" aria-label="خيارات الوصول" title="خيارات الوصول">♿</button></div>
-      </div><div class="tatreez-strip" aria-hidden="true"></div>`;
+      </div><div class="flag-ribbon" aria-hidden="true"></div><div class="tatreez-strip" aria-hidden="true"></div>`;
       $('#a11y-open').onclick = openA11y;
     }
     if (!$('#sr-live')) { const l = document.createElement('div'); l.id = 'sr-live'; l.className = 'sr-only'; l.setAttribute('aria-live', 'polite'); document.body.appendChild(l); }

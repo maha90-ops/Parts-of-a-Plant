@@ -77,6 +77,11 @@
       ? `<p class="eyebrow">🎯 المهمة التالية</p><h3>${nz.icon} ${nz.title}</h3><p class="muted">تعلّم: ${nz.learn}</p><a class="btn btn-primary" href="${nz.href}">ابدأ الآن ←</a>`
       : `<p class="eyebrow">🏆 أنهيت الرحلة!</p><h3>أنقذتَ لولو</h3><div class="row"><a class="btn btn-primary" href="report.html">📄 تقرير التعلم</a><a class="btn" href="certificate.html">🏆 الشهادة</a></div>`;
 
+    // ---- قرية لولو + بازل قبة الصخرة ----
+    $('#village-card').innerHTML = PR.village.panel(p);
+    PR.village.mount($('#village-card'), p);
+    $('#puzzle-card').innerHTML = PR.puzzle.panel(p);
+
     // ---- التوصية ----
     const recs = E.recommendations(p);
     p.recommendations = recs; PR.progress.save(p);

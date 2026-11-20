@@ -311,6 +311,7 @@
       const stars = E.starsFor(credits.length ? credits : [1]);
       PR.progress.completeZone(p, 'lab', { stars, score: Math.round(credits.reduce((a, b) => a + b, 0) / (credits.length || 1) * 100) });
       const nb = PR.progress.addBadge(p, 'little_scientist');
+      const vrec = PR.village ? PR.village.record(p, 'lab', credits.length ? credits.reduce((a, b) => a + b, 0) / credits.length : 1) : null;
       const re = E.reevaluatePath(p);
       if (re.changed) PR.progress.setPath(p, re.path, re.reasons, 'reevaluation');
       p.recommendations = E.recommendations(p);
@@ -320,7 +321,7 @@
         <div class="row-end" style="justify-content:center"><a class="btn" href="dashboard.html">📊 لوحتي</a><a class="btn btn-red lg" href="map.html?done=lab">🚨 إلى مركز إنقاذ لولو</a></div></div>`;
       PR.sfx.play('win'); PR.fx.confetti(30); PR.ui.reward({ points: 30, drops: 5 });
       PR.nabti.say('أنت الآن عالم نبات صغير حقيقي! لولو تنتظرك في مركز الإنقاذ.', 'cheer');
-      if (nb) setTimeout(() => PR.ui.badge('little_scientist'), 800);
+      setTimeout(async () => { if (vrec) await PR.village.celebrate(p, vrec); if (nb) PR.ui.badge('little_scientist'); }, 800);
     }
     const first = params.get('station') || (STATIONS.find((s) => !p.labStations[s.id]) || STATIONS[0]).id;
     PR.nabti.say('مرحبًا بك في المختبر! ثلاث محطات تربط فيها الأجزاء بوظائفها.', 'happy');

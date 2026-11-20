@@ -57,6 +57,7 @@
       badges: [],
       zones,
       labStations: { match: false, whatif: false, sim: false },
+      village: {},
       progress: 0,
       pathHistory: [],
       decisions: [],
@@ -106,6 +107,7 @@
 
     /** تسجيل استجابة: تحديث الإتقان + الأخطاء + التلميحات + المكافآت */
     recordResponse(p, r) {
+      const pzBefore = PR.puzzle ? PR.puzzle.pieces(p) : 0;
       const res = E.applyResponse(p, r);
       const entry = Object.assign({ at: new Date().toISOString(), credit: Math.round(res.credit * 100) / 100 }, r);
       p.responses.push(entry);
@@ -117,6 +119,8 @@
       const rw = E.rewardFor(r);
       p.points += rw.points; p.seeds += rw.seeds;
       p.currentLevel = E.levelFor(p.points).index;
+      // بازل قبة الصخرة: قطعة جديدة مع كل إجابة صحيحة
+      if (PR.puzzle && typeof document !== 'undefined') PR.puzzle.notify(p, pzBefore, PR.puzzle.pieces(p));
       return Object.assign(res, { reward: rw });
     },
 
