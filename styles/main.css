@@ -31,7 +31,7 @@
   --shadow: 0 1px 2px rgba(40, 25, 5, .06), 0 8px 24px rgba(40, 25, 5, .08);
   --shadow-lg: 0 2px 4px rgba(40, 25, 5, .06), 0 18px 48px rgba(40, 25, 5, .14);
   --f-body: 'Tajawal', 'Segoe UI', 'Noto Sans Arabic', Tahoma, sans-serif;
-  --f-head: 'Reem Kufi', 'Tajawal', 'Noto Kufi Arabic', sans-serif;
+  --f-head: 'Tajawal', 'Segoe UI', 'Noto Sans Arabic', Tahoma, sans-serif;
   color-scheme: light;
 }
 html.hc {
@@ -56,7 +56,7 @@ body {
 }
 main { flex: 1; width: 100%; }
 main:focus { outline: none; }
-h1, h2, h3, h4 { font-family: var(--f-head); line-height: 1.35; margin: 0 0 .5em; font-weight: 700; }
+h1, h2, h3, h4 { font-family: var(--f-head); line-height: 1.4; margin: 0 0 .5em; font-weight: 800; }
 h1 { font-size: clamp(1.9rem, 4.6vw, 3.1rem); }
 h2 { font-size: clamp(1.35rem, 2.6vw, 1.85rem); }
 h3 { font-size: 1.2rem; }

@@ -14,7 +14,7 @@
 .hero-bg svg { width: 100%; height: 100%; }
 .hero-in { position: relative; z-index: 1; display: grid; grid-template-columns: 1.1fr 1fr; gap: 32px; align-items: center; padding: 40px 16px 60px; }
 .hero h1 { margin-bottom: .1em; }
-.hero-sub { font-family: var(--f-head); font-size: clamp(1.3rem, 2.8vw, 1.9rem); color: var(--red); margin-bottom: .6em; }
+.hero-sub { font-family: var(--f-head); font-weight: 800; font-size: clamp(1.3rem, 2.8vw, 1.9rem); color: var(--red); margin-bottom: .6em; }
 .hero-quote { display: flex; gap: 10px; align-items: center; padding: 14px 18px; border-inline-start: 6px solid var(--red); margin-bottom: 20px; font-size: 1.15rem; font-weight: 700; }
 .hero-quote p { margin: 0; flex: 1; }
 .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
@@ -416,3 +416,9 @@ details summary { cursor: pointer; font-weight: 800; color: var(--green-d); }
 .cert-sign > div { width: 110px; display: grid; justify-items: center; }
 .cert-sign small { font-size: .75rem; font-weight: 700; }
 @media print { .certificate { box-shadow: none; } .report { box-shadow: none; border: 0; } }
+
+/* ---------- فيديو قصة لولو ---------- */
+.video-frame { max-width: 900px; margin: 18px auto 0; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 10px; position: relative; }
+.video-frame::before { content: ''; position: absolute; inset-inline: 0; top: -12px; height: 18px; background: url('../assets/tatreez-band.svg') repeat-x center / auto 18px; }
+.video-frame video { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; background: #1b1b18; }
+.video-frame figcaption { padding: 12px 8px 4px; font-size: .95rem; color: var(--ink-2); }
