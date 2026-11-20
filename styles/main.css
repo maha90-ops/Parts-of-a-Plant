@@ -340,3 +340,8 @@ html.hc .app-header { background: #000; }
 .modal { border-top: 0; }
 .modal::before { content: ''; display: block; height: 14px; margin: -26px -22px 18px; background: linear-gradient(180deg, #141414 0 33.4%, #fff 33.4% 66.7%, #007a3d 66.7%); border-radius: 22px 22px 0 0; }
 .app-footer { background: #141414; }
+
+/* إصلاح: صندوق نَبْتي لا يحجب النقر على الأزرار خلفه — فقط الشخصية والفقاعة الظاهرة تستقبلان النقر */
+.nabti-dock { pointer-events: none; }
+.nabti-dock .nabti-avatar, .nabti-dock:not(.collapsed) .nabti-bubble { pointer-events: auto; }
+.nabti-dock.collapsed .nabti-bubble { display: none; }

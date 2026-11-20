@@ -228,6 +228,9 @@
       $('.nabti-avatar', d).onclick = () => d.classList.toggle('collapsed');
       $('#nabti-hide', d).onclick = () => d.classList.add('collapsed');
       $('#nabti-speak', d).onclick = () => PR.tts.speak($('.nabti-text', d).textContent);
+      // تُطوى الفقاعة عند لمس أي مكان آخر أو عند لمس نصّها، حتى لا تغطي الأزرار
+      $('.nabti-text', d).onclick = () => d.classList.add('collapsed');
+      document.addEventListener('pointerdown', (e) => { if (!d.contains(e.target)) d.classList.add('collapsed'); }, true);
     }
     const ft = $('#app-footer');
     if (ft) {
