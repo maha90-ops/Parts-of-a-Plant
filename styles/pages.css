@@ -509,3 +509,8 @@ html.hc .video-section { background: #000; }
   .pa-head { flex-direction: column; align-items: flex-start; gap: 2px; font-size: .82rem; }
   .pa-hint { display: none; }
 }
+
+/* إصلاح: الرسوم المتجهة بلا عرض ذاتي كانت تنكمش إلى صفر داخل الشبكات المتمركزة (مثل زهرة شقائق النعمان) */
+.fl-art, .final-lulu, .alarm-art, #heal-lulu, .inv-plant, .wj-plant, .ex-plant, .brief-art, .micro-art,
+.join-lulu, .lulu-mini, .stage-lulu, .story-art, .q-visual, .sim-plant, .cert-lulu, .rq-side #rq-lulu { width: 100%; }
+.plant-svg, .flower-svg, .vscene, .pz-svg { width: 100%; min-width: 0; }
