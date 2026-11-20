@@ -30,6 +30,8 @@
    */
   function QuestionCard(container, q, opts) {
     opts = Object.assign({ path: 'practice', ladder: true, maxAttempts: Infinity, label: '' }, opts || {});
+    // تحدّي البازل: في المحطة النشطة يظهر سطر «ماذا سيحدث» ورسالة النتيجة، وتطير القطعة لحظة الإجابة
+    if (!opts.stakes && opts.zone && PR.puzzle && PR.puzzle.isActive(opts.zone)) opts = Object.assign({}, PR.puzzle.cardOpts(opts.zone), opts);
     const policy = E.hintPolicy(opts.path);
     const maxHints = opts.maxHints != null ? opts.maxHints : policy.max;
     const hints = hintsFor(q);
@@ -256,7 +258,7 @@
         }
         // نتيجة الإجابة في التحدّي (مثل: أُزيلت خيمة وبُني بيت) تحلّ محل التغذية العامة
         if (opts.consequence) { const c = opts.consequence(resp); if (c) feedback(c.html, c.cls); }
-        const fact = q.fact || opts.fact;
+        const fact = q.fact || opts.fact || (D.FACTS && D.FACTS[q.id]);
         if (fact) fbBox.insertAdjacentHTML('afterend', `<p class="fact"><b>معلومة من بلادنا:</b> ${esc(fact)}</p>`);
         if (opts.onFinish) { try { opts.onFinish(resp); } catch (e) { console.error(e); } }
         nextBtn.hidden = false;

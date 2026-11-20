@@ -511,7 +511,8 @@
           const ok = sc.score >= 0.67;
           if (ok || attempts >= 2) {
             fb.className = 'act-fb ' + (ok ? 'good' : 'neutral');
-            fb.innerHTML = (ok ? '✓ تفسير علمي ممتاز! ' : '📘 قارن إجابتك بالإجابة النموذجية: ') + `<br><b>إجابة نموذجية:</b> ${esc(O.model)}`;
+            fb.innerHTML = (ok ? '✓ تفسير علمي ممتاز! 🧩 وُضعت قطعة جديدة في لوحة البازل. ' : '📘 قارن إجابتك بالإجابة النموذجية (⬜ لم تُوضع القطعة هذه المرة): ') + `<br><b>إجابة نموذجية:</b> ${esc(O.model)}`;
+            if (D.FACTS[`${ctx.zone.id}-open`]) fb.insertAdjacentHTML('afterend', `<p class="fact"><b>معلومة من بلادنا:</b> ${esc(D.FACTS[`${ctx.zone.id}-open`])}</p>`);
             PR.sfx.play(ok ? 'correct' : 'hint');
             record(ctx, { qid: `${ctx.zone.id}-open`, skill: 'explain', part: ctx.zone.part, level: 3, type: 'open', correct: ok, attempts, hints, timeMs: performance.now() - t0, errors: ok ? [] : ['partial'], errorsDetail: ok ? [] : [{ errorType: 'partial', chosen: txt.slice(0, 80) }], zone: ctx.zone.id, answerText: txt });
             $('#open-go').textContent = 'التالي ←';

@@ -162,42 +162,78 @@
   function completed(p) { return KEYS.filter((k) => { const s = state(p, k); return s && s.best >= s.bestTotal; }); }
   function pieces(p) { return KEYS.reduce((a, k) => a + ((state(p, k) || {}).best || 0), 0); }
 
-  /* ---------- اللوحة الجانبية بجانب السؤال ---------- */
-  function boxHTML(p, key, fresh) {
+  /* ---------- اللوحة الجانبية بجانب السؤال (مع توضيح البازل) ---------- */
+  function boxHTML(p, key, opts) {
+    opts = opts || {};
     const s = state(p, key) || { got: 0, total: totalFor(key, p.currentPath) };
+    const got = opts.got != null ? opts.got : s.got;
     const S = STATIONS[key];
-    const done = s.got >= s.total;
-    return `<section class="pa-box pa-puzzle" aria-label="تحدّي البازل: ${S.t}">
-      <div class="pa-head"><b>🧩 بازل ${S.t}</b><span class="pa-count"><b>${ar(s.got)}</b> / ${ar(s.total)}</span></div>
-      <div class="pz-frame">${svg(key, s.got, s.total, fresh != null ? { fresh } : {})}</div>
-      <div class="pa-bar" aria-hidden="true"><i style="width:${(s.got / s.total) * 100}%"></i></div>
-      <p class="pa-hint">${done ? `🕌 اكتملت لوحة «${S.tl}»!` : `عدد القطع = عدد أسئلة المحطة. أجب إجابة صحيحة لتضع القطعة رقم ${ar(s.got + 1)}.`}</p>
+    const done = got >= s.total;
+    const explain = `لكل محطة لوحة لقبة الصخرة. في «${S.t}» ${ar(s.total)} أسئلة، فاللوحة ${ar(s.total)} قطع. كل إجابة صحيحة تضع قطعة في مكانها. أكمل اللوحة قبل نهاية المحطة!`;
+    return `<section class="pa-box pa-puzzle big" aria-label="تحدّي البازل: ${S.t}">
+      <div class="vhead"><div><h3 class="vt">🧩 بازل «${S.tl}»</h3><p>${explain}</p></div>
+        <button class="icon-btn" type="button" data-speak="${explain}" aria-label="استمع إلى شرح البازل">🔊</button></div>
+      <div class="pz-frame">${svg(key, got, s.total, opts.fresh != null ? { fresh: opts.fresh } : {})}</div>
+      <div class="tally"><span>🧩 القطع <b>${ar(got)} / ${ar(s.total)}</b></span><span>${done ? '🕌 <b>اكتملت!</b>' : `⬜ المتبقي <b>${ar(s.total - got)}</b>`}</span></div>
+      <ul class="vkey"><li>🧩 إجابة صحيحة ← قطعة جديدة تطير إلى مكانها</li><li>⬜ قطعة فارغة ← سؤال لم يُحلّ بعد</li><li>🕌 كل القطع ← لوحة كاملة لقبة الصخرة، وأكمل الخمس لتنال شارة «بنّاء قبة الصخرة»</li></ul>
+      ${opts.msg ? `<p class="vmsg ${opts.msgCls || 'house'}">${opts.msg}</p>` : done ? `<p class="vmsg olive">🕌 اكتملت لوحة «${S.tl}»!</p>` : ''}
     </section>`;
   }
   function mountAside(p, key) {
     const el = document.getElementById('play-aside');
     if (!el) return;
     if (!key) { el.hidden = true; return; }
-    el.hidden = false;
+    el.hidden = false; el.classList.add('mid');
     el.innerHTML = boxHTML(p, key);
   }
+  function replaceBox(html) {
+    const aside = document.getElementById('play-aside');
+    const box = aside && aside.querySelector('.pa-puzzle'); if (!box) return null;
+    const tmp = document.createElement('div'); tmp.innerHTML = html;
+    const nb = tmp.querySelector('.pa-puzzle'); box.replaceWith(nb); return nb;
+  }
+
+  /* ---------- رسائل التحدّي داخل بطاقة السؤال ---------- */
+  function cur() { return PR.progress && PR.progress.current(); }
+  function isActive(zone) { const p = cur(); return !!(p && zone && p.puzzleActive === zone && state(p, zone)); }
+  function stakes(zone) {
+    const p = cur(); const s = state(p, zone); if (!s) return '';
+    if (s.got >= s.total) return `🕌 اكتملت لوحة «${STATIONS[zone].tl}»… أجب لتثبّت إتقانك!`;
+    return `🧩 القطعة رقم ${ar(s.got + 1)} من ${ar(s.total)}: أجب صحيحًا لتضعها في لوحة «${STATIONS[zone].tl}»`;
+  }
+  function consequence(zone) {
+    return (r) => {
+      const p = cur(); const s = state(p, zone); if (!s) return null;
+      if (s.got >= s.total) return null;
+      const n = s.got + 1, last = n >= s.total;
+      if (!r.correct) return { cls: 'bad', html: `⬜ لم تُوضع القطعة رقم ${ar(n)} هذه المرة. راجع الإجابة الصحيحة واستمر!` };
+      const first = r.attempts === 1 && !r.hints;
+      return { cls: 'good', html: `${first ? '✓ ممتاز من المحاولة الأولى!' : '✓ أحسنت، وصلت إلى الإجابة الصحيحة!'} وُضعت القطعة رقم ${ar(n)} من ${ar(s.total)} في لوحة «${STATIONS[zone].tl}» 🧩${last ? ' — واكتملت اللوحة! 🕌' : ''}` };
+    };
+  }
+  let previewed = null;
+  /** لحظة الإجابة: تطير القطعة إلى مكانها فورًا (قبل الضغط على «التالي») */
+  function preview(zone) {
+    return (r) => {
+      const p = cur(); const s = state(p, zone); if (!s || !r.correct || s.got >= s.total) return;
+      const nb = replaceBox(boxHTML(p, zone, { got: s.got + 1, fresh: s.got, msg: `🧩 وضعتَ القطعة رقم ${ar(s.got + 1)} من ${ar(s.total)}`, msgCls: 'olive' }));
+      if (nb) nb.classList.add('pa-flash');
+      previewed = zone + ':' + (s.got + 1);
+      PR.sfx.play('click');
+    };
+  }
+  /** خيارات جاهزة لبطاقة السؤال في المحطة النشطة */
+  function cardOpts(zone) { return isActive(zone) ? { stakes: stakes(zone), consequence: consequence(zone), onFinish: preview(zone) } : {}; }
+
   function notify(p, res) {
     if (!res) return;
-    const aside = document.getElementById('play-aside');
-    const box = aside && aside.querySelector('.pa-puzzle');
     const done = res.after >= res.total;
-    if (box) {
-      const tmp = document.createElement('div'); tmp.innerHTML = boxHTML(p, res.key, res.before);
-      const nb = tmp.querySelector('.pa-puzzle');
-      box.replaceWith(nb);
-      nb.classList.add('pa-flash');
-      if (!done) nb.querySelector('.pa-hint').textContent = `🧩 أحسنت! وضعتَ القطعة رقم ${ar(res.after)} من ${ar(res.total)}`;
-      PR.sfx.play('click');
-    } else {
-      PR.toast(`🧩 قطعة جديدة في بازل ${STATIONS[res.key].t}: ${ar(res.after)} / ${ar(res.total)}`, 'reward');
-    }
+    const already = previewed === res.key + ':' + res.after; previewed = null;
+    const nb = replaceBox(boxHTML(p, res.key, already ? {} : { fresh: res.before, msg: `🧩 أحسنت! وضعتَ القطعة رقم ${ar(res.after)} من ${ar(res.total)}`, msgCls: 'olive' }));
+    if (nb && !already) { nb.classList.add('pa-flash'); PR.sfx.play('click'); }
+    if (!nb) PR.toast(`🧩 قطعة جديدة في بازل ${STATIONS[res.key].t}: ${ar(res.after)} / ${ar(res.total)}`, 'reward');
     if (done) {
-      setTimeout(() => { PR.sfx.play('badge'); PR.fx.confetti(30); }, 700);
+      setTimeout(() => { PR.sfx.play('badge'); PR.fx.confetti(30); }, 500);
       PR.toast(`🕌 اكتملت لوحة «${STATIONS[res.key].tl}»!`, 'reward');
       if (completed(p).length === KEYS.length && PR.progress.addBadge(p, 'dome_builder')) {
         PR.progress.save(p);
@@ -223,5 +259,5 @@
   }
   function panel(p) { return gallery(p); }
 
-  PR.puzzle = { STATIONS, KEYS, totalFor, svg, start, stop, add, notify, mountAside, gallery, panel, completed, pieces, state };
+  PR.puzzle = { STATIONS, KEYS, totalFor, svg, start, stop, add, notify, mountAside, gallery, panel, completed, pieces, state, isActive, cardOpts };
 })(typeof self !== 'undefined' ? self : this);

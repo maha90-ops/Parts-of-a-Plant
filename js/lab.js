@@ -157,7 +157,8 @@
           const ok = sc.score >= 0.67;
           if (ok || attempts >= 2) {
             rec(p, { qid: 'whatif-open', activity: 'whatif', skill: 'solve', part: 'root', level: 3, type: 'open', correct: ok, attempts, hints: attempts - 1, timeMs: performance.now() - t0, errors: ok ? [] : ['partial'], errorsDetail: ok ? [] : [{ errorType: 'partial', chosen: t.slice(0, 80) }], answerText: t });
-            fb.className = 'act-fb ' + (ok ? 'good' : 'neutral'); fb.innerHTML = `${ok ? '✓ تحليل علمي ممتاز!' : '📘 قارن بالإجابة النموذجية:'}<br><b>نموذج:</b> ${esc(O.model)}`;
+            fb.className = 'act-fb ' + (ok ? 'good' : 'neutral'); fb.innerHTML = `${ok ? '✓ تحليل علمي ممتاز! 🧩 وُضعت قطعة جديدة في لوحة البازل.' : '📘 قارن بالإجابة النموذجية (⬜ لم تُوضع القطعة هذه المرة):'}<br><b>نموذج:</b> ${esc(O.model)}`;
+            if (D.FACTS['whatif-open']) fb.insertAdjacentHTML('afterend', `<p class="fact"><b>معلومة من بلادنا:</b> ${esc(D.FACTS['whatif-open'])}</p>`);
             $('#wo-go', box).textContent = 'إنهاء المحطة ←'; $('#wo-go', box).onclick = res;
           } else { fb.className = 'act-fb bad'; fb.textContent = '💡 حسّن إجابتك: هل ذكرت الجزء، ووظيفته، والماء؟'; }
         };

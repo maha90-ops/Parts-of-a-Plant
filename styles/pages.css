@@ -554,3 +554,21 @@ html.hc .video-section { background: #000; }
 
 .tally b { white-space: nowrap; }
 .pa-village.big .tally > span { flex: 1 1 180px; }
+
+/* ---------- البازل بجانب السؤال: لوحة موضَّحة بعرض متوسط ---------- */
+.play-layout:has(.play-aside.mid) { grid-template-columns: minmax(0, 1fr) 380px; }
+.pa-puzzle.big { padding: 16px; border-radius: 22px; border-top-width: 7px; }
+.pa-puzzle.big .vhead { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.pa-puzzle.big .vt { font-size: 1.25rem; color: #8a5a00; }
+.pa-puzzle.big .vhead p { font-size: .86rem; }
+.pa-puzzle.big .vkey { font-size: .78rem; }
+.pa-puzzle.big .vmsg { font-size: .9rem; padding: 8px 12px; }
+/* مختبر لولو داخل عرض أضيق */
+.play-layout .sim { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.play-layout .sim .sim-out { grid-column: 1 / -1; }
+@media (max-width: 1080px) { .play-layout:has(.play-aside.mid) { grid-template-columns: 1fr; } .play-aside.mid { grid-template-columns: 1fr; } .pa-puzzle.big .vkey { display: none; } }
+@media (max-width: 1080px) {
+  .pa-puzzle.big .vhead p { display: none; }
+  .pa-puzzle.big .pz-frame { max-width: 300px; margin: 0 auto; }
+  .pa-puzzle.big .vmsg { margin-top: 8px; }
+}
