@@ -282,6 +282,20 @@
     }
   });
 
+  /* ---------- التقاط الأخطاء: رسالة للطالب + سجلّ للتشخيص ---------- */
+  PR.reportError = function (err, where) {
+    const msg = (err && (err.stack || err.message)) || String(err);
+    console.error('[plant-rescue]', where || '', err);
+    try {
+      const log = JSON.parse(localStorage.getItem('plantRescue.errors') || '[]');
+      log.push({ at: new Date().toISOString(), where: where || location.pathname + location.search, msg: String(msg).slice(0, 600) });
+      localStorage.setItem('plantRescue.errors', JSON.stringify(log.slice(-20)));
+    } catch (e) { /* تجاهل */ }
+    if (PR.toast) PR.toast('حدث خلل بسيط، وتابعنا الرحلة تلقائيًا. تقدّمك محفوظ ✓', 'bad');
+  };
+  root.addEventListener('error', (e) => PR.reportError(e.error || e.message, 'window'));
+  root.addEventListener('unhandledrejection', (e) => PR.reportError(e.reason, 'promise'));
+
   /* ---------- التشغيل ---------- */
   PR.pages = PR.pages || {};
   document.addEventListener('DOMContentLoaded', () => {

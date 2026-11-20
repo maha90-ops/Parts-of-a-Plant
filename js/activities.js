@@ -524,7 +524,7 @@
             PR.sfx.play(ok ? 'correct' : 'hint');
             record(ctx, { qid: `${ctx.zone.id}-open`, skill: 'explain', part: ctx.zone.part, level: 3, type: 'open', correct: ok, attempts, hints, timeMs: performance.now() - t0, errors: ok ? [] : ['partial'], errorsDetail: ok ? [] : [{ errorType: 'partial', chosen: txt.slice(0, 80) }], zone: ctx.zone.id, answerText: txt });
             $('#open-go').textContent = 'التالي ←';
-            $('#open-go').onclick = res;
+            $('#open-go').onclick = (ev) => { ev.currentTarget.disabled = true; ev.currentTarget.textContent = '⏳ لحظة…'; res(); };
           } else {
             hints++;
             const miss = O.rubric.filter((_, i) => !sc.hits[i]).map((r) => r.label);
@@ -581,7 +581,16 @@
     PR.progress.save(p);
     for (let i = 0; i < steps.length; i++) {
       $$('#zone-steps li').forEach((li, k) => { li.classList.toggle('on', k === i); li.classList.toggle('done', k < i); if (k === i) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current'); });
-      await STEPS[steps[i]](ctx);
+      try {
+        await STEPS[steps[i]](ctx);
+      } catch (err) {
+        // لا يتوقف الطالب أبدًا: نسجّل الخطأ ونتابع إلى الخطوة التالية (أو نُنهي المنطقة)
+        PR.reportError(err, `zone:${zone.id}:${steps[i]}`);
+        if (steps[i] === 'summary') {
+          ctx.stage.innerHTML = `<div class="card summary center"><h2>أكملت «${zone.title}» ${zone.icon}</h2><p>حُفظ تقدّمك.</p><a class="btn btn-primary lg" href="map.html?done=${zone.id}">🗺️ العودة إلى الخريطة</a></div>`;
+          if (p.zones[zone.id].status !== 'done') { PR.progress.completeZone(p, zone.id, { stars: E.starsFor(ctx.credits.length ? ctx.credits : [1]), score: 0 }); PR.progress.save(p); }
+        }
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
