@@ -102,8 +102,8 @@
     return `<div class="village-panel">
       <div class="vhead"><div><h3 class="vt">⛺ قرية لولو: تحدّي الخيمة والزيتون</h3><p>كل محطة تُنجزها تُزيل خيمة وتبني بيتًا، وكل محطة تُتقنها من المحاولة الأولى تُسقط حبة زيتون على الكوفية. ابنِ البيوت العشرة ليرتفع العلم!</p></div></div>
       ${s.html.replace('class="vscene"', `class="vscene" data-vid="${s.id}"`)}
-      <div class="tally"><span>🏠 بيوت <b>${ar(c.houses)} / ١٠</b></span><span>🫒 زيتون على الكوفية <b>${ar(c.olives)} / ١٠</b></span></div>
-      ${opts.compact ? '' : `<ul class="vkey"><li>🫒 + 🏠 إتقان المحطة من المحاولة الأولى</li><li>🏠 إنجاز المحطة بعد محاولات أو تلميحات</li><li>⛺ تبقى الخيمة للمراجعة، ويبنيها التدريب الموجّه</li></ul>`}
+      <div class="tally"><span>🏠 بيوت <b>${ar(c.houses)} / ١٠</b></span><span><i class="olive-ic" aria-hidden="true"></i> زيتون على الكوفية <b>${ar(c.olives)} / ١٠</b></span></div>
+      ${opts.compact ? '' : `<ul class="vkey"><li><i class="olive-ic" aria-hidden="true"></i> + 🏠 إتقان المحطة من المحاولة الأولى</li><li>🏠 إنجاز المحطة بعد محاولات أو تلميحات</li><li>⛺ تبقى الخيمة للمراجعة، ويبنيها التدريب الموجّه</li></ul>`}
       ${tents.length && !opts.compact ? `<p class="vtents">⛺ خيام تنتظر المراجعة: ${tents.map((m) => `${m.i} ${m.t}`).join('، ')} — <a href="zone.html?mode=train&skill=${PR.engine.weakestSkills(p, 1)[0].s}">ابنِها بالتدريب الموجّه</a></p>` : ''}
     </div>`;
   }
@@ -121,7 +121,7 @@
   /** نافذة احتفال بعد كل محطة: الخيمة تصبح بيتًا وتسقط الزيتونة أمام الطالب */
   function celebrate(p, rec) {
     const m = MILESTONES.find((x) => x.key === rec.key);
-    const msg = { olive: '🫒 أتقنتَ المحطة من المحاولة الأولى: بُني بيت جديد وسقطت حبة زيتون على الكوفية!', house: '🏠 أحسنت! أُزيلت خيمة وبُني مكانها بيت.', tent: '⛺ بقيت الخيمة هذه المرة… سيقترح عليك نَبْتي تدريبًا يبنيها.' }[rec.result];
+    const msg = { olive: '<i class="olive-ic" aria-hidden="true"></i> أتقنتَ المحطة من المحاولة الأولى: بُني بيت جديد وسقطت حبة زيتون على الكوفية!', house: '🏠 أحسنت! أُزيلت خيمة وبُني مكانها بيت.', tent: '⛺ بقيت الخيمة هذه المرة… سيقترح عليك نَبْتي تدريبًا يبنيها.' }[rec.result];
     const c = counts(p);
     if (rec.result !== 'tent') PR.sfx.play(rec.result === 'olive' ? 'badge' : 'correct');
     return PR.modal(`<div class="vcelebrate"><p class="eyebrow">⛺ تحدّي الخيمة والزيتون · ${m ? m.i + ' ' + m.t : ''}</p>

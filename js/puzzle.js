@@ -129,7 +129,7 @@
         <p class="pa-hint">${n >= TOTAL ? '✓ اكتملت قبة الصخرة!' : `🧩 أجب إجابة صحيحة لتضع القطعة رقم ${ar(next)}`}</p>
       </section>
       ${PR.village ? `<section class="pa-box pa-village" aria-label="قرية لولو">
-        <div class="pa-head"><b>⛺ قرية لولو</b><span class="pa-count">🏠 <b>${ar(PR.village.counts(p).houses)}</b> · 🫒 <b>${ar(PR.village.counts(p).olives)}</b></span></div>
+        <div class="pa-head"><b>⛺ قرية لولو</b><span class="pa-count">🏠 <b>${ar(PR.village.counts(p).houses)}</b> · <i class="olive-ic" aria-hidden="true"></i> <b>${ar(PR.village.counts(p).olives)}</b></span></div>
         ${PR.village.panel(p, { compact: true, bare: true })}
         <p class="pa-hint">أنجِز المحطة لتبني بيتًا، وأتقنها من أول محاولة لتسقط زيتونة.</p>
       </section>` : ''}`;

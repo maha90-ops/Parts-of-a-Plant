@@ -69,7 +69,7 @@
       $('#diag-title').textContent = '🧬 ملفك التعليمي الذكي';
       const m = R.metrics;
       const avgTime = Math.round(R.answers.reduce((s, a) => s + a.timeMs, 0) / R.answers.length / 1000);
-      const plan = { remediation: ['📷 صورة الجزء', '🏷️ اسمه', '⚙️ وظيفته', '🫒 مثال من بيئتنا', '🎮 نشاط بسيط', '❓ سؤال قصير', '🔁 إعادة المحاولة'],
+      const plan = { remediation: ['📷 صورة الجزء', '🏷️ اسمه', '⚙️ وظيفته', '<i class="olive-ic" aria-hidden="true"></i> مثال من بيئتنا', '🎮 نشاط بسيط', '❓ سؤال قصير', '🔁 إعادة المحاولة'],
         practice: ['📖 شرح مختصر', '🖼️ صور وأمثلة', '🎮 نشاط تفاعلي', '📶 أسئلة متدرجة', '💡 تلميحات عند الحاجة'],
         challenge: ['🔬 مواقف علمية', '❓ «ماذا يحدث لو؟»', '🧪 تجارب افتراضية', '✍️ مشكلات مفتوحة', '⚖️ اتخاذ القرار'] }[R.path];
       rootEl.innerHTML = `<div class="profile-grid">

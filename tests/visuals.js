@@ -22,6 +22,8 @@ async function run(viewport, label) {
         const r = s.getBoundingClientRect();
         if (r.width < 40 || r.height < 40) out.push(`${s.getAttribute('class')} في ${host.className || host.id || host.tagName} (${Math.round(r.width)}×${Math.round(r.height)})`);
       });
+      // عناصر عليها hidden لكنها ظاهرة فعليًا (مثل زر «التالي» قبل إكمال السؤال)
+      document.querySelectorAll('[hidden]').forEach((el) => { if (el.getClientRects().length) out.push(`عنصر مخفي ظاهر: ${el.className || el.id || el.tagName} «${(el.textContent || '').trim().slice(0, 20)}»`); });
       return out.map((x) => location.pathname.split('/').pop() + location.search + ': ' + x);
     }).catch(() => []);
     bad.forEach((x) => problems.set(x, 1));

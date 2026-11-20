@@ -345,3 +345,11 @@ html.hc .app-header { background: #000; }
 .nabti-dock { pointer-events: none; }
 .nabti-dock .nabti-avatar, .nabti-dock:not(.collapsed) .nabti-bubble { pointer-events: auto; }
 .nabti-dock.collapsed .nabti-bubble { display: none; }
+
+/* إصلاح: الخاصية hidden يجب أن تُخفي العنصر دائمًا، حتى لو كان له display في CSS (مثل .btn)
+   — كان زر «التالي» يظهر قبل إكمال السؤال ولا يعمل */
+[hidden] { display: none !important; }
+
+/* أيقونة زيتونة مرسومة (بديل الرمز 🫒 الذي لا يظهر في Windows 10) */
+.olive-ic { display: inline-block; width: 1.05em; height: 1.05em; vertical-align: -0.15em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3c3 1 6 0 8-2-1 4-4 6-8 5' fill='%2365a30d'/%3E%3Cellipse cx='10' cy='14' rx='6.5' ry='8.5' transform='rotate(-20 10 14)' fill='%23365314'/%3E%3Cellipse cx='8' cy='11' rx='1.8' ry='3' transform='rotate(-20 8 11)' fill='%2384cc16' opacity='.6'/%3E%3C/svg%3E") center / contain no-repeat; }

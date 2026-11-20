@@ -378,7 +378,7 @@
         { t: '📷 صورة الجزء', body: `<div class="micro-art">${PR.art.plant({ highlight: ctx.zone.part, hotspots: true, health: 90, title: `صورة ${part.name}` })}</div><p class="big-t">اضغط على الجزء المضيء ✨</p>`, needClick: true },
         { t: '🏷️ اسمه', body: `<div class="name-card"><span class="nm-ic">${part.icon}</span><span class="nm">${part.name}</span>${PR.ui.speakBtn(part.name, 'استمع إلى الاسم')}</div><p class="big-t">مكانه: ${esc(part.location)}</p>` },
         { t: '⚙️ وظيفته', body: `<ul class="func-list">${part.speech.slice(1).map((s) => `<li>${esc(s)}</li>`).join('')}</ul>${PR.ui.speakBtn(part.speech.join(' '), 'استمع إلى الوظيفة')}` },
-        { t: '🫒 مثال من بيئتنا', body: `<div class="example"><span class="ex-ic" aria-hidden="true">🇵🇸</span><p>${esc(part.example)}</p>${PR.ui.speakBtn(part.example)}</div>` },
+        { t: '<i class="olive-ic" aria-hidden="true"></i> مثال من بيئتنا', body: `<div class="example"><span class="ex-ic" aria-hidden="true">🇵🇸</span><p>${esc(part.example)}</p>${PR.ui.speakBtn(part.example)}</div>` },
       ];
       for (let i = 0; i < cards.length; i++) {
         const c = cards[i];
@@ -440,7 +440,7 @@
       ctx.stage.innerHTML = `<div class="card brief reveal"><div class="brief-grid"><div class="brief-art">${PR.art.plant({ labels: true, highlight: ctx.zone.part, health: 95, scene: true })}</div>
         <div><p class="eyebrow">📖 شرح مختصر</p><h2 class="h-sm">${part.icon} ${part.name}: ${esc(part.func)}</h2>
         <div class="info-tiles">${lines.map((l) => `<div class="tile"><span>${l.split(' ')[0]}</span><p>${esc(l.split(' ').slice(1).join(' '))}</p></div>`).join('')}</div>
-        <div class="example"><span class="ex-ic" aria-hidden="true">🫒</span><p>${esc(part.example)}</p></div>
+        <div class="example"><span class="ex-ic" aria-hidden="true"><i class="olive-ic" aria-hidden="true"></i></span><p>${esc(part.example)}</p></div>
         <div class="row-end">${PR.ui.speakBtn(lines.join(' ') + ' ' + part.example, 'استمع إلى الشرح')}<button class="btn btn-primary" id="br-next">إلى النشاط 🎮</button></div></div></div></div>`;
       PR.nabti.say(`انظر إلى البطاقات: ${part.name} ${part.func}.`, 'happy');
       $('#br-next').focus();
