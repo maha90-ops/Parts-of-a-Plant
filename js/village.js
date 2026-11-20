@@ -97,6 +97,7 @@
     opts = opts || {};
     const c = counts(p);
     const s = sceneSVG();
+    if (opts.bare) return `<div class="village-panel bare">${s.html.replace('class="vscene"', `class="vscene" data-vid="${s.id}"`)}</div>`;
     const tents = MILESTONES.filter((m) => (p.village || {})[m.key] === 'tent');
     return `<div class="village-panel">
       <div class="vhead"><div><h3 class="vt">⛺ قرية لولو: تحدّي الخيمة والزيتون</h3><p>كل محطة تُنجزها تُزيل خيمة وتبني بيتًا، وكل محطة تُتقنها من المحاولة الأولى تُسقط حبة زيتون على الكوفية. ابنِ البيوت العشرة ليرتفع العلم!</p></div></div>
@@ -128,8 +129,36 @@
       <div class="row-end"><button class="btn btn-primary" data-close="ok">تابع الرحلة ←</button></div></div>`, {
       label: 'قرية لولو', cls: 'wide',
       onOpen(ov) { mount(ov, p, rec.before); if (c.houses === 10 && rec.result !== 'tent') setTimeout(() => PR.fx.confetti(40), 900); },
+    }).then((v) => {
+      // تحديث القرية في اللوحة الجانبية بجانب السؤال (مع الحركة)
+      const box = document.querySelector('#play-aside .pa-village');
+      if (box && PR.puzzle) { PR.puzzle.mountAside(p); const nb = document.querySelector('#play-aside .pa-village'); if (nb) { mount(nb, p, rec.before); nb.classList.add('pa-flash'); } }
+      return v;
     });
   }
 
-  PR.village = { MILESTONES, resultFor, counts, record, repairTent, panel, mount, celebrate };
+  /** ترحيل: المناطق التي أُنجزت قبل إضافة القرية تُحتسب بيوتها من الاستجابات المحفوظة */
+  function sync(p) {
+    p.village = p.village || {};
+    let changed = false;
+    const avg = (arr) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+    const resp = p.responses || [];
+    ['roots', 'stem', 'leaves', 'flower'].forEach((z) => {
+      if (!p.zones || !p.zones[z] || p.zones[z].status !== 'done') return;
+      const zr = resp.filter((r) => r.zone === z && r.credit != null);
+      const act = avg(zr.filter((r) => /-activity$|-why$/.test(r.qid || '')).map((r) => r.credit));
+      const q = avg(zr.filter((r) => !/-activity$|-why$|-explore$|-micro-id$|-open$/.test(r.qid || '')).map((r) => r.credit));
+      if (!p.village[`${z}-act`]) { p.village[`${z}-act`] = resultFor(act == null ? 0.7 : act); changed = true; }
+      if (!p.village[`${z}-q`]) { p.village[`${z}-q`] = resultFor(q == null ? 0.7 : q); changed = true; }
+    });
+    [['lab', 'lab'], ['rescue', 'rescue']].forEach(([z, key]) => {
+      if (p.zones && p.zones[z] && p.zones[z].status === 'done' && !p.village[key]) {
+        const a = avg(resp.filter((r) => r.zone === z && r.credit != null).map((r) => r.credit));
+        p.village[key] = resultFor(a == null ? 0.7 : a); changed = true;
+      }
+    });
+    return changed;
+  }
+
+  PR.village = { MILESTONES, resultFor, counts, record, repairTent, panel, mount, celebrate, sync };
 })(typeof self !== 'undefined' ? self : this);

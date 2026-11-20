@@ -110,7 +110,7 @@ async function run(prof) {
     const p = PR.progress.current();
     return { url: location.pathname, cert: !!document.querySelector('.cert-name'), path: p.currentPath, pathHistory: p.pathHistory.map((h) => h.path), diag: p.diagnosticResults.adjusted, post: p.postTest && p.postTest.adjusted,
       overall: PR.engine.overallMastery(p), hints: p.hintsUsed, mistakes: p.mistakes.length, badges: p.badges.length, zones: Object.values(p.zones).filter((z) => z.status === 'done').length,
-      flags: Object.keys(p.weakFlags).slice(0, 5), decisions: p.decisions.length, responses: p.responses.length };
+      pz: PR.puzzle.pieces(p), village: PR.village.counts(p), flags: Object.keys(p.weakFlags).slice(0, 5), decisions: p.decisions.length, responses: p.responses.length };
   });
   // صفحات إضافية
   for (const pg of ['dashboard.html', 'report.html', 'teacher.html', 'index.html', 'map.html']) {

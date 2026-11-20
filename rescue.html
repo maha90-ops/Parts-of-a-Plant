@@ -7,17 +7,17 @@
   <link rel="icon" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/main.css?v=20261120d">
-  <link rel="stylesheet" href="styles/pages.css?v=20261120d">
-  <script defer src="js/data.js?v=20261120d"></script>
-  <script defer src="js/adaptive-engine.js?v=20261120d"></script>
-  <script defer src="js/student-progress.js?v=20261120d"></script>
-  <script defer src="js/characters.js?v=20261120d"></script>
-  <script defer src="js/app.js?v=20261120d"></script>
-  <script defer src="js/village.js?v=20261120d"></script>
-  <script defer src="js/puzzle.js?v=20261120d"></script>
-  <script defer src="js/question-card.js?v=20261120d"></script>
-  <script defer src="js/rescue.js?v=20261120d"></script>
+  <link rel="stylesheet" href="styles/main.css?v=20261120e">
+  <link rel="stylesheet" href="styles/pages.css?v=20261120e">
+  <script defer src="js/data.js?v=20261120e"></script>
+  <script defer src="js/adaptive-engine.js?v=20261120e"></script>
+  <script defer src="js/student-progress.js?v=20261120e"></script>
+  <script defer src="js/characters.js?v=20261120e"></script>
+  <script defer src="js/app.js?v=20261120e"></script>
+  <script defer src="js/village.js?v=20261120e"></script>
+  <script defer src="js/puzzle.js?v=20261120e"></script>
+  <script defer src="js/question-card.js?v=20261120e"></script>
+  <script defer src="js/rescue.js?v=20261120e"></script>
 </head>
 <body data-page="rescue">
   <a class="skip" href="#main">تخطَّ إلى المحتوى</a>
@@ -25,7 +25,10 @@
   <main id="main" tabindex="-1" class="container page-pad">
     <div class="zone-banner zb-rescue"><span class="zb-ic" aria-hidden="true">🚨</span><div><p class="eyebrow">المنطقة ٦ · المهمة النهائية</p><h1 class="h-md">مركز إنقاذ لولو</h1></div><span class="grow"></span><div id="rescue-path"></div></div>
     <ol class="steps" id="rescue-steps" aria-label="خطوات المهمة"></ol>
-    <div id="rescue-stage" class="zone-stage"></div>
+    <div class="play-layout">
+      <div id="rescue-stage" class="zone-stage"></div>
+      <aside id="play-aside" class="play-aside" aria-label="تحفيز: بازل قبة الصخرة وقرية لولو"></aside>
+    </div>
   </main>
   <footer id="app-footer"></footer>
 </body>

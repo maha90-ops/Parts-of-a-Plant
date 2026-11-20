@@ -58,6 +58,7 @@
       zones,
       labStations: { match: false, whatif: false, sim: false },
       village: {},
+      puzzleBase: 0,
       progress: 0,
       pathHistory: [],
       decisions: [],
@@ -92,6 +93,11 @@
       const p = P.current();
       if (!p) { location.href = 'student.html'; return null; }
       if (opts && opts.diagnostic && !p.diagnosticResults) { location.href = 'diagnostic.html'; return null; }
+      // ترحيل الملفات القديمة: البازل يبدأ فارغًا من الآن، والقرية تُحتسب للمناطق المنجزة سابقًا
+      let changed = false;
+      if (p.puzzleBase == null) { p.puzzleBase = PR.puzzle ? PR.puzzle.correctCount(p) : 0; changed = true; }
+      if (PR.village && PR.village.sync(p)) changed = true;
+      if (changed) P.save(p);
       return p;
     },
 

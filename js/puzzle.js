@@ -1,6 +1,6 @@
 /* =========================================================================
    puzzle.js — نشاط «بازل قبة الصخرة»
-   لوحة مرسومة برمجيًا (SVG) لقبة الصخرة مقسّمة إلى ٣٠ قطعة بازل متداخلة.
+   لوحة مرسومة برمجيًا (SVG) لقبة الصخرة مقسّمة إلى ٤٨ قطعة بازل متداخلة.
    كل إجابة صحيحة خلال الرحلة (بعد التشخيص) تضيف قطعة، وتظهر بطاقة صغيرة
    تُري القطعة الجديدة وهي تستقر في مكانها. عند الاكتمال: شارة «بنّاء قبة الصخرة».
    ========================================================================= */
@@ -9,10 +9,14 @@
   const PR = root.PR = root.PR || {};
   const D = PR.data;
   const ar = D.util.ar;
-  const C = 6, R = 5, W = 50, H = 40, TOTAL = C * R;
+  const C = 8, R = 6, W = 300 / 8, H = 200 / 6, TOTAL = C * R;
 
   /* ---------- ترتيب ظهور القطع (ثابت، يبدأ من القبة الذهبية) ---------- */
-  const ORDER = [14, 15, 8, 9, 20, 21, 13, 16, 2, 3, 26, 27, 7, 10, 19, 22, 1, 4, 25, 28, 12, 17, 0, 5, 24, 29, 6, 11, 18, 23];
+  // تظهر القطع بدءًا من القبة الذهبية ثم تنتشر نحو الأطراف (ترتيب ثابت)
+  const ORDER = Array.from({ length: TOTAL }, (_, k) => k).sort((a, b) => {
+    const d = (k) => { const cx = (k % C + 0.5) * W, cy = ((k / C | 0) + 0.5) * H; return Math.hypot(cx - 150, (cy - 60) * 1.3) + ((k * 37) % 11); };
+    return d(a) - d(b);
+  });
 
   /* ---------- أشكال القطع (ألسنة وتجاويف) ---------- */
   function rnd(seed) { let s = seed; return () => { s = (s * 9301 + 49297) % 233280; return s / 233280; }; }
@@ -76,7 +80,9 @@
     </g>`;
   }
 
-  function pieces(p) { return Math.min(TOTAL, (p.responses || []).filter((r) => r.source !== 'diagnostic' && r.correct).length); }
+  function correctCount(p) { return (p.responses || []).filter((r) => r.source !== 'diagnostic' && r.correct).length; }
+  /** القطع = الإجابات الصحيحة منذ بدء البازل (puzzleBase) — يبدأ البازل فارغًا دائمًا */
+  function pieces(p) { return Math.max(0, Math.min(TOTAL, correctCount(p) - (p.puzzleBase || 0))); }
 
   let uid = 0;
   /** يرسم اللوحة: القطع المكتسبة تُظهر الصورة، والباقية قطع كتّانية فارغة */
@@ -85,19 +91,19 @@
     const id = 'pz' + (++uid);
     const got = new Set(ORDER.slice(0, n));
     const fresh = opts.fresh != null ? new Set(ORDER.slice(opts.fresh, n)) : new Set();
-    let clips = '', body = '';
+    let clips = '', empty = '', filled = '';
     for (let k = 0; k < TOTAL; k++) {
       if (got.has(k)) {
         clips += `<clipPath id="${id}-c${k}"><path d="${PATHS[k]}"/></clipPath>`;
-        body += `<g class="pz-piece${fresh.has(k) ? ' pz-new' : ''}"><g clip-path="url(#${id}-c${k})"><use href="#${id}-art"/></g><path d="${PATHS[k]}" fill="none" stroke="rgba(20,20,20,.28)" stroke-width=".8"/></g>`;
+        filled += `<g class="pz-piece${fresh.has(k) ? ' pz-new' : ''}"><g clip-path="url(#${id}-c${k})"><use href="#${id}-art"/></g><path d="${PATHS[k]}" fill="none" stroke="rgba(20,20,20,.28)" stroke-width=".7"/></g>`;
       } else {
-        body += `<path class="pz-empty" d="${PATHS[k]}" fill="#f6f1e6" stroke="#c9b993" stroke-width="1" stroke-dasharray="3 2"/>`;
+        empty += `<path class="pz-empty" d="${PATHS[k]}" fill="#f6f1e6" stroke="#c9b993" stroke-width=".8" stroke-dasharray="3 2"/>`;
       }
     }
+    const body = empty + filled;
     return `<svg class="pz-svg" viewBox="-8 -8 316 216" role="img" aria-label="بازل قبة الصخرة: ${ar(n)} من ${ar(TOTAL)} قطعة">
       <defs><g id="${id}-src">${domeArt(id + '-art')}</g>${clips}</defs>
       <rect x="-8" y="-8" width="316" height="216" rx="10" fill="#efe6d2"/>
-      <g opacity=".14"><use href="#${id}-art"/></g>
       ${body}${n >= TOTAL ? `<rect x="0" y="0" width="300" height="200" fill="none" stroke="#c8901c" stroke-width="3" rx="2"/>` : ''}</svg>`.replace(`<g id="${id}-src">`, '<g>');
   }
 
@@ -105,16 +111,54 @@
     const n = pieces(p);
     return `<div class="puzzle-panel">
       <h3 class="vt">🕌 بازل قبة الصخرة</h3>
-      <p class="muted small">كل إجابة صحيحة في الرحلة تضيف قطعة إلى اللوحة. أكمل القطع الثلاثين!</p>
+      <p class="muted small">كل إجابة صحيحة في الرحلة تضيف قطعة إلى اللوحة. أكمل القطع الثماني والأربعين!</p>
       <div class="pz-frame">${svg(n)}</div>
       <div class="tally"><span>🧩 القطع <b>${ar(n)} / ${ar(TOTAL)}</b></span><span>${n >= TOTAL ? '✓ اكتملت اللوحة' : `بقي ${ar(TOTAL - n)}`}</span></div>
       ${n >= TOTAL ? `<p class="pz-info">🕌 قبة الصخرة في المسجد الأقصى المبارك بالقدس، بُنيت قبل أكثر من ١٣٠٠ عام، وتزيّن قبتها الذهبية سماء المدينة.</p>` : ''}
     </div>`;
   }
 
-  /** بطاقة صغيرة تظهر بعد كل إجابة صحيحة */
+  /* ---------- اللوحة الجانبية الثابتة بجانب السؤال (البازل + القرية) ---------- */
+  function asideHTML(p, fresh) {
+    const n = pieces(p);
+    const next = Math.min(TOTAL, n + 1);
+    return `<section class="pa-box pa-puzzle" aria-label="بازل قبة الصخرة">
+        <div class="pa-head"><b>🕌 بازل قبة الصخرة</b><span class="pa-count"><b>${ar(n)}</b> / ${ar(TOTAL)}</span></div>
+        <div class="pz-frame">${svg(n, fresh != null ? { fresh } : {})}</div>
+        <div class="pa-bar" aria-hidden="true"><i style="width:${(n / TOTAL) * 100}%"></i></div>
+        <p class="pa-hint">${n >= TOTAL ? '✓ اكتملت قبة الصخرة!' : `🧩 أجب إجابة صحيحة لتضع القطعة رقم ${ar(next)}`}</p>
+      </section>
+      ${PR.village ? `<section class="pa-box pa-village" aria-label="قرية لولو">
+        <div class="pa-head"><b>⛺ قرية لولو</b><span class="pa-count">🏠 <b>${ar(PR.village.counts(p).houses)}</b> · 🫒 <b>${ar(PR.village.counts(p).olives)}</b></span></div>
+        ${PR.village.panel(p, { compact: true, bare: true })}
+        <p class="pa-hint">أنجِز المحطة لتبني بيتًا، وأتقنها من أول محاولة لتسقط زيتونة.</p>
+      </section>` : ''}`;
+  }
+  function mountAside(p) {
+    const el = document.getElementById('play-aside');
+    if (!el) return false;
+    el.innerHTML = asideHTML(p);
+    if (PR.village) PR.village.mount(el.querySelector('.pa-village') || el, p);
+    return true;
+  }
+
+  /** بعد كل إجابة صحيحة: القطعة الجديدة تطير إلى مكانها في اللوحة الجانبية (أو بطاقة منبثقة إن لم توجد اللوحة) */
   function notify(p, before, after) {
     if (after <= before) return;
+    const aside = document.getElementById('play-aside');
+    if (aside) {
+      const box = aside.querySelector('.pa-puzzle');
+      if (box) {
+        const tmp = document.createElement('div'); tmp.innerHTML = asideHTML(p, before);
+        box.replaceWith(tmp.querySelector('.pa-puzzle'));
+        const nb = aside.querySelector('.pa-puzzle');
+        nb.classList.add('pa-flash');
+        nb.querySelector('.pa-hint').textContent = `🧩 أحسنت! وضعتَ القطعة رقم ${ar(after)} من ${ar(TOTAL)}`;
+        PR.sfx.play('click');
+      }
+      if (after >= TOTAL && before < TOTAL) complete(p);
+      return;
+    }
     let w = document.getElementById('pz-toast');
     if (!w) { w = document.createElement('div'); w.id = 'pz-toast'; w.className = 'pz-toast'; w.setAttribute('role', 'status'); document.body.appendChild(w); }
     w.innerHTML = `<div class="pz-mini">${svg(after, { fresh: before })}</div><p>🧩 قطعة جديدة في بازل قبة الصخرة! <b>${ar(after)} / ${ar(TOTAL)}</b></p>`;
@@ -133,5 +177,5 @@
     }, 1200);
   }
 
-  PR.puzzle = { TOTAL, pieces, svg, panel, notify };
+  PR.puzzle = { TOTAL, pieces, correctCount, svg, panel, notify, mountAside };
 })(typeof self !== 'undefined' ? self : this);
