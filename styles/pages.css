@@ -418,7 +418,17 @@ details summary { cursor: pointer; font-weight: 800; color: var(--green-d); }
 @media print { .certificate { box-shadow: none; } .report { box-shadow: none; border: 0; } }
 
 /* ---------- فيديو قصة لولو ---------- */
-.video-frame { max-width: 900px; margin: 18px auto 0; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 10px; position: relative; }
-.video-frame::before { content: ''; position: absolute; inset-inline: 0; top: -12px; height: 18px; background: url('../assets/tatreez-band.svg') repeat-x center / auto 18px; }
-.video-frame video { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; background: #1b1b18; }
-.video-frame figcaption { padding: 12px 8px 4px; font-size: .95rem; color: var(--ink-2); }
+/* شريط كامل العرض بخلفية خضراء داكنة يُبرز الفيديو */
+.video-section { position: relative; background: linear-gradient(180deg, var(--green-d), #08351e); color: #fff; padding: 46px 0 40px; margin: 0; }
+.video-section::before, .video-section::after { content: ''; position: absolute; inset-inline: 0; height: 22px; background: var(--paper) url('../assets/tatreez-band.svg') repeat-x center / auto 22px; }
+.video-section::before { top: 0; } .video-section::after { bottom: 0; }
+.video-section h2 { color: #fff; font-size: clamp(1.6rem, 3.4vw, 2.3rem); }
+.video-section .eyebrow { color: #ffb3bf; }
+.video-sub { color: #d8ecd9; margin-bottom: 18px; }
+/* الفيديو يملأ عرض الصفحة، ويتقلّص تلقائيًا ليبقى كاملًا داخل ارتفاع الشاشة */
+.video-frame { width: min(100%, calc((100vh - 170px) * 16 / 9)); min-width: min(100%, 560px); margin: 0 auto; }
+.video-frame video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: 16px; background: #000; box-shadow: 0 0 0 4px rgba(255, 255, 255, .9), 0 24px 60px rgba(0, 0, 0, .45); }
+.video-frame figcaption { padding: 16px 4px 0; font-size: 1rem; line-height: 1.8; color: #e9f3ea; text-align: center; max-width: 900px; margin: 0 auto; }
+.video-section .row-end { margin-top: 18px; padding-bottom: 6px; }
+html.hc .video-section { background: #000; }
+@media (max-width: 620px) { .video-section { padding: 40px 0 34px; } .video-frame video { border-radius: 10px; box-shadow: 0 0 0 3px #fff; } }
