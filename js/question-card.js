@@ -49,6 +49,7 @@
           <span class="grow"></span>${PR.ui.speakBtn(q.prompt, 'استمع إلى السؤال')}
         </div>
         <h3 class="q-prompt" id="qp-${q.id}">${esc(q.prompt)}</h3>
+        ${opts.stakes ? `<p class="q-stakes">${opts.stakes}</p>` : ''}
         <div class="q-visual"></div>
         <div class="q-options" role="group" aria-label="الخيارات"></div>
         <div class="q-stage2" hidden></div>
@@ -249,6 +250,15 @@
           PR.nabti.say(credit >= 0.85 ? 'رائع! تفكيرك علمي ودقيق.' : 'أحسنت لأنك لم تستسلم! المحاولة جزء من التعلم.', 'cheer');
           PR.fx.pop(card);
         }
+        // مراجعة الإجابة الصحيحة عند انتهاء المحاولات (في مركز الإنقاذ)
+        if (!correct && opts.revealOnFail) {
+          $$('.opt', card).filter((b) => b._opt && b._opt.c && !b.closest('.q-mini')).forEach((b) => { b.classList.add('reveal-ok'); $('.opt-mark', b).textContent = '✓'; });
+        }
+        // نتيجة الإجابة في التحدّي (مثل: أُزيلت خيمة وبُني بيت) تحلّ محل التغذية العامة
+        if (opts.consequence) { const c = opts.consequence(resp); if (c) feedback(c.html, c.cls); }
+        const fact = q.fact || opts.fact;
+        if (fact) fbBox.insertAdjacentHTML('afterend', `<p class="fact"><b>معلومة من بلادنا:</b> ${esc(fact)}</p>`);
+        if (opts.onFinish) { try { opts.onFinish(resp); } catch (e) { console.error(e); } }
         nextBtn.hidden = false;
         nextBtn.textContent = opts.nextLabel || 'التالي ←';
         nextBtn.focus();

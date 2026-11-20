@@ -28,13 +28,11 @@
     const C = D.RESCUE_CASES[D.RESCUE_BY_PATH[p.currentPath] || 'A'];
     const state = Object.assign({}, C.state);
     const log = (t) => { PR.progress.log(p, 'adapt', t); PR.progress.save(p); };
-    const rec = (r) => {
-      const res = PR.progress.recordResponse(p, Object.assign({ zone: 'rescue' }, r));
-      // تحدّي الخيمة والزيتون: كل سؤال في مركز الإنقاذ يبني بيتًا أو يُبقي الخيمة
-      const vr = PR.village.record(p, r);
-      PR.progress.save(p); PR.ui.reward(res.reward); PR.village.update(p, vr);
-      return res;
-    };
+    const rec = (r) => { const res = PR.progress.recordResponse(p, Object.assign({ zone: 'rescue' }, r)); PR.progress.save(p); PR.ui.reward(res.reward); return res; };
+    // تحدّي الخيمة والزيتون: لحظة الإجابة تتحول الخيمة إلى بيت (أو تبقى) أمام الطالب
+    const villageNow = (r) => { const vr = PR.village.record(p, r); PR.progress.save(p); PR.village.update(p, vr); };
+    const FACTS = D.RESCUE_FACTS[C.id] || {};
+    const challenge = () => ({ stakes: PR.village.stakes(p), consequence: PR.village.consequence, onFinish: villageNow, revealOnFail: true });
     PR.village.start(p); PR.puzzle.stop(p); PR.progress.save(p);
     PR.village.mountAside(p);
     const drawLulu = (el, extra) => { el.innerHTML = PR.art.plant(Object.assign({ scene: true }, state, extra || {}, { title: `لولو: ${C.title}` })); };
@@ -80,6 +78,7 @@
     {  // اختيار الأدلة الداعمة (لكل المسارات؛ في العلاجي تُميَّز الأدلة المهمة)
       const t0 = performance.now();
       stage.innerHTML = `<div class="card reveal"><p class="eyebrow">⚖️ اتخاذ القرار</p><h3>اختر الدليلين الأهم اللذين يكشفان مشكلة لولو:</h3>
+        <p class="q-stakes">${PR.village.stakes(p)}</p>
         <div class="evidence">${[...seen].map((k) => `<label class="ev"><input type="checkbox" value="${k}"> <span>${esc(C.clues[k])}</span></label>`).join('')}</div>
         <p class="act-fb" role="status"></p><div class="row-end"><button class="btn btn-primary" id="ev-go">تأكيد ←</button></div></div>`;
       let attempts = 0;
@@ -91,9 +90,13 @@
           attempts++;
           const ok = C.key.every((k) => picked.includes(k)) || !C.key.every((k) => seen.has(k)) && picked.some((k) => C.key.includes(k));
           if (ok || attempts >= 2) {
-            rec({ qid: `rescue-${C.id}-evidence`, skill: 'infer', part: C.key[0] === 'env' ? 'leaf' : C.key[0] === 'soil' ? 'root' : C.key[0], level: 3, correct: ok, attempts, hints: 0, timeMs: performance.now() - t0, errors: ok ? [] : ['partial'], errorsDetail: ok ? [] : [{ errorType: 'partial', chosen: picked.join('+') }] });
-            fb.className = 'act-fb ' + (ok ? 'good' : 'neutral');
-            fb.textContent = ok ? '✓ اختيار دقيق! هذان الدليلان يشيران إلى المشكلة.' : `📘 الدليلان الأهم: ${C.key.map((k) => C.clues[k]).join(' + ')}`;
+            const er = { qid: `rescue-${C.id}-evidence`, skill: 'infer', part: C.key[0] === 'env' ? 'leaf' : C.key[0] === 'soil' ? 'root' : C.key[0], level: 3, correct: ok, attempts, hints: 0, timeMs: performance.now() - t0, errors: ok ? [] : ['partial'], errorsDetail: ok ? [] : [{ errorType: 'partial', chosen: picked.join('+') }] };
+            rec(er); villageNow(er);
+            const cq = PR.village.consequence(er);
+            fb.className = 'act-fb ' + cq.cls;
+            fb.innerHTML = cq.html + (ok ? '' : `<br>📘 الدليلان الأهم: ${esc(C.key.map((k) => C.clues[k]).join(' + '))}`);
+            document.querySelectorAll('.ev input').forEach((x) => { x.disabled = true; });
+            if (FACTS.evidence) fb.insertAdjacentHTML('afterend', `<p class="fact"><b>معلومة من بلادنا:</b> ${esc(FACTS.evidence)}</p>`);
             $('#ev-go').textContent = 'التالي ←'; $('#ev-go').onclick = res;
           } else { fb.className = 'act-fb bad'; fb.textContent = '💡 فكّر: أيّ دليلين يختلفان عن الحالة الطبيعية للنبتة؟'; }
         };
@@ -112,7 +115,8 @@
       stage.innerHTML = `<div class="rescue-q"><div class="card rq-side"><div id="rq-lulu"></div><h4>📓 أدلتك</h4><ul class="notebook small">${[...seen].map((k) => `<li>${esc(C.clues[k])}</li>`).join('')}</ul></div><div id="rq-box"></div></div>`;
       drawLulu($('#rq-lulu'));
       const q = Object.assign({ id: `rescue-${C.id}-${s.key}`, skill: s.skill, part: casePart, level: 3, hints: [D.PARTS[casePart].hints[0], 'راجع دفتر الأدلة: ما الشيء غير الطبيعي؟', D.PARTS[casePart].hints[2]] }, C[s.key]);
-      const resp = await PR.QuestionCard($('#rq-box'), q, { path: p.currentPath, zone: 'rescue', label: `الخطوة ${ar(s.step - 1)} من ٣`, onDecision: log });
+      q.fact = FACTS[s.key];
+      const resp = await PR.QuestionCard($('#rq-box'), q, Object.assign({ path: p.currentPath, zone: 'rescue', label: `الخطوة ${ar(s.step - 1)} من ٣`, onDecision: log }, challenge()));
       rec(resp);
     }
 
@@ -138,7 +142,8 @@
     setStep(5);
     const answers = [];
     for (let i = 0; i < D.POSTTEST.length; i++) {
-      const r = await PR.QuestionCard(stage, D.POSTTEST[i], { path: p.currentPath, ladder: false, maxAttempts: 2, maxHints: 1, zone: 'posttest', label: `التقييم النهائي ${ar(i + 1)} من ${ar(D.POSTTEST.length)}`, nextLabel: i < D.POSTTEST.length - 1 ? 'التالي ←' : '🏆 النتيجة' });
+      const pq = Object.assign({}, D.POSTTEST[i], { fact: D.POSTTEST_FACTS[D.POSTTEST[i].id] });
+      const r = await PR.QuestionCard(stage, pq, Object.assign({ path: p.currentPath, ladder: false, maxAttempts: 2, maxHints: 1, zone: 'posttest', label: `التقييم النهائي ${ar(i + 1)} من ${ar(D.POSTTEST.length)}`, nextLabel: i < D.POSTTEST.length - 1 ? 'التالي ←' : '🏆 النتيجة' }, challenge()));
       answers.push(r);
       rec(Object.assign({}, r, { zone: 'posttest' }));
     }

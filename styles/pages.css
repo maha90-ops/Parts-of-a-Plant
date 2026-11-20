@@ -529,3 +529,28 @@ html.hc .video-section { background: #000; }
 @media (max-width: 600px) { .pz-result { grid-template-columns: 1fr; } }
 /* الخيمة التي بقيت بعد إجابة خاطئة */
 .vscene .slot.stays .tent polygon:nth-of-type(2) { fill: #e2b866; }
+
+/* ---------- مركز الإنقاذ: قرية كبيرة بجانب السؤال (مثل التصميم المرجعي) ---------- */
+.play-layout:has(.play-aside.wide) { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+.pa-village.big { padding: 18px; border-radius: 22px; border-top-width: 7px; }
+.pa-village.big .vhead { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.pa-village.big .vt { font-size: 1.45rem; }
+.pa-village.big .vscene { border-radius: 14px; }
+.pa-village.big .tally > span { font-size: 1rem; }
+/* داخل صفحة الإنقاذ: الأدلة ولولو فوق السؤال بشكل مضغوط */
+.play-layout:has(.play-aside.wide) .rescue-q { grid-template-columns: 1fr !important; }
+.play-layout:has(.play-aside.wide) .rq-side { display: grid; grid-template-columns: 150px 1fr; gap: 12px; align-items: start; padding: 12px; }
+.play-layout:has(.play-aside.wide) .rq-side h4 { display: none; }
+.play-layout:has(.play-aside.wide) .rq-side .notebook { margin: 0; }
+@media (max-width: 1080px) { .play-layout:has(.play-aside.wide) { grid-template-columns: 1fr; } .play-aside.wide { grid-template-columns: 1fr; } }
+/* سطر «ماذا سيحدث» تحت السؤال */
+.q-stakes { display: inline-flex; flex-wrap: wrap; gap: 4px; align-items: center; background: var(--blue-l); color: var(--blue); border-radius: 999px; padding: 6px 14px; font-weight: 800; font-size: .9rem; margin: -2px 0 10px; }
+/* معلومة من بلادنا */
+.fact { margin: 12px 0 0; background: #fbf8f1; border: 1px dashed #3a8fb7; border-radius: 14px; padding: 10px 14px; font-weight: 700; line-height: 1.9; }
+.fact b { color: var(--blue); font-weight: 900; }
+/* عرض الإجابة الصحيحة للمراجعة بعد الخطأ */
+.opt.reveal-ok { border-color: var(--ok); border-style: dashed; background: var(--green-l); }
+.opt.reveal-ok .opt-mark { color: var(--ok); }
+
+.tally b { white-space: nowrap; }
+.pa-village.big .tally > span { flex: 1 1 180px; }

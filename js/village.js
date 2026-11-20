@@ -102,31 +102,48 @@
   }
   function mountPanel(scope, p) { mount(scope, p); }
 
-  /** اللوحة الجانبية في صفحة الإنقاذ */
-  function asideHTML(p, note) {
+  /* ---------- رسائل التحدّي (مثل التصميم المرجعي) ---------- */
+  const OLIVE = '<i class="olive-ic" aria-hidden="true"></i>';
+  /** يظهر تحت السؤال قبل الإجابة: ماذا سيحدث للقرية */
+  function stakes(p) {
     const c = counts(p);
-    return `<section class="pa-box pa-village" aria-label="تحدّي الخيمة والزيتون">
-      <div class="pa-head"><b>⛺ الخيمة والزيتون</b><span class="pa-count">🏠 <b>${ar(c.houses)}</b> · <i class="olive-ic" aria-hidden="true"></i> <b>${ar(c.olives)}</b></span></div>
+    return `⛺ الخيمة رقم ${ar(c.answered + 1)}: أجب صحيحًا من المحاولة الأولى ← 🏠 بيت + ${OLIVE} زيتونة على الكوفية`;
+  }
+  /** رسالة النتيجة في بطاقة السؤال بعد الإجابة */
+  function consequence(r) {
+    const res = resultOf(r);
+    if (res === 'olive') return { cls: 'good', html: `✓ ممتاز من المحاولة الأولى! أُزيلت خيمة وبُني مكانها بيت 🏠، وسقطت حبة زيتون على الكوفية ${OLIVE}` };
+    if (res === 'house') return { cls: 'good', html: '✓ إجابة صحيحة! أُزيلت خيمة وبُني مكانها بيت 🏠 (لم تسقط زيتونة لأنك احتجت محاولة أخرى أو تلميحًا).' };
+    return { cls: 'bad', html: '⛺ بقيت الخيمة هذه المرة، وهذا هو الحل للمراجعة (الإجابة الصحيحة مُعلَّمة بـ ✓).' };
+  }
+
+  /** لوحة القرية الكبيرة بجانب السؤال في صفحة الإنقاذ */
+  function asideHTML(p) {
+    const c = counts(p);
+    const done = c.answered >= SLOTS;
+    return `<section class="pa-box pa-village big" aria-label="تحدّي الخيمة والزيتون">
+      <div class="vhead"><div><h3 class="vt">⛺ قرية لولو</h3><p>كل سؤال تحلّه يُزيل خيمة ويبني بيتًا. وكل سؤال تحلّه من المحاولة الأولى يُسقط حبة زيتون على الكوفية.</p></div>
+        <button class="icon-btn" type="button" data-speak="كل سؤال تحلّه يزيل خيمة ويبني بيتًا، وكل سؤال تحلّه من المحاولة الأولى يسقط حبة زيتون على الكوفية." aria-label="استمع">🔊</button></div>
       <div class="village-panel bare">${scene().html}</div>
-      <div class="pa-bar" aria-hidden="true"><i style="width:${(c.answered / SLOTS) * 100}%"></i></div>
-      <p class="pa-hint">${note || (c.answered >= SLOTS ? (c.houses === SLOTS ? '🇵🇸 اكتملت البيوت وارتفع العلم!' : `انتهت الأسئلة: ${ar(c.houses)} بيوت و${ar(c.olives)} زيتونات.`) : `السؤال ${ar(c.answered + 1)} من ${ar(SLOTS)}: أجب صحيحًا من أول محاولة لتبني بيتًا وتُسقط زيتونة.`)}</p>
+      <div class="tally"><span>🏠 بيوت <b>${ar(c.houses)} / ${ar(SLOTS)}</b></span><span>${OLIVE} زيتون على الكوفية <b>${ar(c.olives)} / ${ar(SLOTS)}</b></span></div>
+      <ul class="vkey"><li>${OLIVE} + 🏠 حلّ صحيح من المحاولة الأولى</li><li>🏠 حلّ صحيح بعد محاولة أو تلميح</li><li>⛺ تبقى الخيمة ويُعرض الحلّ للمراجعة</li></ul>
+      ${done ? `<p class="vmsg ${c.houses === SLOTS ? 'olive' : 'house'}">${c.houses === SLOTS ? '🇵🇸 اكتملت البيوت العشرة وارتفع العلم فوق قرية لولو!' : `انتهت الأسئلة: ${ar(c.houses)} بيوت و${ar(c.olives)} حبات زيتون.`}</p>` : ''}
     </section>`;
   }
   function mountAside(p) {
     const el = document.getElementById('play-aside'); if (!el) return;
-    el.hidden = false; el.innerHTML = asideHTML(p); mount(el, p);
+    el.hidden = false; el.classList.add('wide'); el.innerHTML = asideHTML(p); mount(el, p);
   }
-  /** بعد كل سؤال في مركز الإنقاذ: الخيمة تتحول أمام الطالب */
+  /** لحظة الإجابة: الخيمة تتحول أمام الطالب */
   function update(p, rec) {
     if (!rec) return;
     const el = document.getElementById('play-aside'); if (!el) return;
-    const msg = { olive: '🏠 + زيتونة! إجابة صحيحة من المحاولة الأولى.', house: '🏠 أحسنت! أُزيلت خيمة وبُني بيت.', tent: '⛺ بقيت الخيمة هذه المرة… ركّز في السؤال التالي.' }[rec.result];
-    el.innerHTML = asideHTML(p, msg);
+    el.innerHTML = asideHTML(p);
     mount(el, p, rec.before);
     el.querySelector('.pa-village').classList.add('pa-flash');
     if (rec.result !== 'tent') PR.sfx.play(rec.result === 'olive' ? 'badge' : 'correct');
     if (counts(p).houses === SLOTS && rec.result !== 'tent') setTimeout(() => { PR.fx.confetti(40); PR.toast('🇵🇸 اكتملت البيوت العشرة… وارتفع العلم فوق قرية لولو!', 'reward'); }, 900);
   }
 
-  PR.village = { SLOTS, start, record, counts, list, panel, mountPanel, mount, mountAside, update, resultOf };
+  PR.village = { SLOTS, start, record, counts, list, panel, mountPanel, mount, mountAside, update, resultOf, stakes, consequence };
 })(typeof self !== 'undefined' ? self : this);
