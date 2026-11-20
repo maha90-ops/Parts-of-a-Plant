@@ -1,0 +1,404 @@
+/* =========================================================================
+   data.js — المحتوى التعليمي لمشروع «مَهَمَّةُ إِنْقَاذِ النَّبْتَة»
+   كل المحتوى هنا (بيانات فقط، بلا واجهة)، ليسهل تعديله أو نقله إلى قاعدة بيانات.
+   يعمل في المتصفح (window.PR.data) وفي Node (module.exports) للاختبارات.
+   ========================================================================= */
+(function (root, factory) {
+  const data = factory();
+  if (typeof module === 'object' && module.exports) module.exports = data;
+  else { root.PR = root.PR || {}; root.PR.data = data; }
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  /* ---------- أدوات مساعدة ---------- */
+  const AR_DIGITS = '٠١٢٣٤٥٦٧٨٩';
+  const util = {
+    /** تحويل الأرقام إلى الأرقام العربية الشرقية */
+    ar(v) { return String(v).replace(/[0-9]/g, (d) => AR_DIGITS[d]); },
+    pct(v) { return util.ar(Math.round(v)) + '٪'; },
+  };
+
+  /* ---------- المهارات (Skill Map) ---------- */
+  const SKILLS = {
+    identify: { name: 'التعرف على الأجزاء', short: 'التعرف', icon: '🔎', code: 'identification' },
+    name:     { name: 'تسمية الأجزاء', short: 'التسمية', icon: '🏷️', code: 'naming' },
+    function: { name: 'معرفة الوظائف', short: 'الوظائف', icon: '⚙️', code: 'function_knowledge' },
+    match:    { name: 'الربط بين الجزء ووظيفته', short: 'الربط', icon: '🔗', code: 'function_matching' },
+    explain:  { name: 'تفسير الوظيفة', short: 'التفسير', icon: '💬', code: 'explanation' },
+    infer:    { name: 'الاستنتاج', short: 'الاستنتاج', icon: '🧩', code: 'inference' },
+    apply:    { name: 'التطبيق', short: 'التطبيق', icon: '🛠️', code: 'application' },
+    solve:    { name: 'حل المشكلات', short: 'حل المشكلات', icon: '🚑', code: 'problem_solving' },
+  };
+  const SKILL_ORDER = ['identify', 'name', 'function', 'match', 'explain', 'infer', 'apply', 'solve'];
+
+  /* ---------- أنواع الأخطاء وتغذيتها الراجعة ---------- */
+  const ERROR_TYPES = {
+    'part-confusion':     { label: 'خلط بين أجزاء النبات', fb: 'يبدو أنك خلطت بين جزأين من أجزاء النبات.' },
+    'function-confusion': { label: 'خلط بين الوظائف', fb: 'هذه وظيفة صحيحة، لكنها لجزء آخر من النبات.' },
+    'location-confusion': { label: 'خطأ في موقع الجزء', fb: 'انتبه إلى مكان وجود الجزء في النبات.' },
+    'misconception':      { label: 'مفهوم خاطئ', fb: 'هذه فكرة شائعة، لكنها غير صحيحة علميًا.' },
+    'partial':            { label: 'فهم جزئي', fb: 'إجابتك قريبة، لكنها لا تكتمل بعد. فكّر أكثر.' },
+    'irrelevant':         { label: 'إجابة غير مرتبطة', fb: 'هذا الخيار لا يرتبط بوظيفة أجزاء النبات.' },
+    'overgeneralization': { label: 'تعميم زائد', fb: 'فكّر: هل يكفي أن تكون بعض الأجزاء سليمة ليعيش النبات؟' },
+    'guess':              { label: 'إجابة متسرعة', fb: 'أجبت بسرعة كبيرة… خذ وقتك في التفكير.' },
+    'sequence':           { label: 'خطأ في الترتيب', fb: 'راجع ترتيب الخطوات من البداية.' },
+    'obstacle':           { label: 'اختيار مسار مسدود', fb: 'هذا الطريق مسدود، جرّب اتجاهًا آخر.' },
+  };
+
+  /* ---------- أجزاء النبات ---------- */
+  const PARTS = {
+    root: {
+      name: 'الجذر', icon: '🌱', location: 'تحت سطح التربة',
+      speech: ['أنا الجذر 🌱', 'أثبّت النبات في التربة.', 'أمتص الماء والأملاح المعدنية.'],
+      func: 'امتصاص الماء والأملاح وتثبيت النبات',
+      example: 'جذور شجرة الزيتون تمتد عميقًا في أرض فلسطين لتصل إلى الماء في الصيف الجاف.',
+      hints: ['فكّر في مكان وجود هذا الجزء.', 'هذا الجزء يوجد غالبًا داخل التربة.', 'يساعد النبات على امتصاص الماء والأملاح.'],
+      mini: { lines: ['🌱 الجذر يوجد تحت التربة.', '💧 يمتص الماء والأملاح المعدنية من التربة.', '⚓ يثبّت النبات فلا تُسقطه الرياح.'], tip: 'تذكّر: الجذر يشرب للنبات من التربة ويمسكه بقوة.' },
+      remedial: [
+        { prompt: 'أيّ جزء يمتص الماء من التربة؟', options: [{ t: '🌱 الجذر', c: 1 }, { t: '🌸 الزهرة', e: 'part-confusion', p: 'flower' }] },
+        { prompt: 'أيّ جزء يثبّت النبات في التربة؟', options: [{ t: '🍃 الورقة', e: 'part-confusion', p: 'leaf' }, { t: '🌱 الجذر', c: 1 }] },
+      ],
+    },
+    stem: {
+      name: 'الساق', icon: '🌿', location: 'فوق التربة، تصل الجذر بالأوراق',
+      speech: ['أنا الساق 🌿', 'أحمل الأوراق والأزهار وأدعم النبات.', 'أنقل الماء والأملاح من الجذر إلى الأوراق.'],
+      func: 'دعم النبات ونقل الماء والأملاح',
+      example: 'ساق شجرة الزيتون المعمّرة في فلسطين قوية، تحمل أغصانها مئات السنين.',
+      hints: ['فكّر في الجزء الذي يصل بين الجذر والأوراق.', 'هذا الجزء يقف منتصبًا فوق التربة ويحمل الأوراق.', 'يعمل مثل أنبوب ينقل الماء إلى أعلى النبات.'],
+      mini: { lines: ['🌿 الساق فوق التربة وتصل الجذر بالأوراق.', '🏗️ تحمل الأوراق والأزهار وتدعم النبات.', '🚰 فيها أنابيب دقيقة تنقل الماء والأملاح إلى أعلى.'], tip: 'تذكّر: الساق طريق الماء من الجذر إلى الأوراق.' },
+      remedial: [
+        { prompt: 'أيّ جزء ينقل الماء إلى الأوراق؟', options: [{ t: '🌿 الساق', c: 1 }, { t: '🌸 الزهرة', e: 'part-confusion', p: 'flower' }] },
+        { prompt: 'أيّ جزء يحمل الأوراق والأزهار؟', options: [{ t: '🌱 الجذر', e: 'part-confusion', p: 'root' }, { t: '🌿 الساق', c: 1 }] },
+      ],
+    },
+    leaf: {
+      name: 'الأوراق', icon: '🍃', location: 'على الساق والأغصان، خضراء ومنبسطة',
+      speech: ['أنا الورقة 🍃', 'أنا مصنع الغذاء في النبات.', 'أستخدم ضوء الشمس والماء وثاني أكسيد الكربون، وأُطلق الأكسجين.'],
+      func: 'صنع الغذاء للنبات',
+      example: 'أوراق نبتة الزعتر الفلسطيني الصغيرة تصنع غذاءها تحت شمس الربيع.',
+      hints: ['فكّر في الجزء الأخضر الذي يواجه الشمس.', 'هذا الجزء عريض ومنبسط ليلتقط الضوء.', 'يصنع الغذاء للنبات مثل مصنع صغير.'],
+      mini: { lines: ['🍃 الأوراق خضراء ومنبسطة.', '☀️ تلتقط ضوء الشمس وتأخذ الماء وثاني أكسيد الكربون.', '🍎 تصنع الغذاء للنبات وتُطلق الأكسجين 🌬️.'], tip: 'تذكّر: الورقة مصنع غذاء النبات.' },
+      remedial: [
+        { prompt: 'أيّ جزء يصنع الغذاء للنبات؟', options: [{ t: '🍃 الورقة', c: 1 }, { t: '🌿 الساق', e: 'part-confusion', p: 'stem' }] },
+        { prompt: 'أيّ جزء يُطلق الأكسجين في الهواء؟', options: [{ t: '🌱 الجذر', e: 'part-confusion', p: 'root' }, { t: '🍃 الورقة', c: 1 }] },
+      ],
+    },
+    flower: {
+      name: 'الزهرة', icon: '🌸', location: 'في أعلى النبات أو على الأغصان، ملوّنة غالبًا',
+      speech: ['أنا الزهرة 🌸', 'أساعد النبات على التكاثر.', 'مني تتكوّن الثمار والبذور.'],
+      func: 'المساعدة في التكاثر وتكوين البذور',
+      example: 'زهرة شقائق النعمان الحمراء تزيّن سهول فلسطين في الربيع، ومنها تتكوّن البذور.',
+      hints: ['فكّر في الجزء الملوّن الذي تزوره النحلة.', 'هذا الجزء الجميل يتحوّل لاحقًا إلى ثمرة.', 'يساعد النبات على التكاثر وتكوين البذور.'],
+      mini: { lines: ['🌸 الزهرة جزء ملوّن تزوره النحلة وطائر الشمس.', '🐝 تنتقل حبوب اللقاح من زهرة إلى أخرى.', '🌰 تتكوّن من الزهرة الثمرة وفيها البذور.'], tip: 'تذكّر: الزهرة بداية جيل جديد من النباتات.' },
+      remedial: [
+        { prompt: 'من أيّ جزء تتكوّن البذور؟', options: [{ t: '🌸 الزهرة', c: 1 }, { t: '🍃 الورقة', e: 'part-confusion', p: 'leaf' }] },
+        { prompt: 'أيّ جزء يساعد النبات على التكاثر؟', options: [{ t: '🌿 الساق', e: 'part-confusion', p: 'stem' }, { t: '🌸 الزهرة', c: 1 }] },
+      ],
+    },
+    fruit: {
+      name: 'الثمرة والبذرة', icon: '🌰', location: 'تتكوّن من الزهرة',
+      speech: ['أنا الثمرة 🍊', 'أحمي البذور التي في داخلي.', 'والبذرة تنمو لتصبح نبتة جديدة.'],
+      func: 'حماية البذور ونموّ نبات جديد',
+      example: 'ثمرة الزيتون تحمي البذرة في داخلها، وبرتقال يافا مليء بالبذور.',
+      hints: ['فكّر فيما يتكوّن بعد الزهرة.', 'هذا الجزء نأكل كثيرًا منه.', 'يحمي البذور التي تنمو نباتات جديدة.'],
+      mini: { lines: ['🍊 الثمرة تتكوّن من الزهرة.', '🛡️ تحمي البذور في داخلها.', '🌱 البذرة تنمو لتصبح نبتة جديدة.'], tip: 'زهرة ← ثمرة ← بذرة ← نبتة جديدة.' },
+      remedial: [],
+    },
+  };
+  const MAIN_PARTS = ['root', 'stem', 'leaf', 'flower'];
+
+  /* ---------- المسارات التكيفية ---------- */
+  const PATHS = {
+    challenge:   { name: 'المسار المتقدم', icon: '🟢', cls: 'challenge', desc: 'مواقف علمية، وأسئلة «ماذا يحدث لو؟»، وقرارات، وتلميحات أقل.' },
+    practice:    { name: 'المسار المتوسط', icon: '🟡', cls: 'practice', desc: 'شرح مختصر، وأنشطة تفاعلية، وأسئلة متدرجة مع تلميحات عند الحاجة.' },
+    remediation: { name: 'المسار العلاجي', icon: '🔵', cls: 'remediation', desc: 'خطوات صغيرة، ودعم يزداد تدريجيًا، وإعادة محاولة.' },
+  };
+
+  /* ---------- المناطق (خريطة الرحلة) ---------- */
+  const ZONES = [
+    { id: 'roots', kind: 'part', part: 'root', title: 'مدينة الجذور', icon: '🌱', learn: 'وظيفة الجذر', href: 'zone.html?z=roots', badge: 'root_detective', activity: 'rootMaze', x: 84, y: 76 },
+    { id: 'stem', kind: 'part', part: 'stem', title: 'طريق الساق', icon: '🌿', learn: 'وظيفة الساق', href: 'zone.html?z=stem', badge: 'water_expert', activity: 'waterJourney', x: 64, y: 56 },
+    { id: 'leaves', kind: 'part', part: 'leaf', title: 'مصنع الأوراق', icon: '🍃', learn: 'وظيفة الأوراق', href: 'zone.html?z=leaves', badge: 'leaf_guardian', activity: 'leafFactory', x: 40, y: 70 },
+    { id: 'flower', kind: 'part', part: 'flower', title: 'حديقة الأزهار', icon: '🌸', learn: 'وظيفة الزهرة', href: 'zone.html?z=flower', badge: 'flower_friend', activity: 'flowerCycle', x: 18, y: 48 },
+    { id: 'lab', kind: 'lab', title: 'المختبر النباتي', icon: '🔬', learn: 'ربط الأجزاء بالوظائف', href: 'plant-lab.html', badge: 'little_scientist', x: 42, y: 30 },
+    { id: 'rescue', kind: 'rescue', title: 'مركز إنقاذ لولو', icon: '🚨', learn: 'المهمة النهائية', href: 'rescue.html', badge: 'lulu_savior', x: 72, y: 18 },
+  ];
+
+  /* ---------- الشارات والمستويات ---------- */
+  const BADGES = {
+    explorer:         { name: 'مكتشف النبات', icon: '🌱', desc: 'أكملت مهمة اكتشاف المستوى.' },
+    root_detective:   { name: 'محقق الجذور', icon: '🔎', desc: 'أكملت مدينة الجذور.' },
+    water_expert:     { name: 'خبير الماء', icon: '💧', desc: 'تتبّعت رحلة الماء في الساق.' },
+    leaf_guardian:    { name: 'حارس الأوراق', icon: '🍃', desc: 'شغّلت مصنع الأوراق.' },
+    flower_friend:    { name: 'صديق الأزهار', icon: '🌸', desc: 'اكتشفت دور الزهرة في التكاثر.' },
+    little_scientist: { name: 'العالم النباتي الصغير', icon: '🔬', desc: 'أكملت تجارب المختبر النباتي.' },
+    lulu_savior:      { name: 'منقذ لولو', icon: '🏆', desc: 'أنقذت لولو وأعدت إليها عافيتها.' },
+  };
+  const LEVELS = [
+    { min: 0, name: 'بذرة', icon: '🌰' },
+    { min: 150, name: 'برعم', icon: '🌱' },
+    { min: 400, name: 'شتلة', icon: '🌿' },
+    { min: 800, name: 'نبتة مزهرة', icon: '🌸' },
+    { min: 1300, name: 'شجرة زيتون', icon: '🫒' },
+  ];
+
+  /* ---------- الاختبار التشخيصي: ٨ أسئلة، سؤال لكل مهارة ---------- */
+  // c:1 = الإجابة الصحيحة. e = نوع الخطأ. p = الجزء الذي ينتمي إليه الخيار الخاطئ (لتحليل الخلط)
+  const DIAGNOSTIC = [
+    { id: 'd1', skill: 'identify', part: 'root', level: 1, type: 'hotspot', target: 'root',
+      prompt: 'اضغط على الجذر في صورة النبتة.',
+      hints: ['فكّر في مكان وجود الجذر.', 'الجذر يوجد تحت سطح التربة.'] },
+    { id: 'd2', skill: 'name', part: 'leaf', level: 1, type: 'mcq', visual: { highlight: 'leaf' },
+      prompt: 'ما اسم الجزء المظلَّل في الصورة؟',
+      options: [{ t: 'الأوراق', c: 1 }, { t: 'الساق', e: 'part-confusion', p: 'stem' }, { t: 'الجذر', e: 'part-confusion', p: 'root' }, { t: 'الزهرة', e: 'part-confusion', p: 'flower' }],
+      hints: ['لاحظ لون الجزء المظلل وشكله.', 'هذا الجزء أخضر ومنبسط ويلتقط ضوء الشمس.'] },
+    { id: 'd3', skill: 'function', part: 'leaf', level: 1, type: 'mcq',
+      prompt: 'ما الوظيفة الرئيسة للأوراق؟',
+      options: [{ t: 'صنع الغذاء للنبات', c: 1 }, { t: 'امتصاص الماء من التربة', e: 'function-confusion', p: 'root' }, { t: 'تثبيت النبات في التربة', e: 'function-confusion', p: 'root' }, { t: 'تكوين البذور', e: 'function-confusion', p: 'flower' }],
+      hints: ['فكّر فيما تفعله الأوراق تحت ضوء الشمس.', 'الأوراق تعمل مثل مصنع صغير.'] },
+    { id: 'd4', skill: 'match', part: 'stem', level: 2, type: 'mcq',
+      prompt: 'أيّ جزء ينقل الماء والأملاح من الجذر إلى الأوراق؟',
+      options: [{ t: 'الساق', c: 1 }, { t: 'الزهرة', e: 'part-confusion', p: 'flower' }, { t: 'الأوراق', e: 'part-confusion', p: 'leaf' }, { t: 'الجذر', e: 'partial', p: 'root' }],
+      hints: ['فكّر في الجزء الذي يقع بين الجذر والأوراق.', 'هذا الجزء يعمل مثل أنبوب يصعد فيه الماء.'] },
+    { id: 'd5', skill: 'explain', part: 'leaf', level: 2, type: 'mcq',
+      prompt: 'لماذا تكون أوراق معظم النباتات عريضة ومنبسطة؟',
+      options: [{ t: 'لتلتقط أكبر كمية من ضوء الشمس لصنع الغذاء', c: 1 }, { t: 'لتمتص الماء من الهواء', e: 'misconception' }, { t: 'لتحمي الزهرة من المطر', e: 'misconception', p: 'flower' }, { t: 'لتجعل النبات أثقل وأكثر ثباتًا', e: 'function-confusion', p: 'root' }],
+      hints: ['ما الذي تحتاجه الورقة من السماء؟', 'كلما كانت الورقة أعرض التقطت ضوءًا أكثر.'] },
+    { id: 'd6', skill: 'infer', part: 'leaf', level: 3, type: 'mcq',
+      prompt: 'وُضعت نبتة في خزانة مظلمة أسبوعين مع ريّها بانتظام. ماذا تتوقع أن يحدث لها؟',
+      options: [{ t: 'تضعف وتصفرّ أوراقها لأنها لا تستطيع صنع الغذاء', c: 1 }, { t: 'تنمو أسرع لأنها تحصل على الماء', e: 'misconception' }, { t: 'لا يحدث لها شيء لأن جذورها سليمة', e: 'overgeneralization', p: 'root' }, { t: 'تتكوّن فيها أزهار كثيرة', e: 'misconception', p: 'flower' }],
+      hints: ['ماذا ينقص النبتة داخل الخزانة؟', 'الأوراق تحتاج إلى الضوء لتصنع الغذاء.'] },
+    { id: 'd7', skill: 'apply', part: 'root', level: 3, type: 'mcq',
+      prompt: 'مزارع في الأغوار يزرع شتلات زيتون في أرض جافة. ما الصفة التي تساعد الشتلات على العيش؟',
+      options: [{ t: 'جذور طويلة تمتد عميقًا لتصل إلى الماء', c: 1 }, { t: 'أزهار كبيرة وكثيرة', e: 'function-confusion', p: 'flower' }, { t: 'ساق رفيعة جدًا', e: 'misconception', p: 'stem' }, { t: 'أوراق حمراء اللون', e: 'irrelevant' }],
+      hints: ['أين يوجد الماء في الأرض الجافة؟', 'الماء يكون في أعماق التربة.'] },
+    { id: 'd8', skill: 'solve', part: 'root', level: 3, type: 'mcq',
+      prompt: 'لاحظت سلمى أن نبتة الحبق على نافذتها ذابلة، وتربتها جافة ومتشققة، وساقها سليمة. ما أفضل حل؟',
+      options: [{ t: 'ريّ التربة بكمية مناسبة من الماء ليمتصها الجذر', c: 1 }, { t: 'قطع جميع الأوراق الذابلة', e: 'misconception', p: 'leaf' }, { t: 'نقل النبتة إلى مكان مظلم', e: 'misconception' }, { t: 'إضافة أزهار جديدة إليها', e: 'irrelevant', p: 'flower' }],
+      hints: ['ما الدليل الأهم في وصف النبتة؟', 'التربة الجافة تعني أن الجذر لا يجد ما يمتصه.'] },
+  ];
+
+  /* ---------- بنك أسئلة المناطق (٣ مستويات صعوبة) ---------- */
+  const BANK = [
+    // ===== الجذور =====
+    { id: 'r1', zone: 'roots', part: 'root', skill: 'identify', level: 1, prompt: 'أين يوجد الجذر عادةً؟',
+      options: [{ t: 'تحت سطح التربة', c: 1 }, { t: 'فوق الأوراق', e: 'location-confusion', p: 'leaf' }, { t: 'داخل الزهرة', e: 'location-confusion', p: 'flower' }, { t: 'في الهواء بجانب الساق', e: 'location-confusion', p: 'stem' }],
+      explain: 'صحيح! الجذر ينمو تحت التربة حيث يجد الماء والأملاح.' },
+    { id: 'r2', zone: 'roots', part: 'root', skill: 'function', level: 1, prompt: 'ما وظيفة الجذر؟',
+      options: [{ t: 'يمتص الماء والأملاح ويثبّت النبات', c: 1 }, { t: 'يصنع الغذاء من ضوء الشمس', e: 'function-confusion', p: 'leaf' }, { t: 'يكوّن البذور', e: 'function-confusion', p: 'flower' }, { t: 'يحمل الأوراق والأزهار', e: 'function-confusion', p: 'stem' }],
+      explain: 'أحسنت! للجذر وظيفتان: الامتصاص والتثبيت.' },
+    { id: 'r3', zone: 'roots', part: 'root', skill: 'explain', level: 2, prompt: 'لماذا لا تسقط شجرة الزيتون عندما تهبّ رياح قوية؟',
+      options: [{ t: 'لأن جذورها تثبّتها في التربة', c: 1 }, { t: 'لأن أوراقها ثقيلة', e: 'misconception', p: 'leaf' }, { t: 'لأن أزهارها تمسك بها', e: 'misconception', p: 'flower' }, { t: 'لأن ساقها تمتص الماء', e: 'function-confusion', p: 'stem' }],
+      explain: 'تفسير علمي! الجذور تتشعّب في التربة وتمسك الشجرة بقوة.' },
+    { id: 'r4', zone: 'roots', part: 'root', skill: 'match', level: 2, prompt: 'أيّ جزء من النبات يأخذ الأملاح المعدنية من التربة؟',
+      options: [{ t: 'الجذر', c: 1 }, { t: 'الورقة', e: 'part-confusion', p: 'leaf' }, { t: 'الزهرة', e: 'part-confusion', p: 'flower' }, { t: 'الساق', e: 'partial', p: 'stem' }],
+      explain: 'ربط صحيح! الجذر يمتص، والساق تنقل بعد ذلك.' },
+    { id: 'r5', zone: 'roots', part: 'root', skill: 'apply', level: 2, prompt: 'تريد نقل شتلة ليمون إلى حديقة المدرسة. ما الطريقة الصحيحة؟',
+      options: [{ t: 'نقلها مع كتلة التربة حول جذورها دون قطعها', c: 1 }, { t: 'قطع جذورها لتصبح أخف', e: 'misconception' }, { t: 'نزع التربة عن الجذور وتركها تجف', e: 'misconception' }, { t: 'نقل الساق والأوراق فقط', e: 'part-confusion', p: 'stem' }],
+      explain: 'قرار ذكي! الحفاظ على الجذور يحافظ على قدرة الشتلة على الامتصاص.' },
+    { id: 'r6', zone: 'roots', part: 'root', skill: 'infer', level: 3, type: 'twostep', prompt: 'ماذا يحدث لنبتة إذا تلفت جذورها؟',
+      visual: { root: 'damaged', health: 35 },
+      options: [{ t: 'تذبل النبتة تدريجيًا', c: 1 }, { t: 'تنمو أسرع', e: 'misconception' }, { t: 'لا يتغير شيء', e: 'overgeneralization' }],
+      followup: { prompt: 'لماذا؟ اختر التفسير العلمي.', options: [{ t: 'لأنها لن تستطيع امتصاص الماء والأملاح من التربة', c: 1 }, { t: 'لأن الجذور هي التي تصنع الغذاء', e: 'function-confusion', p: 'leaf' }, { t: 'لأن الأزهار ستسقط أولًا', e: 'irrelevant', p: 'flower' }] },
+      explain: 'استنتاج ممتاز! بدون جذور سليمة لا يصل الماء إلى النبات.' },
+    { id: 'r7', zone: 'roots', part: 'root', skill: 'solve', level: 3, prompt: 'في صيف حار، لاحظ مزارع أن أشجار الزيتون الصغيرة ذابلة بينما الكبيرة سليمة. ما التفسير الأرجح؟',
+      options: [{ t: 'جذور الأشجار الكبيرة أعمق فتصل إلى الماء في الأسفل', c: 1 }, { t: 'أوراق الأشجار الكبيرة أكثر عددًا', e: 'overgeneralization', p: 'leaf' }, { t: 'الأشجار الصغيرة لا تحتاج إلى الماء', e: 'misconception' }, { t: 'الشمس لا تصل إلى الأشجار الكبيرة', e: 'irrelevant' }],
+      explain: 'تفكير العلماء! عمق الجذور يحدد قدرة الشجرة على الوصول إلى الماء.' },
+
+    // ===== الساق =====
+    { id: 's1', zone: 'stem', part: 'stem', skill: 'identify', level: 1, prompt: 'ما الجزء الذي يصل بين الجذر والأوراق؟',
+      options: [{ t: 'الساق', c: 1 }, { t: 'الزهرة', e: 'part-confusion', p: 'flower' }, { t: 'الثمرة', e: 'part-confusion', p: 'fruit' }, { t: 'البذرة', e: 'part-confusion', p: 'fruit' }],
+      explain: 'صحيح! الساق هي الجسر بين الجذر والأوراق.' },
+    { id: 's2', zone: 'stem', part: 'stem', skill: 'function', level: 1, prompt: 'من وظائف الساق:',
+      options: [{ t: 'حمل الأوراق والأزهار ودعم النبات', c: 1 }, { t: 'امتصاص الماء من التربة', e: 'function-confusion', p: 'root' }, { t: 'صنع الغذاء', e: 'function-confusion', p: 'leaf' }, { t: 'تكوين البذور', e: 'function-confusion', p: 'flower' }],
+      explain: 'أحسنت! الساق تدعم النبات وتحمل أجزاءه.' },
+    { id: 's3', zone: 'stem', part: 'stem', skill: 'match', level: 2, prompt: 'كيف يصل الماء من الجذر إلى الأوراق؟',
+      options: [{ t: 'عبر أنابيب دقيقة داخل الساق', c: 1 }, { t: 'يقفز عبر الهواء', e: 'misconception' }, { t: 'تحمله الأزهار', e: 'part-confusion', p: 'flower' }, { t: 'تمتصه الأوراق من الأرض مباشرة', e: 'function-confusion', p: 'leaf' }],
+      explain: 'ربط صحيح! داخل الساق أوعية تنقل الماء إلى أعلى.' },
+    { id: 's4', zone: 'stem', part: 'stem', skill: 'explain', level: 2, prompt: 'وضعنا ساق زهرة بيضاء في ماء ملوّن بالأحمر، فتلوّنت بتلاتها بعد يوم. ماذا يُثبت ذلك؟',
+      options: [{ t: 'أن الساق تنقل الماء إلى أعلى النبات', c: 1 }, { t: 'أن الزهرة تصنع اللون الأحمر', e: 'misconception', p: 'flower' }, { t: 'أن الأوراق تمتص اللون من الهواء', e: 'misconception', p: 'leaf' }, { t: 'أن الجذر يثبّت النبات', e: 'irrelevant', p: 'root' }],
+      explain: 'تفسير رائع! الماء الملوّن صعد عبر الساق حتى الزهرة.' },
+    { id: 's5', zone: 'stem', part: 'stem', skill: 'apply', level: 2, prompt: 'ساق شتلة البندورة ضعيفة ومائلة. ماذا تفعل؟',
+      options: [{ t: 'أربطها بعصا لتدعمها', c: 1 }, { t: 'أقطع ساقها', e: 'misconception' }, { t: 'أضيف إليها أوراقًا أكثر', e: 'misconception', p: 'leaf' }, { t: 'أدفن الساق كلها في التربة', e: 'misconception', p: 'root' }],
+      explain: 'قرار صحيح! الدعم يساعد الساق على حمل النبتة ونقل الماء.' },
+    { id: 's6', zone: 'stem', part: 'stem', skill: 'infer', level: 3, type: 'twostep', prompt: 'ماذا يحدث إذا انكسرت الساق بين الجذر والأوراق؟',
+      visual: { stem: 'broken', health: 40 },
+      options: [{ t: 'تذبل الأوراق رغم وجود الماء في التربة', c: 1 }, { t: 'تمتص الأوراق الماء بنفسها', e: 'misconception', p: 'leaf' }, { t: 'تبقى الأوراق خضراء دائمًا', e: 'overgeneralization' }],
+      followup: { prompt: 'لماذا؟', options: [{ t: 'لأن الماء لا يصل من الجذر إلى الأوراق', c: 1 }, { t: 'لأن الساق هي التي تصنع الغذاء', e: 'function-confusion', p: 'leaf' }, { t: 'لأن الجذر يتوقف عن تثبيت النبات', e: 'partial', p: 'root' }] },
+      explain: 'استنتاج دقيق! الساق طريق الماء، وانقطاعها يعني عطش الأوراق.' },
+    { id: 's7', zone: 'stem', part: 'stem', skill: 'solve', level: 3, prompt: 'نبتتان رويناهما بالكمية نفسها: الأولى ساقها قوية، والثانية ساقها مجروحة. أيهما ستذبل أوراقها أولًا ولماذا؟',
+      options: [{ t: 'المجروحة، لأن نقل الماء فيها ضعيف', c: 1 }, { t: 'القوية، لأنها تحتاج ماءً أكثر', e: 'misconception' }, { t: 'تذبلان معًا لأن الماء نفسه', e: 'overgeneralization' }, { t: 'لن تذبل أيّ منهما أبدًا', e: 'misconception' }],
+      explain: 'حلّ منطقي! جرح الساق يعيق صعود الماء.' },
+
+    // ===== الأوراق =====
+    { id: 'l1', zone: 'leaves', part: 'leaf', skill: 'name', level: 1, prompt: 'ما اسم الجزء الأخضر المنبسط في النبات؟', visual: { highlight: 'leaf' },
+      options: [{ t: 'الورقة', c: 1 }, { t: 'الجذر', e: 'part-confusion', p: 'root' }, { t: 'الساق', e: 'part-confusion', p: 'stem' }, { t: 'البذرة', e: 'part-confusion', p: 'fruit' }],
+      explain: 'صحيح! إنها الورقة.' },
+    { id: 'l2', zone: 'leaves', part: 'leaf', skill: 'function', level: 1, prompt: 'ما الوظيفة الرئيسة للورقة؟',
+      options: [{ t: 'صنع الغذاء للنبات', c: 1 }, { t: 'تثبيت النبات', e: 'function-confusion', p: 'root' }, { t: 'امتصاص الأملاح من التربة', e: 'function-confusion', p: 'root' }, { t: 'جذب النحل', e: 'function-confusion', p: 'flower' }],
+      explain: 'أحسنت! الورقة مصنع الغذاء.' },
+    { id: 'l3', zone: 'leaves', part: 'leaf', skill: 'match', level: 2, prompt: 'ماذا تحتاج الورقة لتصنع الغذاء؟',
+      options: [{ t: 'ضوء الشمس والماء وثاني أكسيد الكربون', c: 1 }, { t: 'التربة والحجارة', e: 'misconception' }, { t: 'الأكسجين فقط', e: 'partial' }, { t: 'الظلام والبرد', e: 'misconception' }],
+      explain: 'ربط صحيح! هذه مدخلات مصنع الأوراق.' },
+    { id: 'l4', zone: 'leaves', part: 'leaf', skill: 'explain', level: 2, prompt: 'ماذا تُطلق الورقة في الهواء أثناء صنع الغذاء؟',
+      options: [{ t: 'الأكسجين', c: 1 }, { t: 'الأملاح المعدنية', e: 'function-confusion', p: 'root' }, { t: 'الطين', e: 'irrelevant' }, { t: 'البذور', e: 'function-confusion', p: 'flower' }],
+      explain: 'صحيح! الأكسجين الذي نتنفسه يأتي من أوراق النباتات.' },
+    { id: 'l5', zone: 'leaves', part: 'leaf', skill: 'apply', level: 2, prompt: 'أين تضع أصيص الحبق داخل البيت لينمو جيدًا؟',
+      options: [{ t: 'قرب نافذة يدخلها ضوء الشمس', c: 1 }, { t: 'داخل خزانة مغلقة', e: 'misconception' }, { t: 'تحت السرير', e: 'misconception' }, { t: 'في غرفة بلا نوافذ', e: 'misconception' }],
+      explain: 'قرار صحيح! الضوء ضروري لمصنع الأوراق.' },
+    { id: 'l6', zone: 'leaves', part: 'leaf', skill: 'infer', level: 3, type: 'twostep', prompt: 'ماذا يحدث إذا تضررت معظم أوراق النبتة؟',
+      visual: { leaves: 'damaged', health: 40 },
+      options: [{ t: 'يقلّ الغذاء الذي تصنعه فتضعف النبتة', c: 1 }, { t: 'تزداد قوة النبتة', e: 'misconception' }, { t: 'تصنع الجذور الغذاء بدلًا منها', e: 'function-confusion', p: 'root' }],
+      followup: { prompt: 'لماذا؟', options: [{ t: 'لأن الأوراق هي مصنع الغذاء في النبات', c: 1 }, { t: 'لأن الأوراق تمتص الماء من التربة', e: 'function-confusion', p: 'root' }, { t: 'لأن الأوراق تثبّت النبات', e: 'function-confusion', p: 'root' }] },
+      explain: 'استنتاج علمي! قلّة الأوراق تعني غذاءً أقل.' },
+    { id: 'l7', zone: 'leaves', part: 'leaf', skill: 'solve', level: 3, prompt: 'غطّت ليلى ورقة واحدة من نبتة بورق الألمنيوم عدة أيام. ماذا تتوقع أن يحدث لهذه الورقة؟',
+      options: [{ t: 'تصفرّ لأنها لم تحصل على الضوء لصنع الغذاء', c: 1 }, { t: 'تصبح أكثر خضرة', e: 'misconception' }, { t: 'تتحوّل إلى زهرة', e: 'misconception', p: 'flower' }, { t: 'لا يتغير فيها شيء', e: 'overgeneralization' }],
+      explain: 'ممتاز! هذه تجربة حقيقية يجريها العلماء.' },
+
+    // ===== الزهرة =====
+    { id: 'f1', zone: 'flower', part: 'flower', skill: 'identify', level: 1, prompt: 'ما الجزء الملوّن من النبات الذي تزوره النحلة؟',
+      options: [{ t: 'الزهرة', c: 1 }, { t: 'الجذر', e: 'part-confusion', p: 'root' }, { t: 'الساق', e: 'part-confusion', p: 'stem' }, { t: 'الورقة', e: 'part-confusion', p: 'leaf' }],
+      explain: 'صحيح! النحلة تزور الزهرة.' },
+    { id: 'f2', zone: 'flower', part: 'flower', skill: 'function', level: 1, prompt: 'ما وظيفة الزهرة؟',
+      options: [{ t: 'تساعد النبات على التكاثر', c: 1 }, { t: 'تمتص الماء', e: 'function-confusion', p: 'root' }, { t: 'تصنع الغذاء', e: 'function-confusion', p: 'leaf' }, { t: 'تثبّت النبات', e: 'function-confusion', p: 'root' }],
+      explain: 'أحسنت! الزهرة جزء التكاثر.' },
+    { id: 'f3', zone: 'flower', part: 'flower', skill: 'match', level: 2, prompt: 'من أيّ جزء تتكوّن الثمرة؟',
+      options: [{ t: 'من الزهرة', c: 1 }, { t: 'من الجذر', e: 'part-confusion', p: 'root' }, { t: 'من الساق', e: 'part-confusion', p: 'stem' }, { t: 'من الورقة', e: 'part-confusion', p: 'leaf' }],
+      explain: 'ربط صحيح! الزهرة ← ثمرة ← بذور.' },
+    { id: 'f4', zone: 'flower', part: 'flower', skill: 'explain', level: 2, prompt: 'لماذا تكون كثير من الأزهار ملوّنة وذات رائحة؟',
+      options: [{ t: 'لتجذب النحل والطيور التي تنقل حبوب اللقاح', c: 1 }, { t: 'لتصنع الغذاء', e: 'function-confusion', p: 'leaf' }, { t: 'لتمتص الماء', e: 'function-confusion', p: 'root' }, { t: 'لتُخيف الحيوانات', e: 'misconception' }],
+      explain: 'تفسير صحيح! الألوان والروائح دعوة للنحل وطائر الشمس الفلسطيني.' },
+    { id: 'f5', zone: 'flower', part: 'flower', skill: 'apply', level: 2, prompt: 'يريد مزارع في مرج ابن عامر زيادة ثمار بستان اللوز. ماذا يفيده؟',
+      options: [{ t: 'المحافظة على النحل الذي يزور الأزهار', c: 1 }, { t: 'قطف جميع الأزهار مبكرًا', e: 'misconception' }, { t: 'رشّ مبيد يقتل النحل', e: 'misconception' }, { t: 'قطع الأغصان المزهرة', e: 'misconception', p: 'stem' }],
+      explain: 'قرار ذكي! النحل يساعد الأزهار على تكوين الثمار.' },
+    { id: 'f6', zone: 'flower', part: 'flower', skill: 'infer', level: 3, type: 'twostep', prompt: 'ماذا يحدث لو اختفت الأزهار من نبتة؟',
+      visual: { flower: false, health: 70 },
+      options: [{ t: 'لا تتكوّن ثمار ولا بذور جديدة', c: 1 }, { t: 'تتوقف الجذور عن امتصاص الماء', e: 'function-confusion', p: 'root' }, { t: 'تصبح الأوراق أكثر', e: 'misconception', p: 'leaf' }],
+      followup: { prompt: 'لماذا؟', options: [{ t: 'لأن الزهرة هي جزء التكاثر الذي تتكوّن منه البذور', c: 1 }, { t: 'لأن الزهرة تنقل الماء', e: 'function-confusion', p: 'stem' }, { t: 'لأن الزهرة تصنع الغذاء', e: 'function-confusion', p: 'leaf' }] },
+      explain: 'استنتاج ممتاز! بلا أزهار لا يوجد جيل جديد.' },
+    { id: 'f7', zone: 'flower', part: 'flower', skill: 'solve', level: 3, prompt: 'قلّ عدد النحل في قريتك كثيرًا هذا الربيع. ماذا تتوقع أن يحدث لثمار اللوز والمشمش؟',
+      options: [{ t: 'قد يقلّ عدد الثمار لأن تلقيح الأزهار سيقلّ', c: 1 }, { t: 'سيزداد عدد الثمار', e: 'misconception' }, { t: 'لن تنمو الأوراق', e: 'function-confusion', p: 'leaf' }, { t: 'ستجف الجذور', e: 'function-confusion', p: 'root' }],
+      explain: 'تفكير علمي! النحل شريك مهم للأزهار.' },
+  ];
+
+  /* ---------- محتوى المناطق ---------- */
+  const ZONE_CONTENT = {
+    roots: {
+      intro: { remediation: 'سنتعرّف على الجذر خطوة بخطوة. لا تقلق، أنا معك!', practice: 'لنكتشف معًا ماذا يفعل الجذر تحت التربة.', challenge: 'أيها العالم! جذور لولو تخفي سرًّا. استكشف وفكّر كالعلماء.' },
+      brief: ['⚓ يثبّت النبات في التربة.', '💧 يمتص الماء من التربة.', '🧂 يمتص الأملاح المعدنية.'],
+      open: { prompt: 'إذا تلفت جذور النبات، فما التغيرات التي تتوقع حدوثها؟ فسّر إجابتك.',
+        rubric: [{ label: 'ذكر الماء أو الأملاح', any: ['ماء', 'املاح', 'أملاح'] }, { label: 'ذكر الامتصاص', any: ['يمتص', 'تمتص', 'امتصاص', 'يشرب', 'تشرب'] }, { label: 'وصف أثر ذلك على النبات', any: ['يذبل', 'تذبل', 'ذبول', 'يموت', 'تموت', 'يضعف', 'تضعف', 'يسقط', 'تسقط', 'يجف', 'تجف'] }],
+        model: 'ستذبل النبتة وتضعف، لأن الجذور التالفة لا تستطيع امتصاص الماء والأملاح من التربة، وقد تسقط لأنها لم تعد مثبّتة.' },
+    },
+    stem: {
+      intro: { remediation: 'الساق طريق مهم. سنتعلّمها بخطوات قصيرة.', practice: 'كيف يصعد الماء إلى أعلى النبتة؟ لنكتشف!', challenge: 'تحدٍّ: تتبّع رحلة الماء وتوقّع ما يحدث إذا انقطع الطريق.' },
+      brief: ['🏗️ تحمل الأوراق والأزهار.', '🚰 تنقل الماء والأملاح من الجذر إلى الأوراق.', '🍎 تنقل الغذاء من الأوراق إلى أجزاء النبات.'],
+      open: { prompt: 'إذا ضعفت ساق النبتة أو انكسرت، فماذا يحدث للأوراق؟ فسّر.',
+        rubric: [{ label: 'ذكر الماء', any: ['ماء', 'املاح'] }, { label: 'ذكر النقل أو الوصول', any: ['ينقل', 'تنقل', 'نقل', 'يصل', 'يصعد', 'وصول'] }, { label: 'وصف الأثر على الأوراق', any: ['تذبل', 'يذبل', 'ذبول', 'تجف', 'تصفر', 'تموت', 'تضعف', 'تميل', 'يميل'] }],
+        model: 'تذبل الأوراق لأن الساق لا تنقل الماء والأملاح من الجذر إليها، وقد تميل النبتة لأن الساق لا تدعمها.' },
+    },
+    leaves: {
+      intro: { remediation: 'الأوراق مصنع صغير. سنتعرّف عليه خطوة خطوة.', practice: 'ادخل مصنع الأوراق واكتشف كيف يُصنع الغذاء!', challenge: 'مهندس المصنع! اضبط الظروف وفسّر ما يحدث.' },
+      brief: ['☀️ تلتقط ضوء الشمس.', '💧🌬️ تأخذ الماء وثاني أكسيد الكربون.', '🍎 تصنع الغذاء وتُطلق الأكسجين.'],
+      open: { prompt: 'إذا تضررت أوراق النبات، فماذا يحدث له؟ فسّر بربط الأوراق بوظيفتها.',
+        rubric: [{ label: 'ذكر الغذاء', any: ['غذاء', 'الغذاء', 'طعام'] }, { label: 'ذكر الصنع أو الضوء', any: ['يصنع', 'تصنع', 'صنع', 'ضوء', 'الشمس'] }, { label: 'وصف الأثر', any: ['يضعف', 'تضعف', 'يذبل', 'تذبل', 'يموت', 'تموت', 'يقل', 'يتوقف', 'نمو'] }],
+        model: 'يضعف النبات ويقلّ نموه، لأن الأوراق هي التي تصنع الغذاء باستخدام ضوء الشمس، فإذا تضررت قلّ الغذاء.' },
+    },
+    flower: {
+      intro: { remediation: 'الزهرة جميلة ومهمة. لنتعرّف عليها خطوة خطوة.', practice: 'لماذا تزور النحلة الزهرة؟ لنكتشف سرّ التكاثر.', challenge: 'تحدٍّ: تتبّع دورة حياة النبات من الزهرة إلى نبتة جديدة.' },
+      brief: ['🌸 تجذب النحل وطائر الشمس بلونها ورائحتها.', '🐝 تنتقل حبوب اللقاح بين الأزهار.', '🌰 تتكوّن الثمرة والبذور من الزهرة.'],
+      open: { prompt: 'ماذا يحدث لو اختفت جميع الأزهار من حقل قمح أو بستان لوز؟ فسّر.',
+        rubric: [{ label: 'ذكر البذور أو الثمار', any: ['بذور', 'بذره', 'بذرة', 'ثمار', 'ثمره', 'ثمرة', 'حبوب'] }, { label: 'ذكر التكاثر', any: ['تكاثر', 'يتكاثر', 'جديده', 'جديدة', 'جيل'] }, { label: 'ربط ذلك بالزهرة', any: ['زهره', 'زهرة', 'ازهار', 'أزهار', 'الزهور'] }],
+        model: 'لن تتكوّن ثمار ولا بذور، لأن الزهرة هي جزء التكاثر، فلا تنمو نباتات جديدة في الموسم القادم.' },
+    },
+  };
+
+  /* ---------- «طابق وأنقذ» حسب المستوى ---------- */
+  const MATCH_SETS = {
+    1: [{ part: 'root', t: 'امتصاص الماء والأملاح', icon: '💧' }, { part: 'stem', t: 'دعم النبات ونقل الماء والأملاح', icon: '🚰' }, { part: 'leaf', t: 'صنع الغذاء', icon: '🍎' }, { part: 'flower', t: 'المساعدة في التكاثر', icon: '🌰' }],
+    2: [{ part: 'root', t: 'امتصاص الماء والأملاح' }, { part: 'stem', t: 'دعم النبات ونقل الماء والأملاح' }, { part: 'leaf', t: 'صنع الغذاء' }, { part: 'flower', t: 'المساعدة في التكاثر' }, { part: 'leaf', t: 'إطلاق الأكسجين' }],
+    3: [{ part: 'root', t: 'تثبيت النبات في التربة' }, { part: 'root', t: 'امتصاص الماء والأملاح' }, { part: 'stem', t: 'حمل الأوراق والأزهار' }, { part: 'stem', t: 'نقل الماء من الجذر إلى الأوراق' }, { part: 'leaf', t: 'صنع الغذاء بضوء الشمس' }, { part: 'leaf', t: 'إطلاق الأكسجين' }, { part: 'flower', t: 'جذب النحل لنقل حبوب اللقاح' }, { part: 'flower', t: 'تكوين الثمار والبذور' }],
+  };
+
+  /* ---------- «ماذا يحدث لو؟» ---------- */
+  const WHATIF = [
+    { id: 'w1', part: 'root', skill: 'infer', level: 2, type: 'twostep', visual: { water: 0, health: 30 },
+      prompt: 'ماذا يحدث لو لم تحصل الجذور على الماء؟',
+      options: [{ t: 'تذبل الأوراق وتضعف النبتة', c: 1 }, { t: 'تصبح الأوراق أكثر خضرة', e: 'misconception', p: 'leaf' }, { t: 'تكبر الأزهار', e: 'misconception', p: 'flower' }],
+      followup: { prompt: 'اربط إجابتك بوظيفة الجزء:', options: [{ t: 'الجذر يمتص الماء، وبدونه لا يصل الماء إلى الساق والأوراق', c: 1 }, { t: 'الجذر يصنع الغذاء للأوراق', e: 'function-confusion', p: 'leaf' }, { t: 'الأوراق تمتص الماء من التربة بنفسها', e: 'function-confusion', p: 'root' }] } },
+    { id: 'w2', part: 'leaf', skill: 'infer', level: 2, type: 'twostep', visual: { leaves: 'damaged', health: 40 },
+      prompt: 'ماذا يحدث إذا تلفت الأوراق؟',
+      options: [{ t: 'يقلّ الغذاء فيضعف نموّ النبتة', c: 1 }, { t: 'تمتص الجذور ماءً أكثر فتقوى النبتة', e: 'misconception', p: 'root' }, { t: 'لا يتغير شيء', e: 'overgeneralization' }],
+      followup: { prompt: 'اربط إجابتك بوظيفة الجزء:', options: [{ t: 'الأوراق تصنع الغذاء باستخدام ضوء الشمس', c: 1 }, { t: 'الأوراق تثبّت النبات في التربة', e: 'function-confusion', p: 'root' }, { t: 'الأوراق تنقل الماء إلى الجذور', e: 'function-confusion', p: 'stem' }] } },
+    { id: 'w3', part: 'stem', skill: 'infer', level: 3, type: 'twostep', visual: { stem: 'weak', health: 45 },
+      prompt: 'ماذا يحدث إذا ضعفت الساق؟',
+      options: [{ t: 'تميل النبتة ولا يصل الماء جيدًا إلى الأوراق', c: 1 }, { t: 'تنمو جذور جديدة في الهواء', e: 'misconception', p: 'root' }, { t: 'تصنع الساق غذاءً أكثر', e: 'function-confusion', p: 'leaf' }],
+      followup: { prompt: 'اربط إجابتك بوظيفة الجزء:', options: [{ t: 'الساق تدعم النبات وتنقل الماء والأملاح', c: 1 }, { t: 'الساق تمتص الماء من التربة', e: 'function-confusion', p: 'root' }, { t: 'الساق تكوّن البذور', e: 'function-confusion', p: 'flower' }] } },
+    { id: 'w4', part: 'flower', skill: 'infer', level: 3, type: 'twostep', visual: { flower: false, health: 75 },
+      prompt: 'ماذا يحدث إذا اختفت الأزهار؟',
+      options: [{ t: 'لا تتكوّن بذور لنباتات جديدة', c: 1 }, { t: 'تذبل الجذور فورًا', e: 'misconception', p: 'root' }, { t: 'يتوقف صنع الغذاء', e: 'function-confusion', p: 'leaf' }],
+      followup: { prompt: 'اربط إجابتك بوظيفة الجزء:', options: [{ t: 'الزهرة تساعد النبات على التكاثر وتكوين البذور', c: 1 }, { t: 'الزهرة تمتص ضوء الشمس', e: 'function-confusion', p: 'leaf' }, { t: 'الزهرة تحمل الأوراق', e: 'function-confusion', p: 'stem' }] } },
+  ];
+  const WHATIF_OPEN = { prompt: 'مسألة مفتوحة: مزارع في غزة لاحظ أن شتلاته ذابلة رغم أن التربة رطبة، وأوراقها سليمة. ما الجزء الذي قد يكون مصابًا؟ فسّر.',
+    rubric: [{ label: 'تحديد الجزء (الجذر أو الساق)', any: ['جذر', 'الجذور', 'ساق', 'الساق'] }, { label: 'ذكر نقل الماء أو امتصاصه', any: ['يمتص', 'تمتص', 'امتصاص', 'ينقل', 'تنقل', 'نقل', 'يصل'] }, { label: 'ذكر الماء', any: ['ماء', 'الماء'] }],
+    model: 'قد تكون الجذور تالفة فلا تمتص الماء، أو الساق مصابة فلا تنقل الماء إلى الأوراق؛ لذلك تذبل الشتلات رغم رطوبة التربة.' };
+
+  /* ---------- تحديات مختبر لولو ---------- */
+  const LAB_CHALLENGES = [
+    { id: 'c1', title: 'اجعل لولو في أفضل حال', desc: 'اضبط جميع المتغيرات حتى تصل صحة لولو إلى ١٠٠٪.', check: 'best' },
+    { id: 'c2', title: 'هل يكفي الماء؟', desc: 'اجعل الجذر «تالفًا» والماء «كافيًا». ماذا يحدث للولو؟', check: 'rootDamagedWater',
+      question: { id: 'lc2', part: 'root', skill: 'explain', level: 2, prompt: 'لماذا ذبلت لولو رغم وجود ماء كافٍ؟', options: [{ t: 'لأن الجذر التالف لا يمتص الماء', c: 1 }, { t: 'لأن الماء الكثير يضر الأوراق دائمًا', e: 'misconception' }, { t: 'لأن الزهرة تحتاج إلى ماء أقل', e: 'irrelevant', p: 'flower' }] } },
+    { id: 'c3', title: 'لغز الأوراق الصفراء', desc: 'اجعل كل شيء سليمًا والماء كافيًا، لكن اجعل الضوء «ضعيفًا».', check: 'darkness',
+      question: { id: 'lc3', part: 'leaf', skill: 'infer', level: 3, prompt: 'ما سبب شحوب أوراق لولو رغم توفر الماء؟', options: [{ t: 'نقص الضوء يمنع الأوراق من صنع الغذاء', c: 1 }, { t: 'الجذور لا تعمل في الظلام', e: 'misconception', p: 'root' }, { t: 'الساق تحتاج إلى ضوء لتنقل الماء', e: 'misconception', p: 'stem' }] } },
+  ];
+
+  /* ---------- حالات المهمة النهائية ---------- */
+  const RESCUE_CASES = {
+    A: { id: 'A', title: 'لولو عطشى؟', state: { water: 0, root: 'healthy', stem: 'healthy', leaves: 'healthy', light: 2, health: 30 },
+      clues: { soil: '🟫 التربة جافة ومتشققة.', root: '🌱 الجذر سليم، لكنه لا يجد ماءً حوله.', stem: '🌿 الساق سليمة.', leaf: '🍃 الأوراق ذابلة ومتدلية.', flower: '🌸 الزهرة موجودة لكنها منحنية.', env: '☀️ لولو في مكان مشمس.' },
+      key: ['soil', 'leaf'],
+      problem: { prompt: 'ما المشكلة المحتملة؟', options: [{ t: 'لولو لا تحصل على ماء كافٍ', c: 1 }, { t: 'لولو لا تحصل على ضوء', e: 'misconception' }, { t: 'ساق لولو مكسورة', e: 'part-confusion', p: 'stem' }, { t: 'زهرة لولو مريضة', e: 'irrelevant', p: 'flower' }] },
+      part: { prompt: 'أيّ جزء يرتبط بهذه المشكلة؟', options: [{ t: '🌱 الجذر، لأنه يمتص الماء من التربة', c: 1 }, { t: '🍃 الأوراق، لأنها تمتص الماء من التربة', e: 'function-confusion', p: 'leaf' }, { t: '🌸 الزهرة، لأنها تشرب الماء', e: 'misconception', p: 'flower' }, { t: '🌿 الساق، لأنها تصنع الماء', e: 'misconception', p: 'stem' }] },
+      solution: { prompt: 'ما الحل المناسب؟', options: [{ t: 'ريّ التربة بكمية مناسبة من الماء', c: 1 }, { t: 'قطع الأوراق الذابلة', e: 'misconception' }, { t: 'نقل لولو إلى الظل', e: 'misconception' }, { t: 'إزالة الزهرة', e: 'irrelevant' }] },
+      fix: { water: 2, health: 100 }, fixText: '💧 سقيتَ التربة… امتصّ الجذر الماء، ونقلته الساق إلى الأوراق!' },
+    B: { id: 'B', title: 'طريق الماء مقطوع!', state: { water: 2, root: 'healthy', stem: 'broken', leaves: 'healthy', light: 2, health: 35 },
+      clues: { soil: '🟫 التربة رطبة.', root: '🌱 الجذر سليم ويمتص الماء.', stem: '🌿 في الساق شقّ عميق ومنحنية.', leaf: '🍃 الأوراق فوق الشق ذابلة.', flower: '🌸 الزهرة متدلية.', env: '☀️ الضوء مناسب.' },
+      key: ['stem', 'leaf'],
+      problem: { prompt: 'ما المشكلة المحتملة؟', options: [{ t: 'الماء لا يصل من الجذر إلى الأوراق', c: 1 }, { t: 'التربة جافة', e: 'misconception', p: 'root' }, { t: 'لا يوجد ضوء', e: 'misconception', p: 'leaf' }, { t: 'الزهرة كبيرة جدًا', e: 'irrelevant', p: 'flower' }] },
+      part: { prompt: 'أيّ جزء يرتبط بهذه المشكلة؟', options: [{ t: '🌿 الساق، لأنها تنقل الماء وتدعم النبات', c: 1 }, { t: '🌱 الجذر، لأنه يصنع الغذاء', e: 'function-confusion', p: 'leaf' }, { t: '🍃 الأوراق، لأنها تثبّت النبات', e: 'function-confusion', p: 'root' }, { t: '🌸 الزهرة، لأنها تنقل الماء', e: 'function-confusion', p: 'stem' }] },
+      solution: { prompt: 'ما الحل المناسب؟', options: [{ t: 'دعم الساق بعصا وربط موضع الشق برفق', c: 1 }, { t: 'إضافة ماء أكثر إلى التربة', e: 'partial', p: 'root' }, { t: 'قطع الجذر', e: 'misconception' }, { t: 'وضع لولو في الظلام', e: 'misconception' }] },
+      fix: { stem: 'healthy', health: 100 }, fixText: '🪵 دعمتَ الساق… عاد الماء يصعد إلى الأوراق!' },
+    C: { id: 'C', title: 'لغز الركن المظلم', state: { water: 2, root: 'healthy', stem: 'healthy', leaves: 'yellow', light: 0, health: 35 },
+      clues: { soil: '🟫 التربة رطبة.', root: '🌱 الجذر سليم.', stem: '🌿 الساق سليمة وقوية.', leaf: '🍃 الأوراق صفراء شاحبة.', flower: '🌸 لا براعم جديدة منذ أسبوعين.', env: '🌑 وُضعت لولو في ركن مظلم منذ أسبوعين.' },
+      key: ['env', 'leaf'],
+      problem: { prompt: 'ما المشكلة المحتملة؟', options: [{ t: 'الأوراق لا تصنع غذاءً كافيًا', c: 1 }, { t: 'الجذر لا يمتص الماء', e: 'overgeneralization', p: 'root' }, { t: 'الساق لا تنقل الماء', e: 'overgeneralization', p: 'stem' }, { t: 'التربة جافة', e: 'misconception' }] },
+      part: { prompt: 'أيّ جزء يرتبط بهذه المشكلة؟', options: [{ t: '🍃 الأوراق، لأنها تحتاج إلى الضوء لصنع الغذاء', c: 1 }, { t: '🌱 الجذر، لأنه يحتاج إلى الضوء', e: 'misconception', p: 'root' }, { t: '🌿 الساق، لأنها تصنع الغذاء', e: 'function-confusion', p: 'leaf' }, { t: '🌸 الزهرة، لأنها تمتص الضوء للنبات', e: 'function-confusion', p: 'leaf' }] },
+      solution: { prompt: 'ما الحل المناسب؟', options: [{ t: 'نقل لولو إلى مكان يصله ضوء الشمس', c: 1 }, { t: 'زيادة الماء كثيرًا', e: 'misconception', p: 'root' }, { t: 'قطع الأوراق الصفراء كلها', e: 'misconception' }, { t: 'تغطية لولو لحمايتها', e: 'misconception' }] },
+      fix: { light: 2, leaves: 'healthy', health: 100 }, fixText: '☀️ نقلتَ لولو إلى الشمس… عاد مصنع الأوراق يعمل!' },
+  };
+  const RESCUE_BY_PATH = { remediation: 'A', practice: 'B', challenge: 'C' };
+
+  /* ---------- التقييم النهائي (اختبار بعدي) ---------- */
+  const POSTTEST = [
+    { id: 'p1', skill: 'identify', part: 'stem', level: 1, type: 'hotspot', target: 'stem', prompt: 'اضغط على الساق في صورة النبتة.', hints: ['الساق تصل بين الجذر والأوراق.'] },
+    { id: 'p2', skill: 'name', part: 'flower', level: 1, type: 'mcq', visual: { highlight: 'flower' }, prompt: 'ما اسم الجزء المظلَّل؟',
+      options: [{ t: 'الزهرة', c: 1 }, { t: 'الورقة', e: 'part-confusion', p: 'leaf' }, { t: 'الجذر', e: 'part-confusion', p: 'root' }, { t: 'الساق', e: 'part-confusion', p: 'stem' }], hints: ['هذا الجزء ملوّن وتزوره النحلة.'] },
+    { id: 'p3', skill: 'function', part: 'root', level: 1, type: 'mcq', prompt: 'أيّ مما يأتي من وظائف الجذر؟',
+      options: [{ t: 'تثبيت النبات وامتصاص الماء', c: 1 }, { t: 'صنع الغذاء', e: 'function-confusion', p: 'leaf' }, { t: 'جذب النحل', e: 'function-confusion', p: 'flower' }, { t: 'إطلاق الأكسجين', e: 'function-confusion', p: 'leaf' }], hints: ['الجذر يعيش تحت التربة.'] },
+    { id: 'p4', skill: 'match', part: 'leaf', level: 2, type: 'mcq', prompt: 'أيّ جزء يصنع الغذاء للنبات؟',
+      options: [{ t: 'الأوراق', c: 1 }, { t: 'الجذر', e: 'part-confusion', p: 'root' }, { t: 'الساق', e: 'part-confusion', p: 'stem' }, { t: 'الزهرة', e: 'part-confusion', p: 'flower' }], hints: ['فكّر في مصنع النبات الأخضر.'] },
+    { id: 'p5', skill: 'infer', part: 'flower', level: 3, type: 'mcq', prompt: 'قطفتَ جميع أزهار نبتة البندورة قبل أن تكبر. ماذا تتوقع؟',
+      options: [{ t: 'لن تُنتج النبتة ثمار بندورة', c: 1 }, { t: 'ستُنتج ثمارًا أكثر', e: 'misconception' }, { t: 'ستجف جذورها فورًا', e: 'misconception', p: 'root' }, { t: 'ستتوقف أوراقها عن صنع الغذاء', e: 'function-confusion', p: 'leaf' }], hints: ['من أين تأتي الثمار؟'] },
+    { id: 'p6', skill: 'solve', part: 'stem', level: 3, type: 'mcq', prompt: 'نبتة في أصيص: التربة رطبة، والجذور سليمة، لكن الساق منكسرة والأوراق فوق الكسر ذابلة. ما الحل؟',
+      options: [{ t: 'دعم الساق المنكسرة وربطها برفق', c: 1 }, { t: 'زيادة الماء في التربة', e: 'partial', p: 'root' }, { t: 'نقلها إلى الظل', e: 'misconception' }, { t: 'قطع الجذور', e: 'misconception', p: 'root' }], hints: ['أين يتوقف الماء في هذه النبتة؟'] },
+  ];
+
+  /* ---------- طلاب تجريبيون للوحة المعلم ---------- */
+  const DEMO_CLASS = [
+    { name: 'أحمد', target: 45 }, { name: 'سارة', target: 52 }, { name: 'محمد', target: 56 }, { name: 'لين', target: 88 },
+    { name: 'يوسف', target: 74 }, { name: 'مريم', target: 91 }, { name: 'كرم', target: 67 }, { name: 'جنى', target: 79 },
+    { name: 'عمر', target: 63 }, { name: 'ريم', target: 83 },
+  ];
+
+  return { util, SKILLS, SKILL_ORDER, ERROR_TYPES, PARTS, MAIN_PARTS, PATHS, ZONES, BADGES, LEVELS, DIAGNOSTIC, BANK, ZONE_CONTENT, MATCH_SETS, WHATIF, WHATIF_OPEN, LAB_CHALLENGES, RESCUE_CASES, RESCUE_BY_PATH, POSTTEST, DEMO_CLASS };
+});

@@ -1,0 +1,4 @@
+node_modules/
+*.zip
+tests/stuck-*.png
+.DS_Store

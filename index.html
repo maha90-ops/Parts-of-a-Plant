@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>مَهَمَّةُ إِنْقَاذِ النَّبْتَة — لولو تحتاج إلى مساعدتك</title>
+  <meta name="description" content="بيئة تعليمية تكيفية تفاعلية لتعلّم أجزاء النبات ووظائفها">
+  <link rel="icon" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/pages.css">
+  <script defer src="js/data.js"></script>
+  <script defer src="js/adaptive-engine.js"></script>
+  <script defer src="js/student-progress.js"></script>
+  <script defer src="js/characters.js"></script>
+  <script defer src="js/app.js"></script>
+  <script defer src="js/home.js"></script>
+</head>
+<body data-page="home">
+  <a class="skip" href="#main">تخطَّ إلى المحتوى</a>
+  <header id="app-header"></header>
+  <main id="main" tabindex="-1">
+    <section class="hero">
+      <div class="hero-bg" aria-hidden="true">
+        <svg viewBox="0 0 1440 520" preserveAspectRatio="xMidYMax slice">
+          <defs><linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9e7c4"/><stop offset="1" stop-color="#fbf6ec"/></linearGradient></defs>
+          <rect width="1440" height="520" fill="url(#hsky)"/>
+          <circle cx="1220" cy="120" r="70" fill="#f7c95a" opacity=".55"/>
+          <path d="M0 360 Q200 290 420 340 T860 320 T1440 330 V520 H0Z" fill="#c9d9a3" opacity=".7"/>
+          <path d="M0 410 Q260 350 520 400 T1040 380 T1440 400 V520 H0Z" fill="#a6c27c" opacity=".75"/>
+          <g stroke="#8a6b44" stroke-width="2" opacity=".35" fill="none"><path d="M0 440 Q360 410 720 440 T1440 430"/><path d="M0 470 Q360 445 720 470 T1440 462"/></g>
+          <g fill="#6f8f42"><g transform="translate(120 352)"><rect x="-3" y="0" width="6" height="30" fill="#6b4a2a"/><circle cy="-6" r="24"/><circle cx="-16" cy="4" r="16"/><circle cx="16" cy="4" r="16"/></g>
+          <g transform="translate(330 374)"><rect x="-3" y="0" width="6" height="26" fill="#6b4a2a"/><circle cy="-6" r="20"/><circle cx="-13" cy="3" r="13"/><circle cx="13" cy="3" r="13"/></g>
+          <g transform="translate(980 360)"><rect x="-3" y="0" width="6" height="28" fill="#6b4a2a"/><circle cy="-6" r="22"/><circle cx="-15" cy="4" r="15"/><circle cx="15" cy="4" r="15"/></g>
+          <g transform="translate(1320 372)"><rect x="-3" y="0" width="6" height="26" fill="#6b4a2a"/><circle cy="-6" r="20"/><circle cx="-13" cy="3" r="13"/><circle cx="13" cy="3" r="13"/></g></g>
+          <g fill="#c8102e">
+            <circle cx="220" cy="430" r="6"/><circle cx="250" cy="445" r="5"/><circle cx="560" cy="420" r="6"/><circle cx="600" cy="440" r="5"/><circle cx="860" cy="430" r="6"/><circle cx="1180" cy="440" r="6"/><circle cx="1210" cy="425" r="5"/>
+          </g>
+        </svg>
+      </div>
+      <div class="container hero-in">
+        <div class="hero-text reveal">
+          <p class="eyebrow">مغامرة علمية تكيفية · درس أجزاء النبات ووظائفها</p>
+          <h1>🌱 مَهَمَّةُ إِنْقَاذِ النَّبْتَة</h1>
+          <p class="hero-sub">لولو تحتاج إلى مساعدتك!</p>
+          <div class="hero-quote card">
+            <p id="hero-line">هناك مشكلة في أحد أجزاء لولو… هل تستطيع اكتشافها وإنقاذها؟</p>
+            <button class="icon-btn sm" type="button" data-speak="هناك مشكلة في أحد أجزاء لولو. هل تستطيع اكتشافها وإنقاذها؟" aria-label="استمع">🔊</button>
+          </div>
+          <div class="hero-actions">
+            <a class="btn btn-red lg" id="start-btn" href="student.html">🚀 ابدأ المهمة</a>
+            <button class="btn lg" type="button" id="how-btn">📖 كيف ألعب؟</button>
+            <button class="btn lg" type="button" id="access-btn">♿ خيارات الوصول</button>
+          </div>
+          <p class="muted small" id="continue-note"></p>
+        </div>
+        <div class="hero-stage" aria-label="لولو النبتة ونَبْتي المساعد">
+          <div class="stage-lulu float" id="hero-lulu"></div>
+          <div class="stage-nabti">
+            <div class="speech">مرحبًا أيها العالم الصغير! 👋</div>
+            <div id="hero-nabti"></div>
+          </div>
+          <div class="stage-tag">🌺 لولو — زهرة شقائق النعمان</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="container section">
+      <h2 class="center">كيف تتكيّف الرحلة معك؟</h2>
+      <p class="center muted">لا يسلك كل الطلاب الطريق نفسه. يحلّل نَبْتي أداءك باستمرار ويختار لك ما يناسبك.</p>
+      <ol class="flow">
+        <li class="card"><span class="flow-i">🧠</span><h3>مهمة اكتشاف المستوى</h3><p>٨ أسئلة تقيس ٨ مهارات، من التعرف إلى حل المشكلات.</p></li>
+        <li class="card"><span class="flow-i">🧬</span><h3>ملفك الذكي</h3><p>إتقان كل مهارة مع مراعاة التلميحات والمحاولات والوقت.</p></li>
+        <li class="card"><span class="flow-i">🧭</span><h3>مسارك الشخصي</h3><p><span class="path-badge path-challenge">🟢 متقدم</span> <span class="path-badge path-practice">🟡 متوسط</span> <span class="path-badge path-remediation">🔵 علاجي</span></p></li>
+        <li class="card"><span class="flow-i">🎮</span><h3>تكيّف لحظي</h3><p>تلميح ← تلميح أوضح ← شرح مصغّر ← نشاط علاجي ← إعادة المحاولة.</p></li>
+        <li class="card"><span class="flow-i">🏆</span><h3>تقرير وشهادة</h3><p>تقرير ذكي بالمهارات المتقنة والتوصية التالية.</p></li>
+      </ol>
+    </section>
+
+    <section class="container section">
+      <div class="zones-preview card tatreez-frame">
+        <div class="zp-in">
+          <h2>🗺️ رحلة إنقاذ لولو: ست مناطق</h2>
+          <ul class="zp-list">
+            <li><span>🌱</span> مدينة الجذور</li><li><span>🌿</span> طريق الساق</li><li><span>🍃</span> مصنع الأوراق</li>
+            <li><span>🌸</span> حديقة الأزهار</li><li><span>🔬</span> المختبر النباتي</li><li><span>🚨</span> مركز إنقاذ لولو</li>
+          </ul>
+          <div class="row"><a class="btn btn-primary" href="student.html">🔬 ابدأ كعالم نبات صغير</a><a class="btn" href="teacher.html">👩‍🏫 لوحة المعلم</a></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer id="app-footer"></footer>
+</body>
+</html>
