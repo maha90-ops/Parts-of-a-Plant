@@ -68,7 +68,7 @@
         <div class="row"><span class="chip">💡 التلميحات: ${ar(p.hintsUsed)}</span><span class="chip">✗ الأخطاء المسجّلة: ${ar(p.mistakes.length)}</span><span class="chip">📝 الاستجابات: ${ar(p.responses.length)}</span></div>
       </section>`;
     $('#d-village').innerHTML = PR.village.panel(p);
-    PR.village.mount($('#d-village'), p);
+    PR.village.mountPanel($('#d-village'), p);
     $('#d-puzzle').innerHTML = PR.puzzle.panel(p);
     PR.nabti.say(`${top.text} اضغط «ابدأ التدريب».`, 'happy');
   };

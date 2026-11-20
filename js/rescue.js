@@ -28,7 +28,15 @@
     const C = D.RESCUE_CASES[D.RESCUE_BY_PATH[p.currentPath] || 'A'];
     const state = Object.assign({}, C.state);
     const log = (t) => { PR.progress.log(p, 'adapt', t); PR.progress.save(p); };
-    const rec = (r) => { const res = PR.progress.recordResponse(p, Object.assign({ zone: 'rescue' }, r)); PR.progress.save(p); PR.ui.reward(res.reward); return res; };
+    const rec = (r) => {
+      const res = PR.progress.recordResponse(p, Object.assign({ zone: 'rescue' }, r));
+      // تحدّي الخيمة والزيتون: كل سؤال في مركز الإنقاذ يبني بيتًا أو يُبقي الخيمة
+      const vr = PR.village.record(p, r);
+      PR.progress.save(p); PR.ui.reward(res.reward); PR.village.update(p, vr);
+      return res;
+    };
+    PR.village.start(p); PR.puzzle.stop(p); PR.progress.save(p);
+    PR.village.mountAside(p);
     const drawLulu = (el, extra) => { el.innerHTML = PR.art.plant(Object.assign({ scene: true }, state, extra || {}, { title: `لولو: ${C.title}` })); };
     log(`بدء مهمة الإنقاذ: الحالة ${C.id} «${C.title}» حسب ${D.PATHS[p.currentPath].name}`);
 
@@ -69,7 +77,7 @@
     log(`جمع ${seen.size} أدلة: ${[...seen].join('، ')}`);
 
     // ---- للمسار المتقدم: اختيار الأدلة الداعمة ----
-    if (p.currentPath === 'challenge') {
+    {  // اختيار الأدلة الداعمة (لكل المسارات؛ في العلاجي تُميَّز الأدلة المهمة)
       const t0 = performance.now();
       stage.innerHTML = `<div class="card reveal"><p class="eyebrow">⚖️ اتخاذ القرار</p><h3>اختر الدليلين الأهم اللذين يكشفان مشكلة لولو:</h3>
         <div class="evidence">${[...seen].map((k) => `<label class="ev"><input type="checkbox" value="${k}"> <span>${esc(C.clues[k])}</span></label>`).join('')}</div>
@@ -122,12 +130,6 @@
     PR.nabti.say('لقد أنقذتَ لولو! انظر كيف عادت إليها الحياة 🌺 بقي التقييم النهائي القصير.', 'cheer');
     p.rescue = { caseId: C.id, clues: [...seen], completedAt: new Date().toISOString() };
     PR.progress.save(p);
-    if (PR.village) {
-      const rr = p.responses.filter((r) => r.zone === 'rescue').map((r) => r.credit);
-      const vrec = PR.village.record(p, 'rescue', rr.length ? rr.reduce((a, b) => a + b, 0) / rr.length : 1);
-      PR.progress.save(p);
-      await PR.village.celebrate(p, vrec);
-    }
     $('#heal-go').outerHTML = '<button class="btn btn-red lg" id="post-go">📝 ابدأ التقييم النهائي</button>';
     $('#post-go').focus();
     await new Promise((r) => { $('#post-go').onclick = r; });
@@ -163,7 +165,11 @@
         <p>لقد نجحت في اكتشاف وظائف أجزاء النبات وساعدت لولو على استعادة عافيتها.</p>
         <div class="kpis"><div class="kpi"><b>${pct(pre)}</b><span>قبل الرحلة</span></div><div class="kpi kpi-main"><b>${post != null ? pct(post) : '—'}</b><span>بعد الرحلة</span></div><div class="kpi"><b>${gain >= 0 ? '+' : '−'}${ar(Math.abs(gain))}</b><span>مكسب التعلم</span></div><div class="kpi"><b>${pct(E.overallMastery(p))}</b><span>الإتقان العام</span></div></div>
         <div class="row-end"><a class="btn" href="dashboard.html">📊 لوحتي</a><a class="btn" href="report.html">📄 تقرير رحلة التعلم</a><a class="btn btn-red lg" href="certificate.html">🏆 شهادتي</a></div>
-        ${revisit ? '<p class="muted small">يمكنك <a href="rescue.html?again=1">إعادة مهمة الإنقاذ</a> للتدريب.</p>' : ''}</div></div></div>`;
+        ${revisit ? '<p class="muted small">يمكنك <a href="rescue.html?again=1">إعادة مهمة الإنقاذ</a> للتدريب.</p>' : ''}</div></div>
+        <div class="card-inner mt" id="final-village">${PR.village.panel(p)}</div></div>`;
+      PR.village.mountPanel($('#final-village'), p);
+      PR.puzzle.stop(p); PR.progress.save(p);
+      PR.village.mountAside(p);
       if (!revisit) { setTimeout(() => PR.ui.badge('lulu_savior'), 600); }
       PR.nabti.say(revisit ? 'لولو بخير بفضلك! شاهد تقريرك وشهادتك.' : 'أنت منقذ لولو! 🏆 شهادتك جاهزة.', 'cheer');
     }

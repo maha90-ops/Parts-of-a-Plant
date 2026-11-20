@@ -46,7 +46,7 @@
     questionPlan: {
       remediation: { count: 3, start: 1, min: 1, max: 2 },
       practice: { count: 3, start: 2, min: 1, max: 3 },
-      challenge: { count: 3, start: 2, min: 2, max: 3 },
+      challenge: { count: 4, start: 2, min: 2, max: 3 },
     },
   };
 

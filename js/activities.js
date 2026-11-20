@@ -362,13 +362,6 @@
     PR.ui.reward(res.reward);
     return res;
   }
-  /* قرية لولو: نتيجة المحطة تبني بيتًا أو تُسقط زيتونة */
-  async function villageStep(ctx, key, credit) {
-    if (!PR.village) return;
-    const rec = PR.village.record(ctx.p, key, credit);
-    PR.progress.save(ctx.p);
-    await PR.village.celebrate(ctx.p, rec);
-  }
   function decision(ctx, text) { PR.progress.log(ctx.p, 'adapt', text); ctx.decisions.push(text); PR.progress.save(ctx.p); }
 
   const STEPS = {
@@ -459,7 +452,6 @@
       ctx.stage.innerHTML = '<div id="why-box"></div>';
       const resp = await PR.QuestionCard($('#why-box'), why, { path: ctx.p.currentPath, zone: ctx.zone.id, label: 'سؤال بعد النشاط', onDecision: (t) => decision(ctx, t) });
       const rw = record(ctx, resp);
-      await villageStep(ctx, `${ctx.zone.id}-act`, (ra.credit + rw.credit) / 2);
     },
 
     async questions(ctx) {
@@ -483,7 +475,6 @@
         if (ad.event === 'level-up') { PR.toast('⬆️ إجابات متتالية ممتازة! رفعنا مستوى التحدي.'); decision(ctx, `رفع مستوى الصعوبة إلى ${state.level}`); }
         if (ad.event === 'level-down') { PR.toast('🤝 سنخفف الصعوبة قليلًا لنثبّت الفكرة.'); decision(ctx, `خفض مستوى الصعوبة إلى ${state.level}`); }
       }
-      await villageStep(ctx, `${ctx.zone.id}-q`, qResps.length ? qResps.reduce((s, r) => s + E.responseCredit(r), 0) / qResps.length : 1);
       if (E.shouldEnrich(qResps, path)) {
         const extra = pool.find((q) => q.level === 3 && !asked.includes(q.id));
         decision(ctx, 'إتقان متكرر ← عرض نشاط إثرائي');
@@ -560,6 +551,7 @@
           ${PR.ui.masteryBar('إتقان ' + D.PARTS[ctx.zone.part].name, p.partMastery[ctx.zone.part], { icon: D.PARTS[ctx.zone.part].icon, delta: p.partMastery[ctx.zone.part] - ctx.beforePart })}</div>
         <div><h3>🤖 قرارات نَبْتي في هذه المنطقة</h3><ul class="decisions">${(ctx.decisions.length ? ctx.decisions : ['لم تحتج إلى دعم إضافي — أحسنت!']).slice(-6).map((d) => `<li>${esc(d)}</li>`).join('')}</ul>
           ${pathMsg ? `<p class="note">${esc(pathMsg)}</p>` : `<p class="muted">مسارك الحالي: ${PR.ui.pathBadge(p.currentPath)}</p>`}</div></div>
+        ${puzzleResult(p, ctx.zone.id)}
         <div class="row-end"><a class="btn" href="dashboard.html">📊 لوحتي</a><a class="btn btn-primary lg" href="map.html?done=${ctx.zone.id}">🗺️ ${nextZ ? 'إلى المحطة التالية: ' + nextZ.title : 'العودة إلى الخريطة'}</a></div></div>`;
       PR.sfx.play('win'); PR.fx.confetti(30);
       PR.nabti.say(pathMsg || (stars === 3 ? 'عمل مذهل! حصلت على ثلاث نجوم.' : 'أحسنت! كل منطقة تجعلك عالمًا أفضل.'), 'cheer');
@@ -568,6 +560,15 @@
     },
   };
 
+  /* نتيجة لوحة البازل في شاشة نهاية المحطة */
+  function puzzleResult(p, key) {
+    const s = PR.puzzle.state(p, key); if (!s) return '';
+    const S = PR.puzzle.STATIONS[key];
+    const full = s.got >= s.total;
+    return `<div class="pz-result ${full ? 'full' : ''}"><div class="pz-frame">${PR.puzzle.svg(key, s.got, s.total)}</div>
+      <div><p class="eyebrow">🧩 تحدّي البازل</p><h3>${full ? `🕌 اكتملت لوحة «${S.tl}»!` : `وضعتَ ${ar(s.got)} من ${ar(s.total)} قطعة`}</h3>
+      <p class="muted">${full ? 'كل إجاباتك في هذه المحطة كانت صحيحة في النهاية.' : 'القطع الناقصة لأسئلة لم تُحلّ صحيحًا. أعد المحطة لتكمل اللوحة.'}</p></div></div>`;
+  }
   function stripHtml(h) { const d = document.createElement('div'); d.innerHTML = h; return d.textContent.replace(/\s+/g, ' ').trim(); }
 
   async function runZone(p, zone) {
@@ -578,7 +579,10 @@
     const nav = $('#zone-steps');
     nav.innerHTML = steps.map((s, i) => `<li data-s="${s}"><span class="sn">${ar(i + 1)}</span> ${STEP_LABELS[s]}</li>`).join('');
     PR.progress.log(p, 'zone', `دخل «${zone.title}» (${D.PATHS[path].name}): ${steps.join(' → ')}`);
+    // تحدّي البازل: لوحة جديدة فارغة للمحطة، عدد قطعها = عدد أسئلتها
+    PR.puzzle.start(p, zone.id);
     PR.progress.save(p);
+    PR.puzzle.mountAside(p, zone.id);
     for (let i = 0; i < steps.length; i++) {
       $$('#zone-steps li').forEach((li, k) => { li.classList.toggle('on', k === i); li.classList.toggle('done', k < i); if (k === i) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current'); });
       try {
@@ -614,6 +618,7 @@
     let state = { level: forced || E.startLevel(path, skill ? p.skillMastery[skill] : p.partMastery[part]) };
     const asked = [];
     PR.progress.log(p, 'train', `بدأ تدريبًا موجّهًا: ${title}`);
+    PR.puzzle.stop(p); PR.progress.save(p); PR.puzzle.mountAside(p, null);
     for (let i = 0; i < 5; i++) {
       const q = E.pickQuestion(pool, state.level, asked); if (!q) break;
       asked.push(q.id);
@@ -626,9 +631,6 @@
     }
     PR.progress.completeActivity(p, 'train-' + (skill || part || 'mix'), { score: Math.round(ctx.credits.reduce((a, b) => a + b, 0) / (ctx.credits.length || 1) * 100) });
     p.drops += 2; p.recommendations = E.recommendations(p);
-    const avgCr = ctx.credits.reduce((a, b) => a + b, 0) / (ctx.credits.length || 1);
-    const repaired = avgCr >= 0.6 && PR.village ? PR.village.repairTent(p) : null;
-    if (repaired) { PR.progress.save(p); await PR.village.celebrate(p, repaired); }
     const re = E.reevaluatePath(p);
     if (re.changed) PR.progress.setPath(p, re.path, re.reasons, 'training');
     PR.progress.save(p); PR.ui.refreshStats();

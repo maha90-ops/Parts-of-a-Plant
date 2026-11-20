@@ -306,8 +306,5 @@
     buildShell(page);
     try { if (PR.pages[page]) PR.pages[page](); }
     catch (err) { console.error(err); PR.toast('حدث خطأ غير متوقع، أعد تحميل الصفحة.', 'bad'); }
-    // اللوحة الجانبية الثابتة بجانب الأسئلة (بازل قبة الصخرة + قرية لولو)
-    try { const cur = PR.progress && PR.progress.current(); if (cur && PR.puzzle && $('#play-aside')) PR.puzzle.mountAside(cur); }
-    catch (err) { console.error(err); PR.toast('حدث خطأ غير متوقع، أعد تحميل الصفحة.', 'bad'); }
   });
 })(typeof self !== 'undefined' ? self : this);

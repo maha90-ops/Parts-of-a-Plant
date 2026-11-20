@@ -79,7 +79,7 @@
 
     // ---- قرية لولو + بازل قبة الصخرة ----
     $('#village-card').innerHTML = PR.village.panel(p);
-    PR.village.mount($('#village-card'), p);
+    PR.village.mountPanel($('#village-card'), p);
     $('#puzzle-card').innerHTML = PR.puzzle.panel(p);
 
     // ---- التوصية ----

@@ -514,3 +514,18 @@ html.hc .video-section { background: #000; }
 .fl-art, .final-lulu, .alarm-art, #heal-lulu, .inv-plant, .wj-plant, .ex-plant, .brief-art, .micro-art,
 .join-lulu, .lulu-mini, .stage-lulu, .story-art, .q-visual, .sim-plant, .cert-lulu, .rq-side #rq-lulu { width: 100%; }
 .plant-svg, .flower-svg, .vscene, .pz-svg { width: 100%; min-width: 0; }
+
+/* ---------- معرض لوحات البازل الخمس ---------- */
+.pz-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.pz-tile { margin: 0; background: #fbf8f1; border: 1px solid var(--line); border-radius: 14px; padding: 6px; }
+.pz-tile.done { border-color: #c8901c; box-shadow: 0 0 0 2px rgba(200, 144, 28, .25); }
+.pz-tile .pz-frame { padding: 2px; border: 0; background: none; }
+.pz-tile figcaption { display: grid; text-align: center; font-size: .85rem; padding-top: 4px; }
+.pz-tile figcaption small { color: var(--muted); font-weight: 700; }
+/* نتيجة البازل في شاشة نهاية المحطة */
+.pz-result { display: grid; grid-template-columns: 220px 1fr; gap: 16px; align-items: center; background: #fbf8f1; border: 1px dashed #c8901c; border-radius: 16px; padding: 12px; margin: 16px 0 4px; }
+.pz-result.full { border-style: solid; background: var(--gold-l); }
+.pz-result h3 { margin: 0 0 4px; }
+@media (max-width: 600px) { .pz-result { grid-template-columns: 1fr; } }
+/* الخيمة التي بقيت بعد إجابة خاطئة */
+.vscene .slot.stays .tent polygon:nth-of-type(2) { fill: #e2b866; }

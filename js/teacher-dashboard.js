@@ -38,7 +38,8 @@
     p.activitiesCompleted = D.ZONES.slice(0, doneN).map((z) => ({ id: z.id }));
     if (doneN >= 6) p.postTest = { adjusted: Math.min(100, T + 6) };
     p.responses = p.responses.map(() => ({ correct: R() < T / 100 + 0.1 }));
-    PR.village.MILESTONES.slice(0, Math.min(10, doneN * 2 - (doneN >= 5 ? 1 : 0))).forEach((m) => { p.village[m.key] = PR.village.resultFor(T / 100 + (R() * 0.3 - 0.15)); });
+    p.puzzles = {}; PR.puzzle.KEYS.slice(0, Math.min(5, doneN)).forEach((k) => { const total = PR.puzzle.totalFor(k, path); const got = Math.min(total, Math.round(total * (T / 100 + 0.15 + R() * 0.1))); p.puzzles[k] = { total, got, best: got, bestTotal: total }; });
+    if (doneN >= 6) p.rescueVillage = { results: Array.from({ length: 10 }, () => { const x = R(); return x < T / 100 - 0.25 ? 'olive' : x < T / 100 + 0.1 ? 'house' : 'tent'; }) };
     p.progress = PR.progress.computeProgress(p);
     p.decisions = [{ at: new Date().toISOString(), type: 'path', text: `تحدد المسار: «${D.PATHS[path].name}» (بيانات تجريبية)` }];
     p.updatedAt = new Date(Date.now() - 36e5 * i).toISOString();
@@ -117,8 +118,8 @@
         <section class="card"><div class="row"><h2 class="h-sm">📋 تقدّم كل طالب</h2><span class="grow"></span>
           <input class="input sm-input" id="q" placeholder="🔎 ابحث بالاسم" value="${esc(query)}" aria-label="ابحث بالاسم">
           <select class="input sm-input" id="f" aria-label="تصفية حسب المسار"><option value="all">كل المسارات</option>${Object.keys(D.PATHS).map((k) => `<option value="${k}" ${filter === k ? 'selected' : ''}>${D.PATHS[k].name}</option>`).join('')}</select></div>
-          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>الطالب</th><th>المسار</th><th>الإتقان</th><th>الربط</th><th>المناطق</th><th>التلميحات</th><th>الأخطاء</th><th>🏠 / <i class="olive-ic" aria-hidden="true"></i> / 🧩</th><th></th></tr></thead><tbody>
-          ${list.map((x) => `<tr><td><b>${esc(x.s.name)}</b>${x.s.demo ? ' <small class="muted">(تجريبي)</small>' : ''}</td><td>${PR.ui.pathBadge(x.s.currentPath)}</td><td><span class="${x.m >= 80 ? 'pill-ok' : x.m < 60 ? 'pill-bad' : ''}">${pct(x.m)}</span></td><td>${pct(x.s.skillMastery.match || 0)}</td><td>${ar(D.ZONES.filter((z) => x.s.zones[z.id].status === 'done').length)}/${ar(6)}</td><td>${ar(x.s.hintsUsed)}</td><td>${ar(x.s.mistakes.length)}</td><td>${ar(PR.village.counts(x.s).houses)} / ${ar(PR.village.counts(x.s).olives)} / ${ar(PR.puzzle.pieces(x.s))}</td><td><button class="btn sm" data-id="${x.s.studentId}">فتح الملف</button></td></tr>`).join('')}
+          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>الطالب</th><th>المسار</th><th>الإتقان</th><th>الربط</th><th>المناطق</th><th>التلميحات</th><th>الأخطاء</th><th>🧩 لوحات · 🏠 / <i class="olive-ic" aria-hidden="true"></i></th><th></th></tr></thead><tbody>
+          ${list.map((x) => `<tr><td><b>${esc(x.s.name)}</b>${x.s.demo ? ' <small class="muted">(تجريبي)</small>' : ''}</td><td>${PR.ui.pathBadge(x.s.currentPath)}</td><td><span class="${x.m >= 80 ? 'pill-ok' : x.m < 60 ? 'pill-bad' : ''}">${pct(x.m)}</span></td><td>${pct(x.s.skillMastery.match || 0)}</td><td>${ar(D.ZONES.filter((z) => x.s.zones[z.id].status === 'done').length)}/${ar(6)}</td><td>${ar(x.s.hintsUsed)}</td><td>${ar(x.s.mistakes.length)}</td><td>${ar(PR.puzzle.completed(x.s).length)}/٥ · ${ar(PR.village.counts(x.s).houses)} / ${ar(PR.village.counts(x.s).olives)}</td><td><button class="btn sm" data-id="${x.s.studentId}">فتح الملف</button></td></tr>`).join('')}
           </tbody></table></div>
           ${realN ? '<div class="row-end"><button class="btn sm btn-ghost" id="wipe">🗑️ حذف بيانات الطلاب الحقيقيين من هذا الجهاز</button></div>' : ''}
         </section>`;

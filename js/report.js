@@ -43,8 +43,8 @@
         <div><dt>عدد الأنشطة المكتملة</dt><dd>${ar(R.activities)}</dd></div>
         <div><dt>المسار الذي اتبعه الطالب</dt><dd>${p.pathHistory.map((h) => D.PATHS[h.path].icon + ' ' + D.PATHS[h.path].name).join(' ← ')}</dd></div>
         <div><dt>قبل الرحلة / بعدها</dt><dd>${pct(pre)} ← ${post != null ? pct(post) : 'لم يُكمل التقييم النهائي بعد'}${post != null ? ` (مكسب ${post - pre >= 0 ? '+' : '−'}${ar(Math.abs(post - pre))})` : ''}</dd></div>
-        <div><dt>قرية لولو (الخيمة والزيتون)</dt><dd>🏠 ${ar(PR.village.counts(p).houses)} / ١٠ بيوت · <i class="olive-ic" aria-hidden="true"></i> ${ar(PR.village.counts(p).olives)} حبات زيتون</dd></div>
-        <div><dt>بازل قبة الصخرة</dt><dd>🧩 ${ar(PR.puzzle.pieces(p))} / ${ar(PR.puzzle.TOTAL)} قطعة</dd></div>
+        <div><dt>تحدّي الخيمة والزيتون (مركز الإنقاذ)</dt><dd>🏠 ${ar(PR.village.counts(p).houses)} / ١٠ بيوت · <i class="olive-ic" aria-hidden="true"></i> ${ar(PR.village.counts(p).olives)} حبات زيتون</dd></div>
+        <div><dt>تحدّي البازل (المحطات الخمس)</dt><dd>🕌 ${ar(PR.puzzle.completed(p).length)} / ٥ لوحات مكتملة — ${PR.puzzle.KEYS.map((k) => { const s = PR.puzzle.state(p, k); return `${PR.puzzle.STATIONS[k].i} ${s ? ar(s.got) + '/' + ar(s.total) : '—'}`; }).join(' · ')}</dd></div>
         <div><dt>المناطق المكتملة</dt><dd>${D.ZONES.map((z) => `${z.icon} ${p.zones[z.id].status === 'done' ? '✓' : '—'}`).join('  ')}</dd></div>
       </dl>
       <section class="rep-rec"><h2 class="h-sm">🎯 التوصية التعليمية التالية</h2><p>${esc(R.rec)}</p>${PR.ui.speakBtn(R.rec)}</section>

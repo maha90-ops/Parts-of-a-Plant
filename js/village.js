@@ -1,55 +1,38 @@
 /* =========================================================================
-   village.js — نشاط «الخيمة والزيتون»: قرية لولو
-   عشر خيام = عشر محطات في الرحلة. كل محطة يُنجزها الطالب تُزيل خيمة وتبني بيتًا،
-   وكل محطة يُتقنها (استحقاق ≥ ٨٥٪، أي من المحاولة الأولى غالبًا) تُسقط حبة زيتون
-   على الكوفية. عند اكتمال البيوت العشرة يرتفع العلم الفلسطيني.
-   الخيمة الباقية = محطة تحتاج مراجعة، ويحوّلها التدريب الموجّه إلى بيت (تكيّف).
+   village.js — تحدّي «الخيمة والزيتون» في مركز إنقاذ لولو
+   عشر خيام = عشرة أسئلة في مركز الإنقاذ (الأدلة، المشكلة، الجزء، الحل،
+   وأسئلة التقييم النهائي الستة).
+   - إجابة صحيحة من المحاولة الأولى بلا تلميح: تُزال الخيمة ويُبنى بيت + تسقط حبة زيتون على الكوفية
+   - إجابة صحيحة بعد محاولة أو تلميح: يُبنى بيت
+   - إجابة خاطئة: تبقى الخيمة
+   عند اكتمال البيوت العشرة يرتفع العلم الفلسطيني فوق القرية.
    ========================================================================= */
 (function (root) {
   'use strict';
   const PR = root.PR = root.PR || {};
   const D = PR.data;
   const ar = D.util.ar;
-
-  const MILESTONES = [
-    { key: 'roots-act', t: 'نشاط مدينة الجذور', i: '🌱' }, { key: 'roots-q', t: 'أسئلة الجذر', i: '🌱' },
-    { key: 'stem-act', t: 'رحلة الماء في الساق', i: '🌿' }, { key: 'stem-q', t: 'أسئلة الساق', i: '🌿' },
-    { key: 'leaves-act', t: 'مصنع الأوراق', i: '🍃' }, { key: 'leaves-q', t: 'أسئلة الأوراق', i: '🍃' },
-    { key: 'flower-act', t: 'حديقة الأزهار', i: '🌸' }, { key: 'flower-q', t: 'أسئلة الزهرة', i: '🌸' },
-    { key: 'lab', t: 'المختبر النباتي', i: '🔬' }, { key: 'rescue', t: 'إنقاذ لولو', i: '🚨' },
-  ];
-  const RANK = { tent: 0, house: 1, olive: 2 };
+  const SLOTS = 10;
   const OLIVES = [{ bx: 78, by: 74, kx: 68, ky: 185 }, { bx: 112, by: 56, kx: 88, ky: 187 }, { bx: 152, by: 68, kx: 108, ky: 184 }, { bx: 176, by: 96, kx: 128, ky: 188 }, { bx: 64, by: 104, kx: 148, ky: 185 }, { bx: 96, by: 95, kx: 168, ky: 187 }, { bx: 134, by: 92, kx: 80, ky: 199 }, { bx: 162, by: 114, kx: 104, ky: 201 }, { bx: 118, by: 115, kx: 132, ky: 200 }, { bx: 85, by: 120, kx: 156, ky: 199 }];
 
-  function resultFor(credit) { return credit >= 0.85 ? 'olive' : credit >= 0.45 ? 'house' : 'tent'; }
-
+  function resultOf(r) { return !r.correct ? 'tent' : (r.attempts === 1 && !r.hints) ? 'olive' : 'house'; }
+  function list(p) { return (p.rescueVillage && p.rescueVillage.results) || []; }
   function counts(p) {
-    const v = p.village || {};
-    const vals = MILESTONES.map((m) => v[m.key]).filter(Boolean);
-    return { houses: vals.filter((r) => r !== 'tent').length, olives: vals.filter((r) => r === 'olive').length, tents: vals.filter((r) => r === 'tent').length, done: vals.length };
+    const r = list(p);
+    return { houses: r.filter((x) => x !== 'tent').length, olives: r.filter((x) => x === 'olive').length, tents: SLOTS - r.filter((x) => x !== 'tent').length, answered: r.length };
+  }
+  /** بداية مهمة الإنقاذ: القرية كلها خيام */
+  function start(p) { p.rescueVillage = { results: [], startedAt: new Date().toISOString() }; }
+  /** تسجيل نتيجة سؤال في مركز الإنقاذ */
+  function record(p, r) {
+    if (!p.rescueVillage) start(p);
+    const res = p.rescueVillage.results;
+    if (res.length >= SLOTS) return null;
+    const before = res.slice();
+    res.push(resultOf(r));
+    return { before, result: res[res.length - 1], index: res.length - 1 };
   }
 
-  /** يسجّل نتيجة محطة (يحتفظ بأفضل نتيجة عند الإعادة) ويعيد ما تغيّر */
-  function record(p, key, credit) {
-    p.village = p.village || {};
-    const prev = p.village[key] || null;
-    const res = resultFor(credit);
-    const best = !prev || RANK[res] > RANK[prev] ? res : prev;
-    p.village[key] = best;
-    const before = countsFrom(Object.assign({}, p.village, { [key]: prev }));
-    if (PR.progress) PR.progress.log(p, 'village', `محطة «${(MILESTONES.find((m) => m.key === key) || {}).t}»: ${{ olive: 'بيت + حبة زيتون', house: 'بيت', tent: 'بقيت الخيمة للمراجعة' }[best]}`);
-    return { key, prev, result: best, before };
-  }
-  function countsFrom(v) { return counts({ village: Object.fromEntries(Object.entries(v).filter(([, x]) => x)) }); }
-
-  /** التدريب الموجّه يبني أول خيمة باقية */
-  function repairTent(p) {
-    const k = MILESTONES.find((m) => (p.village || {})[m.key] === 'tent');
-    if (!k) return null;
-    return record(p, k.key, 0.6);
-  }
-
-  /* ---------- رسم المشهد ---------- */
   function slotSVG(k) {
     const col = k % 5, row = (k / 5) | 0, x = 140 + (4 - col) * 44, y = 70 + row * 58;
     return `<g transform="translate(${x},${y}) scale(.72)"><g class="slot" id="vslot${k}"><rect x="3" y="54" width="54" height="4" rx="2" fill="#c7b183"/>
@@ -82,83 +65,68 @@
       <text x="176" y="206" text-anchor="middle" font-size="0">قرية</text></svg>` };
   }
 
-  function applyState(svg, id, c) {
-    for (let k = 0; k < 10; k++) {
-      svg.querySelector('#vslot' + k).classList.toggle('built', k < c.houses);
+  function applyState(svg, id, results) {
+    const olives = results.filter((x) => x === 'olive').length;
+    for (let k = 0; k < SLOTS; k++) {
+      const s = svg.querySelector('#vslot' + k);
+      s.classList.toggle('built', results[k] === 'house' || results[k] === 'olive');
+      s.classList.toggle('stays', results[k] === 'tent');
       const el = svg.querySelector(`#${id}-ol${k}`), o = OLIVES[k];
-      el.style.transform = k < c.olives ? `translate(${o.kx - o.bx}px,${o.ky - o.by}px)` : 'translate(0px,0px)';
+      el.style.transform = k < olives ? `translate(${o.kx - o.bx}px,${o.ky - o.by}px)` : 'translate(0px,0px)';
     }
-    svg.querySelector('.vflag').classList.toggle('up', c.houses === 10);
-    svg.setAttribute('aria-label', `قرية لولو: ${ar(c.houses)} بيوت و${ar(10 - c.houses)} خيام، و${ar(c.olives)} حبات زيتون على الكوفية${c.houses === 10 ? '، والعلم يرفرف' : ''}`);
+    const houses = results.filter((x) => x !== 'tent').length;
+    svg.querySelector('.vflag').classList.toggle('up', houses === SLOTS);
+    svg.setAttribute('aria-label', `قرية لولو: ${ar(houses)} بيوت و${ar(SLOTS - houses)} خيام، و${ar(olives)} حبات زيتون على الكوفية${houses === SLOTS ? '، والعلم يرفرف' : ''}`);
   }
-
-  /** لوحة القرية الكاملة (تُستخدم في الخريطة ولوحة الطالب) */
-  function panel(p, opts) {
-    opts = opts || {};
-    const c = counts(p);
-    const s = sceneSVG();
-    if (opts.bare) return `<div class="village-panel bare">${s.html.replace('class="vscene"', `class="vscene" data-vid="${s.id}"`)}</div>`;
-    const tents = MILESTONES.filter((m) => (p.village || {})[m.key] === 'tent');
-    return `<div class="village-panel">
-      <div class="vhead"><div><h3 class="vt">⛺ قرية لولو: تحدّي الخيمة والزيتون</h3><p>كل محطة تُنجزها تُزيل خيمة وتبني بيتًا، وكل محطة تُتقنها من المحاولة الأولى تُسقط حبة زيتون على الكوفية. ابنِ البيوت العشرة ليرتفع العلم!</p></div></div>
-      ${s.html.replace('class="vscene"', `class="vscene" data-vid="${s.id}"`)}
-      <div class="tally"><span>🏠 بيوت <b>${ar(c.houses)} / ١٠</b></span><span><i class="olive-ic" aria-hidden="true"></i> زيتون على الكوفية <b>${ar(c.olives)} / ١٠</b></span></div>
-      ${opts.compact ? '' : `<ul class="vkey"><li><i class="olive-ic" aria-hidden="true"></i> + 🏠 إتقان المحطة من المحاولة الأولى</li><li>🏠 إنجاز المحطة بعد محاولات أو تلميحات</li><li>⛺ تبقى الخيمة للمراجعة، ويبنيها التدريب الموجّه</li></ul>`}
-      ${tents.length && !opts.compact ? `<p class="vtents">⛺ خيام تنتظر المراجعة: ${tents.map((m) => `${m.i} ${m.t}`).join('، ')} — <a href="zone.html?mode=train&skill=${PR.engine.weakestSkills(p, 1)[0].s}">ابنِها بالتدريب الموجّه</a></p>` : ''}
-    </div>`;
-  }
-  /** بعد إدراج اللوحة في الصفحة: تطبيق الحالة (مع حركة اختيارية من حالة سابقة) */
+  function scene() { const s = sceneSVG(); return { id: s.id, html: s.html.replace('class="vscene"', `class="vscene" data-vid="${s.id}"`) }; }
   function mount(scope, p, from) {
     const svg = scope.querySelector('.vscene'); if (!svg) return;
-    const id = svg.dataset.vid || svg.id;
-    const c = counts(p);
+    const id = svg.dataset.vid;
     if (from) {
       svg.classList.add('no-anim'); applyState(svg, id, from); void svg.getBoundingClientRect(); svg.classList.remove('no-anim');
-      setTimeout(() => applyState(svg, id, c), 450);
-    } else applyState(svg, id, c);
+      setTimeout(() => applyState(svg, id, list(p)), 350);
+    } else applyState(svg, id, list(p));
   }
 
-  /** نافذة احتفال بعد كل محطة: الخيمة تصبح بيتًا وتسقط الزيتونة أمام الطالب */
-  function celebrate(p, rec) {
-    const m = MILESTONES.find((x) => x.key === rec.key);
-    const msg = { olive: '<i class="olive-ic" aria-hidden="true"></i> أتقنتَ المحطة من المحاولة الأولى: بُني بيت جديد وسقطت حبة زيتون على الكوفية!', house: '🏠 أحسنت! أُزيلت خيمة وبُني مكانها بيت.', tent: '⛺ بقيت الخيمة هذه المرة… سيقترح عليك نَبْتي تدريبًا يبنيها.' }[rec.result];
+  /** اللوحة الكاملة (الخريطة ولوحة الطالب) */
+  function panel(p) {
     const c = counts(p);
+    const started = !!p.rescueVillage;
+    return `<div class="village-panel">
+      <div class="vhead"><div><h3 class="vt">⛺ تحدّي الخيمة والزيتون: مركز إنقاذ لولو</h3><p>في مركز الإنقاذ عشرة أسئلة وعشر خيام. كل إجابة صحيحة تُزيل خيمة وتبني بيتًا، وكل إجابة صحيحة من المحاولة الأولى تُسقط حبة زيتون على الكوفية. ابنِ البيوت العشرة ليرتفع العلم!</p></div></div>
+      ${scene().html}
+      <div class="tally"><span>🏠 بيوت <b>${ar(c.houses)} / ${ar(SLOTS)}</b></span><span><i class="olive-ic" aria-hidden="true"></i> زيتون على الكوفية <b>${ar(c.olives)} / ${ar(SLOTS)}</b></span></div>
+      <ul class="vkey"><li><i class="olive-ic" aria-hidden="true"></i> + 🏠 إجابة صحيحة من المحاولة الأولى</li><li>🏠 إجابة صحيحة بعد محاولة أو تلميح</li><li>⛺ تبقى الخيمة عند الإجابة الخاطئة</li></ul>
+      ${started ? '' : '<p class="vtents">🚨 يبدأ هذا التحدّي عند دخول مركز إنقاذ لولو (المحطة السادسة).</p>'}
+    </div>`;
+  }
+  function mountPanel(scope, p) { mount(scope, p); }
+
+  /** اللوحة الجانبية في صفحة الإنقاذ */
+  function asideHTML(p, note) {
+    const c = counts(p);
+    return `<section class="pa-box pa-village" aria-label="تحدّي الخيمة والزيتون">
+      <div class="pa-head"><b>⛺ الخيمة والزيتون</b><span class="pa-count">🏠 <b>${ar(c.houses)}</b> · <i class="olive-ic" aria-hidden="true"></i> <b>${ar(c.olives)}</b></span></div>
+      <div class="village-panel bare">${scene().html}</div>
+      <div class="pa-bar" aria-hidden="true"><i style="width:${(c.answered / SLOTS) * 100}%"></i></div>
+      <p class="pa-hint">${note || (c.answered >= SLOTS ? (c.houses === SLOTS ? '🇵🇸 اكتملت البيوت وارتفع العلم!' : `انتهت الأسئلة: ${ar(c.houses)} بيوت و${ar(c.olives)} زيتونات.`) : `السؤال ${ar(c.answered + 1)} من ${ar(SLOTS)}: أجب صحيحًا من أول محاولة لتبني بيتًا وتُسقط زيتونة.`)}</p>
+    </section>`;
+  }
+  function mountAside(p) {
+    const el = document.getElementById('play-aside'); if (!el) return;
+    el.hidden = false; el.innerHTML = asideHTML(p); mount(el, p);
+  }
+  /** بعد كل سؤال في مركز الإنقاذ: الخيمة تتحول أمام الطالب */
+  function update(p, rec) {
+    if (!rec) return;
+    const el = document.getElementById('play-aside'); if (!el) return;
+    const msg = { olive: '🏠 + زيتونة! إجابة صحيحة من المحاولة الأولى.', house: '🏠 أحسنت! أُزيلت خيمة وبُني بيت.', tent: '⛺ بقيت الخيمة هذه المرة… ركّز في السؤال التالي.' }[rec.result];
+    el.innerHTML = asideHTML(p, msg);
+    mount(el, p, rec.before);
+    el.querySelector('.pa-village').classList.add('pa-flash');
     if (rec.result !== 'tent') PR.sfx.play(rec.result === 'olive' ? 'badge' : 'correct');
-    return PR.modal(`<div class="vcelebrate"><p class="eyebrow">⛺ تحدّي الخيمة والزيتون · ${m ? m.i + ' ' + m.t : ''}</p>
-      ${panel(p, { compact: true })}<p class="vmsg ${rec.result}">${msg}</p>${c.houses === 10 ? '<p class="vmsg olive">🇵🇸 اكتملت البيوت العشرة… وارتفع العلم فوق قرية لولو!</p>' : ''}
-      <div class="row-end"><button class="btn btn-primary" data-close="ok">تابع الرحلة ←</button></div></div>`, {
-      label: 'قرية لولو', cls: 'wide',
-      onOpen(ov) { mount(ov, p, rec.before); if (c.houses === 10 && rec.result !== 'tent') setTimeout(() => PR.fx.confetti(40), 900); },
-    }).then((v) => {
-      // تحديث القرية في اللوحة الجانبية بجانب السؤال (مع الحركة)
-      const box = document.querySelector('#play-aside .pa-village');
-      if (box && PR.puzzle) { PR.puzzle.mountAside(p); const nb = document.querySelector('#play-aside .pa-village'); if (nb) { mount(nb, p, rec.before); nb.classList.add('pa-flash'); } }
-      return v;
-    });
+    if (counts(p).houses === SLOTS && rec.result !== 'tent') setTimeout(() => { PR.fx.confetti(40); PR.toast('🇵🇸 اكتملت البيوت العشرة… وارتفع العلم فوق قرية لولو!', 'reward'); }, 900);
   }
 
-  /** ترحيل: المناطق التي أُنجزت قبل إضافة القرية تُحتسب بيوتها من الاستجابات المحفوظة */
-  function sync(p) {
-    p.village = p.village || {};
-    let changed = false;
-    const avg = (arr) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
-    const resp = p.responses || [];
-    ['roots', 'stem', 'leaves', 'flower'].forEach((z) => {
-      if (!p.zones || !p.zones[z] || p.zones[z].status !== 'done') return;
-      const zr = resp.filter((r) => r.zone === z && r.credit != null);
-      const act = avg(zr.filter((r) => /-activity$|-why$/.test(r.qid || '')).map((r) => r.credit));
-      const q = avg(zr.filter((r) => !/-activity$|-why$|-explore$|-micro-id$|-open$/.test(r.qid || '')).map((r) => r.credit));
-      if (!p.village[`${z}-act`]) { p.village[`${z}-act`] = resultFor(act == null ? 0.7 : act); changed = true; }
-      if (!p.village[`${z}-q`]) { p.village[`${z}-q`] = resultFor(q == null ? 0.7 : q); changed = true; }
-    });
-    [['lab', 'lab'], ['rescue', 'rescue']].forEach(([z, key]) => {
-      if (p.zones && p.zones[z] && p.zones[z].status === 'done' && !p.village[key]) {
-        const a = avg(resp.filter((r) => r.zone === z && r.credit != null).map((r) => r.credit));
-        p.village[key] = resultFor(a == null ? 0.7 : a); changed = true;
-      }
-    });
-    return changed;
-  }
-
-  PR.village = { MILESTONES, resultFor, counts, record, repairTent, panel, mount, celebrate, sync };
+  PR.village = { SLOTS, start, record, counts, list, panel, mountPanel, mount, mountAside, update, resultOf };
 })(typeof self !== 'undefined' ? self : this);

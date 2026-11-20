@@ -259,6 +259,10 @@
     if (!PR.progress.isUnlocked(p, 'lab')) { location.href = 'map.html?locked=lab'; return; }
     const params = new URLSearchParams(location.search);
     $('#lab-path').innerHTML = PR.ui.pathBadge(p.currentPath);
+    // تحدّي البازل للمختبر: يُستأنف عبر المحطات الثلاث (لوحة «ليل القدس»)
+    PR.puzzle.start(p, 'lab', { resume: true, keepComplete: p.zones.lab.status === 'done' });
+    PR.progress.save(p);
+    PR.puzzle.mountAside(p, 'lab');
     const tabs = $('#lab-tabs'), stage = $('#lab-stage');
     function drawTabs(active) {
       tabs.innerHTML = STATIONS.map((st, i) => `<button role="tab" class="tab ${st.id === active ? 'on' : ''}" aria-selected="${st.id === active}" data-st="${st.id}"><span aria-hidden="true">${st.i}</span> ${ar(i + 1)}. ${st.t} ${p.labStations[st.id] ? '<span class="pill-ok">✓</span>' : ''}</button>`).join('');
@@ -311,7 +315,6 @@
       const stars = E.starsFor(credits.length ? credits : [1]);
       PR.progress.completeZone(p, 'lab', { stars, score: Math.round(credits.reduce((a, b) => a + b, 0) / (credits.length || 1) * 100) });
       const nb = PR.progress.addBadge(p, 'little_scientist');
-      const vrec = PR.village ? PR.village.record(p, 'lab', credits.length ? credits.reduce((a, b) => a + b, 0) / credits.length : 1) : null;
       const re = E.reevaluatePath(p);
       if (re.changed) PR.progress.setPath(p, re.path, re.reasons, 'reevaluation');
       p.recommendations = E.recommendations(p);
@@ -321,7 +324,7 @@
         <div class="row-end" style="justify-content:center"><a class="btn" href="dashboard.html">📊 لوحتي</a><a class="btn btn-red lg" href="map.html?done=lab">🚨 إلى مركز إنقاذ لولو</a></div></div>`;
       PR.sfx.play('win'); PR.fx.confetti(30); PR.ui.reward({ points: 30, drops: 5 });
       PR.nabti.say('أنت الآن عالم نبات صغير حقيقي! لولو تنتظرك في مركز الإنقاذ.', 'cheer');
-      setTimeout(async () => { if (vrec) await PR.village.celebrate(p, vrec); if (nb) PR.ui.badge('little_scientist'); }, 800);
+      if (nb) setTimeout(() => PR.ui.badge('little_scientist'), 800);
     }
     const first = params.get('station') || (STATIONS.find((s) => !p.labStations[s.id]) || STATIONS[0]).id;
     PR.nabti.say('مرحبًا بك في المختبر! ثلاث محطات تربط فيها الأجزاء بوظائفها.', 'happy');

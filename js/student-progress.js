@@ -57,8 +57,9 @@
       badges: [],
       zones,
       labStations: { match: false, whatif: false, sim: false },
-      village: {},
-      puzzleBase: 0,
+      puzzles: {},        // تحدّي البازل: لوحة لكل محطة
+      puzzleActive: null,
+      rescueVillage: null, // تحدّي الخيمة والزيتون في مركز الإنقاذ
       progress: 0,
       pathHistory: [],
       decisions: [],
@@ -95,8 +96,7 @@
       if (opts && opts.diagnostic && !p.diagnosticResults) { location.href = 'diagnostic.html'; return null; }
       // ترحيل الملفات القديمة: البازل يبدأ فارغًا من الآن، والقرية تُحتسب للمناطق المنجزة سابقًا
       let changed = false;
-      if (p.puzzleBase == null) { p.puzzleBase = PR.puzzle ? PR.puzzle.correctCount(p) : 0; changed = true; }
-      if (PR.village && PR.village.sync(p)) changed = true;
+      if (!p.puzzles) { p.puzzles = {}; p.puzzleActive = null; changed = true; }
       if (changed) P.save(p);
       return p;
     },
@@ -113,7 +113,6 @@
 
     /** تسجيل استجابة: تحديث الإتقان + الأخطاء + التلميحات + المكافآت */
     recordResponse(p, r) {
-      const pzBefore = PR.puzzle ? PR.puzzle.pieces(p) : 0;
       const res = E.applyResponse(p, r);
       const entry = Object.assign({ at: new Date().toISOString(), credit: Math.round(res.credit * 100) / 100 }, r);
       p.responses.push(entry);
@@ -126,7 +125,8 @@
       p.points += rw.points; p.seeds += rw.seeds;
       p.currentLevel = E.levelFor(p.points).index;
       // بازل قبة الصخرة: قطعة جديدة مع كل إجابة صحيحة
-      if (PR.puzzle && typeof document !== 'undefined') PR.puzzle.notify(p, pzBefore, PR.puzzle.pieces(p));
+      const pz = PR.puzzle ? PR.puzzle.add(p, r) : null;
+      if (pz && typeof document !== 'undefined') PR.puzzle.notify(p, pz);
       return Object.assign(res, { reward: rw });
     },
 

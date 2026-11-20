@@ -189,16 +189,41 @@
     out.push(`<g class="${cls('flower')}" data-part="flower"${hs('flower', 'الزهرة')} transform="translate(${f(H[0])} ${f(H[1])}) rotate(${f(tilt)})">${headHit}${head}</g>`);
 
     // ---- حركة الماء ----
-    if (o.flow && !(PR.settings && PR.settings.reduceMotion)) {
-      const tEnd = o.stem === 'broken' ? 0.4 : 0.95;
-      const pts = [];
-      if (!pot) pts.push([200, G + 130 * (o.root === 'damaged' ? 0.3 : 1)]);
-      pts.push(B);
-      if (o.root !== 'damaged') for (let t = 0.05; t <= tEnd; t += 0.05) pts.push(bz(t, B, C1, C2, H));
-      const d = 'M' + pts.map((p) => `${f(p[0])} ${f(p[1])}`).join(' L');
-      out.push(`<path id="${id}-flow" d="${d}" fill="none" stroke="#5ab8ff" stroke-width="3" stroke-dasharray="2 10" opacity=".55"/>`);
-      if (o.root !== 'damaged' && o.water > 0) {
-        for (let k = 0; k < 6; k++) out.push(`<circle r="5" fill="#3aa0ff" stroke="#fff" stroke-width="1.5"><animateMotion dur="3s" begin="${(k * 0.5).toFixed(1)}s" repeatCount="indefinite" path="${d}"/></circle>`);
+    // الماء يصعد من الجذر عبر الساق ثم يتفرّع إلى كل ورقة (عبر عِرقها الأوسط) وإلى الزهرة
+    if (o.flow) {
+      const still = PR.settings && PR.settings.reduceMotion;
+      const breakT = 0.42;
+      const reaches = (t) => o.root !== 'damaged' && o.water > 0 && !(o.stem === 'broken' && t > breakT);
+      const base = [];
+      if (!pot) base.push([200, G + 130 * (o.root === 'damaged' ? 0.3 : 1)]);
+      base.push(B);
+      const stemTo = (tEnd) => { const a = []; for (let t = 0.05; t < tEnd; t += 0.05) a.push(bz(t, B, C1, C2, H)); a.push(bz(tEnd, B, C1, C2, H)); return a; };
+      const toD = (pts) => 'M' + pts.map((p) => `${f(p[0])} ${f(p[1])}`).join(' L');
+      const routes = [];
+      // مسار الساق (يتوقف عند الشق إن كانت مكسورة)
+      const stemEnd = o.root === 'damaged' ? 0 : o.stem === 'broken' ? breakT - 0.02 : 0.95;
+      const trunk = base.concat(stemEnd > 0 ? stemTo(stemEnd) : []);
+      out.push(`<path d="${toD(trunk)}" fill="none" stroke="#5ab8ff" stroke-width="3" stroke-dasharray="2 10" opacity=".55"/>`);
+      if (reaches(0.95)) routes.push({ pts: base.concat(stemTo(0.95)), n: 2 });
+      // فروع الأوراق
+      leafSpots.forEach(([t, side, L]) => {
+        const p0 = bz(t, B, C1, C2, H);
+        const a = (-32 + w * 78 + (o.stem === 'broken' && t > breakT ? 25 : 0)) * Math.PI / 180;
+        const sc = L / 100;
+        const at = (x) => [p0[0] + side * sc * (x * Math.cos(a)), p0[1] + sc * (x * Math.sin(a))];
+        const vein = [0, 20, 40, 60, 80, 90].map(at);
+        if (!reaches(t)) return;
+        // العِرق الأوسط يتلوّن بالأزرق حين يصل الماء إلى الورقة
+        out.push(`<path d="${toD(vein)}" fill="none" stroke="#3aa0ff" stroke-width="3.6" stroke-linecap="round" opacity=".9" stroke-dasharray="${still ? 'none' : '6 6'}">${still ? '' : '<animate attributeName="stroke-dashoffset" from="24" to="0" dur="0.8s" repeatCount="indefinite"/>'}</path>`);
+        routes.push({ pts: base.concat(stemTo(t), vein.slice(1)), n: 1 });
+      });
+      if (!still) {
+        let k = 0;
+        routes.forEach((r) => {
+          const d = toD(r.pts);
+          for (let j = 0; j < r.n; j++, k++) out.push(`<circle r="4.6" fill="#3aa0ff" stroke="#fff" stroke-width="1.5"><animateMotion dur="3.2s" begin="-${((k * 0.55) % 3.2).toFixed(2)}s" repeatCount="indefinite" path="${d}"/></circle>`);
+        });
+        if (!routes.length && o.water > 0) out.push(`<circle r="4.6" fill="#3aa0ff" stroke="#fff" stroke-width="1.5"><animateMotion dur="2.4s" repeatCount="indefinite" path="${toD(trunk)}"/></circle>`);
       }
     }
 
