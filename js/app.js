@@ -179,7 +179,7 @@
     const box = $('#hdr-stats'); if (!box) return;
     if (!p) { box.innerHTML = ''; return; }
     const lv = PR.engine.levelFor(p.points);
-    box.innerHTML = `<span class="chip" title="النقاط">⭐ ${ar(p.points)}</span><span class="chip" title="البذور">🌱 ${ar(p.seeds)}</span><span class="chip" title="قطرات الماء">💧 ${ar(p.drops)}</span><span class="chip chip-level" title="مستوى العالم النباتي">${lv.icon} ${lv.name}</span>`;
+    box.innerHTML = `<span class="chip stat-star" title="النقاط">${PR.icon('star')}<b>${ar(p.points)}</b></span><span class="chip stat-seed" title="البذور">${PR.icon('sprout')}<b>${ar(p.seeds)}</b></span><span class="chip stat-drop" title="قطرات الماء">${PR.icon('drop')}<b>${ar(p.drops)}</b></span><span class="chip chip-level" title="مستوى العالم النباتي">${lv.icon} ${lv.name}</span>`;
   };
   PR.ui.masteryBar = function (label, v, opts) {
     opts = opts || {};
@@ -198,22 +198,37 @@
   };
 
   /* ---------- الترويسة وخيارات الوصول ---------- */
+  /* ---------- أيقونات مرسومة موحّدة (بدل الرموز التعبيرية التي تختلف بين الأجهزة) ---------- */
+  const ICONS = {
+    home: '<path d="M3 11 12 4l9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/>',
+    map: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>',
+    chart: '<path d="M4 20V11M10 20V5M16 20v-6M2.5 20h19"/>',
+    doc: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',
+    teacher: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M15 4h6v8h-3.5"/>',
+    a11y: '<circle cx="12" cy="4.6" r="1.9" fill="currentColor" stroke="none"/><path d="M5 8.5h14M12 8.5v5.5m0 0-3.6 6.5M12 14l3.6 6.5"/>',
+    star: '<path d="m12 3.2 2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.6l-5.2 2.7 1-5.8-4.3-4.1 5.9-.8z" fill="currentColor" stroke="none"/>',
+    sprout: '<path d="M12 21v-9"/><path d="M12 12C12 7.5 8.5 5 4 5c0 4.2 3.2 7 8 7z" fill="currentColor" stroke="none"/><path d="M12 10c0-4 3-6.5 8-6.5 0 4-3 6.5-8 6.5z" fill="currentColor" stroke="none" opacity=".7"/>',
+    drop: '<path d="M12 3.5s-6 6.8-6 10.8a6 6 0 0 0 12 0c0-4-6-10.8-6-10.8z" fill="currentColor" stroke="none"/>',
+    leaf: '<path d="M5 19C5 10 11 4 20 4c0 9-6 15-15 15z"/><path d="M5 19 14 10"/>',
+  };
+  PR.icon = (name, cls) => `<svg class="ic ${cls || ''}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ''}</svg>`;
+
   const NAV = [
-    { id: 'home', href: 'index.html', t: 'الرئيسية', i: '🏠' },
-    { id: 'map', href: 'map.html', t: 'الخريطة', i: '🗺️' },
-    { id: 'dashboard', href: 'dashboard.html', t: 'لوحتي', i: '📊' },
-    { id: 'report', href: 'report.html', t: 'التقرير', i: '📄' },
-    { id: 'teacher', href: 'teacher.html', t: 'المعلم', i: '👩‍🏫' },
+    { id: 'home', href: 'index.html', t: 'الرئيسية', i: 'home' },
+    { id: 'map', href: 'map.html', t: 'الخريطة', i: 'map' },
+    { id: 'dashboard', href: 'dashboard.html', t: 'لوحتي', i: 'chart' },
+    { id: 'report', href: 'report.html', t: 'التقرير', i: 'doc' },
+    { id: 'teacher', href: 'teacher.html', t: 'المعلم', i: 'teacher' },
   ];
   function buildShell(page) {
     const hdr = $('#app-header');
     if (hdr) {
       hdr.className = 'app-header';
       hdr.innerHTML = `<div class="hdr-in">
-        <a class="brand" href="index.html" aria-label="مهمة إنقاذ النبتة — الرئيسية"><span class="brand-mark" aria-hidden="true">🌱</span><span class="brand-t">مَهَمَّةُ إِنْقَاذِ النَّبْتَة</span></a>
-        <nav class="main-nav" aria-label="التنقل الرئيس">${NAV.map((n) => `<a href="${n.href}" ${n.id === page || (page === 'certificate' && n.id === 'report') ? 'aria-current="page"' : ''}><span aria-hidden="true">${n.i}</span> <span class="nav-t">${n.t}</span></a>`).join('')}</nav>
+        <a class="brand" href="index.html" aria-label="مهمة إنقاذ النبتة — الرئيسية"><span class="brand-mark" aria-hidden="true">${PR.icon('sprout')}</span><span class="brand-t">مَهَمَّةُ إِنْقَاذِ النَّبْتَة</span></a>
+        <nav class="main-nav" aria-label="التنقل الرئيس">${NAV.map((n) => `<a href="${n.href}" ${n.id === page || (page === 'certificate' && n.id === 'report') ? 'aria-current="page"' : ''} aria-label="${n.t}" title="${n.t}">${PR.icon(n.i)}<span class="nav-t">${n.t}</span></a>`).join('')}</nav>
         <div class="hdr-end"><div id="hdr-stats" class="hdr-stats" aria-label="إحصاءاتي"></div>
-        <button class="icon-btn" id="a11y-open" aria-haspopup="dialog" aria-label="خيارات الوصول" title="خيارات الوصول">♿</button></div>
+        <button class="icon-btn a11y-btn" id="a11y-open" aria-haspopup="dialog" aria-label="خيارات الوصول" title="خيارات الوصول">${PR.icon('a11y')}</button></div>
       </div><div class="flag-ribbon" aria-hidden="true"></div><div class="tatreez-strip" aria-hidden="true"></div>`;
       $('#a11y-open').onclick = openA11y;
     }
@@ -235,7 +250,11 @@
     const ft = $('#app-footer');
     if (ft) {
       ft.className = 'app-footer';
-      ft.innerHTML = `<div class="tatreez-strip" aria-hidden="true"></div><div class="ft-in"><p>🌱 مَهَمَّةُ إِنْقَاذِ النَّبْتَة — بيئة تعلّم تكيفية لدرس «أجزاء النبات ووظائفها»</p><p class="muted">مستوحاة من أرض فلسطين: الزيتون، وشقائق النعمان، والتطريز الفلسطيني 🇵🇸</p></div>`;
+      ft.innerHTML = `<div class="tatreez-strip" aria-hidden="true"></div><div class="flag-ribbon" aria-hidden="true"></div>
+        <div class="ft-in">
+          <div class="ft-brand"><span class="brand-mark" aria-hidden="true">${PR.icon('sprout')}</span><div><b>مَهَمَّةُ إِنْقَاذِ النَّبْتَة</b><p>بيئة تعلّم تكيفية لدرس «أجزاء النبات ووظائفها» — مستوحاة من أرض فلسطين: الزيتون، وشقائق النعمان، والتطريز الفلسطيني.</p></div></div>
+          <nav class="ft-nav" aria-label="روابط التذييل">${NAV.map((n) => `<a href="${n.href}">${PR.icon(n.i)}${n.t}</a>`).join('')}</nav>
+        </div>`;
     }
     PR.ui.refreshStats();
   }

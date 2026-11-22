@@ -20,7 +20,14 @@
           </form>
         </section>
         <aside class="card join-side">
-          <div class="join-lulu">${PR.art.plant({ mode: 'pot', health: 45, water: 0 })}</div>
+          <div class="join-hero"><div class="join-lulu">${PR.art.plant({ mode: 'pot', health: 45, water: 0 })}</div>
+            <div><p class="eyebrow">مهمتك في أربع خطوات</p>
+            <ol class="join-steps">
+              <li><span>🧠</span><div><b>اكتشف مستواك</b><small>٨ أسئلة قصيرة تحدّد مسارك</small></div></li>
+              <li><span>🗺️</span><div><b>تنقّل بين المحطات</b><small>الجذر، والساق، والأوراق، والزهرة</small></div></li>
+              <li><span>🧩</span><div><b>أكمل ألواح البازل</b><small>قبة الصخرة في خمسة أوقات من اليوم</small></div></li>
+              <li><span>⛺</span><div><b>أنقذ لولو</b><small>ابنِ القرية وارفع العلم</small></div></li>
+            </ol></div></div>
           ${existing.length ? `<h2 class="h-sm">أو تابع رحلتك 👋</h2><ul class="who-list">${existing.slice(0, 6).map((s) => `<li><button class="btn who" data-id="${s.studentId}">👤 ${esc(s.name)} <small class="muted">${ar(s.progress || 0)}٪</small></button></li>`).join('')}</ul>` : '<p class="muted center">بياناتك تُحفظ على هذا الجهاز تلقائيًا.</p>'}
         </aside>
       </div>`;

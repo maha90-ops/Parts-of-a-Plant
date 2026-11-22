@@ -8,16 +8,16 @@
   <link rel="icon" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/main.css?v=20261121e">
-  <link rel="stylesheet" href="styles/pages.css?v=20261121e">
-  <script defer src="js/data.js?v=20261121e"></script>
-  <script defer src="js/adaptive-engine.js?v=20261121e"></script>
-  <script defer src="js/student-progress.js?v=20261121e"></script>
-  <script defer src="js/characters.js?v=20261121e"></script>
-  <script defer src="js/app.js?v=20261121e"></script>
-  <script defer src="js/village.js?v=20261121e"></script>
-  <script defer src="js/puzzle.js?v=20261121e"></script>
-  <script defer src="js/home.js?v=20261121e"></script>
+  <link rel="stylesheet" href="styles/main.css?v=20261122b">
+  <link rel="stylesheet" href="styles/pages.css?v=20261122b">
+  <script defer src="js/data.js?v=20261122b"></script>
+  <script defer src="js/adaptive-engine.js?v=20261122b"></script>
+  <script defer src="js/student-progress.js?v=20261122b"></script>
+  <script defer src="js/characters.js?v=20261122b"></script>
+  <script defer src="js/app.js?v=20261122b"></script>
+  <script defer src="js/village.js?v=20261122b"></script>
+  <script defer src="js/puzzle.js?v=20261122b"></script>
+  <script defer src="js/home.js?v=20261122b"></script>
 </head>
 <body data-page="home">
   <a class="skip" href="#main">تخطَّ إلى المحتوى</a>
@@ -52,9 +52,12 @@
           </div>
           <div class="hero-actions">
             <a class="btn btn-red lg" id="start-btn" href="student.html">🚀 ابدأ المهمة</a>
-            <button class="btn lg" type="button" id="how-btn">📖 كيف ألعب؟</button>
-            <button class="btn lg" type="button" id="access-btn">♿ خيارات الوصول</button>
+            <button class="btn btn-soft" type="button" id="how-btn">📖 كيف ألعب؟</button>
+            <button class="btn btn-soft" type="button" id="access-btn">♿ خيارات الوصول</button>
           </div>
+          <ul class="hero-facts" aria-label="عن المهمة">
+            <li><b>٨</b><span>مهارات تُقاس</span></li><li><b>٣</b><span>مسارات تكيفية</span></li><li><b>٦</b><span>محطات</span></li><li><b>٥</b><span>ألواح بازل</span></li>
+          </ul>
           <p class="muted small" id="continue-note"></p>
         </div>
         <div class="hero-stage" aria-label="لولو النبتة ونَبْتي المساعد">
@@ -99,11 +102,16 @@
     <section class="container section">
       <div class="zones-preview card tatreez-frame">
         <div class="zp-in">
-          <h2>🗺️ رحلة إنقاذ لولو: ست مناطق</h2>
-          <ul class="zp-list">
-            <li><span>🌱</span> مدينة الجذور</li><li><span>🌿</span> طريق الساق</li><li><span>🍃</span> مصنع الأوراق</li>
-            <li><span>🌸</span> حديقة الأزهار</li><li><span>🔬</span> المختبر النباتي</li><li><span>🚨</span> مركز إنقاذ لولو</li>
-          </ul>
+          <p class="eyebrow light">🗺️ خريطة الرحلة</p>
+          <h2>رحلة إنقاذ لولو: ست محطات</h2>
+          <ol class="zp-tiles">
+            <li><span class="zt-n">١</span><span class="zt-i">🌱</span><b>مدينة الجذور</b><small>الامتصاص والتثبيت</small></li>
+            <li><span class="zt-n">٢</span><span class="zt-i">🌿</span><b>طريق الساق</b><small>رحلة الماء</small></li>
+            <li><span class="zt-n">٣</span><span class="zt-i">🍃</span><b>مصنع الأوراق</b><small>صنع الغذاء</small></li>
+            <li><span class="zt-n">٤</span><span class="zt-i">🌸</span><b>حديقة الأزهار</b><small>التكاثر والبذور</small></li>
+            <li><span class="zt-n">٥</span><span class="zt-i">🔬</span><b>المختبر النباتي</b><small>طابق وأنقذ والتجارب</small></li>
+            <li><span class="zt-n">٦</span><span class="zt-i">🚨</span><b>مركز إنقاذ لولو</b><small>الخيمة والزيتون</small></li>
+          </ol>
           <div class="row"><a class="btn btn-primary" href="student.html">🔬 ابدأ كعالم نبات صغير</a><a class="btn" href="teacher.html">👩‍🏫 لوحة المعلم</a></div>
         </div>
       </div>

@@ -353,3 +353,36 @@ html.hc .app-header { background: #000; }
 /* أيقونة زيتونة مرسومة (بديل الرمز 🫒 الذي لا يظهر في Windows 10) */
 .olive-ic { display: inline-block; width: 1.05em; height: 1.05em; vertical-align: -0.15em;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3c3 1 6 0 8-2-1 4-4 6-8 5' fill='%2365a30d'/%3E%3Cellipse cx='10' cy='14' rx='6.5' ry='8.5' transform='rotate(-20 10 14)' fill='%23365314'/%3E%3Cellipse cx='8' cy='11' rx='1.8' ry='3' transform='rotate(-20 8 11)' fill='%2384cc16' opacity='.6'/%3E%3C/svg%3E") center / contain no-repeat; }
+
+/* =========================================================================
+   صقل جمالي (الإصدار ٣): أيقونات موحّدة، شريط تنقّل أخف، تذييل أنظف
+   ========================================================================= */
+.ic { width: 1.15em; height: 1.15em; flex: none; vertical-align: -0.2em; }
+.brand-mark .ic { width: 22px; height: 22px; color: #c9f2d3; }
+/* شريط التنقّل: أزرار خفيفة بلا حدود ثقيلة، والصفحة الحالية فقط بارزة */
+.main-nav { gap: 4px; }
+.main-nav a { display: inline-flex; align-items: center; gap: 7px; border: 0; background: transparent; color: #d9d4c9; padding: 8px 14px; border-radius: 12px; font-weight: 700; transition: background .15s, color .15s; }
+.main-nav a .ic { opacity: .85; }
+.main-nav a:hover { background: rgba(255, 255, 255, .1); color: #fff; }
+.main-nav a[aria-current="page"] { background: #fff; color: #141414; box-shadow: inset 0 -3px 0 var(--red); }
+.main-nav a[aria-current="page"] .ic { color: var(--green); opacity: 1; }
+.a11y-btn .ic { width: 22px; height: 22px; }
+/* رقائق الإحصاءات في الترويسة */
+.app-header .chip { gap: 6px; padding: 4px 10px; border-color: rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .06); }
+.app-header .chip b { font-weight: 800; }
+.stat-star .ic, .stat-gold .ic { color: #f2c33a; }
+.stat-seed .ic { color: #6fd08c; }
+.stat-drop .ic { color: #6cc0f5; }
+/* التذييل */
+.app-footer .flag-ribbon { height: 10px; }
+.ft-in { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; text-align: start; padding: 26px 16px 34px; }
+.ft-brand { display: flex; gap: 12px; align-items: center; max-width: 560px; }
+.ft-brand b { font-size: 1.05rem; color: #fff; }
+.ft-brand p { margin: 2px 0 0; color: #b9b09b; font-size: .85rem; line-height: 1.8; }
+.ft-nav { display: flex; gap: 4px; flex-wrap: wrap; }
+.ft-nav a { display: inline-flex; align-items: center; gap: 6px; color: #d9d4c9; text-decoration: none; padding: 6px 12px; border-radius: 10px; font-size: .9rem; font-weight: 700; }
+.ft-nav a:hover { background: rgba(255, 255, 255, .08); color: #fff; }
+@media (max-width: 860px) { .ft-in { padding-bottom: 96px; } }
+/* زر ثانوي ناعم */
+.btn-soft { background: rgba(255, 255, 255, .85); border-color: var(--line); }
+.eyebrow.light { color: #ffb3bf; }

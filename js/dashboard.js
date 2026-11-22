@@ -29,20 +29,11 @@
         <div class="dh-id"><div class="avatar-lg">🔬</div><div><p class="eyebrow">عالم النبات الصغير</p><h1 class="h-md">${esc(p.name)}</h1><p class="muted">${esc(p.grade || '')}</p></div></div>
         <div class="dh-level"><span class="lv-ic" aria-hidden="true">${lv.icon}</span><div class="grow"><b>المستوى ${ar(lv.index)}: ${lv.name}</b><div class="health"><div class="health-fill" style="width:${Math.round(lv.progress * 100)}%"></div></div><small class="muted">${lv.next ? `${ar(lv.next.min - p.points)} نقطة حتى «${lv.next.name}»` : 'أعلى مستوى!'}</small></div></div>
         <div class="dh-stats">
-          <div class="stat"><b>⭐ ${ar(p.points)}</b><span>النقاط</span></div><div class="stat"><b>🌱 ${ar(p.seeds)}</b><span>البذور</span></div>
-          <div class="stat"><b>💧 ${ar(p.drops)}</b><span>قطرات الماء</span></div><div class="stat"><b>🌟 ${ar(p.stars)}</b><span>النجوم</span></div>
+          <div class="stat stat-star">${PR.icon('star')}<b>${ar(p.points)}</b><span>النقاط</span></div><div class="stat stat-seed">${PR.icon('sprout')}<b>${ar(p.seeds)}</b><span>البذور</span></div>
+          <div class="stat stat-drop">${PR.icon('drop')}<b>${ar(p.drops)}</b><span>قطرات الماء</span></div><div class="stat stat-gold">${PR.icon('star')}<b>${ar(p.stars)}</b><span>النجوم</span></div>
         </div>
       </section>
-      <div class="dash-grid">
-        <section class="card">
-          <div class="row"><h2 class="h-sm">📊 مستوى المهارات</h2><span class="grow"></span><span class="chip">الإتقان العام ${pct(overall)}</span></div>
-          ${group.map((g) => PR.ui.masteryBar(g.t, g.v)).join('')}
-          <details><summary>عرض المهارات الثماني بالتفصيل</summary><div style="margin-top:10px">${D.SKILL_ORDER.map((s) => PR.ui.masteryBar(D.SKILLS[s].name, p.skillMastery[s], { icon: D.SKILLS[s].icon, delta: p.diagnosticResults.skillScores[s] != null ? (p.skillMastery[s] - p.diagnosticResults.skillScores[s]) : 0 })).join('')}
-            <p class="muted small">↑↓ = التغيّر منذ مهمة اكتشاف المستوى.</p></div></details>
-          <h3 class="mt">🌿 إتقان أجزاء النبات</h3>
-          <div class="parts-row">${D.MAIN_PARTS.map((pt) => { const v = p.partMastery[pt]; return `<div class="part-tile ${v >= 80 ? 'hi' : v >= 60 ? 'mid' : 'lo'}" title="${D.PARTS[pt].name}: ${v}٪"><span aria-hidden="true">${D.PARTS[pt].icon}</span><b>${pct(v)}</b><small>${D.PARTS[pt].name} · ${E.masteryLabel(v)}</small></div>`; }).join('')}</div>
-        </section>
-        <section class="stack">
+      <div class="dash-trio">
           <div class="card rec-card">
             <p class="eyebrow">🎯 التدريب المقترح لك</p>
             <p class="rec-t">${esc(top.text)}</p>
@@ -54,8 +45,15 @@
             <div class="zones-mini">${D.ZONES.map((z) => `<span class="zm ${p.zones[z.id].status}" title="${z.title}">${z.icon}<small>${p.zones[z.id].status === 'done' ? '✓' : p.zones[z.id].status === 'open' ? '▶' : '🔒'}</small></span>`).join('')}</div></div>
           <div class="card"><p class="eyebrow">🧭 مسارك</p>${PR.ui.pathBadge(p.currentPath)}<p class="muted small mt">${esc(D.PATHS[p.currentPath].desc)}</p>
             <ol class="timeline">${p.pathHistory.map((h) => `<li>${D.PATHS[h.path].icon} ${D.PATHS[h.path].name} <small class="muted">${h.source === 'diagnostic' ? 'بعد التشخيص' : 'بعد إعادة التقييم'}</small></li>`).join('')}</ol></div>
-        </section>
       </div>
+        <section class="card skills-card"><div class="sk-col">
+          <div class="row"><h2 class="h-sm">📊 مستوى المهارات</h2><span class="grow"></span><span class="chip">الإتقان العام ${pct(overall)}</span></div>
+          ${group.map((g) => PR.ui.masteryBar(g.t, g.v)).join('')}
+          <details><summary>عرض المهارات الثماني بالتفصيل</summary><div style="margin-top:10px">${D.SKILL_ORDER.map((s) => PR.ui.masteryBar(D.SKILLS[s].name, p.skillMastery[s], { icon: D.SKILLS[s].icon, delta: p.diagnosticResults.skillScores[s] != null ? (p.skillMastery[s] - p.diagnosticResults.skillScores[s]) : 0 })).join('')}
+            <p class="muted small">↑↓ = التغيّر منذ مهمة اكتشاف المستوى.</p></div></details>
+          </div><div class="sk-col"><h3>🌿 إتقان أجزاء النبات</h3>
+          <div class="parts-row">${D.MAIN_PARTS.map((pt) => { const v = p.partMastery[pt]; return `<div class="part-tile ${v >= 80 ? 'hi' : v >= 60 ? 'mid' : 'lo'}" title="${D.PARTS[pt].name}: ${v}٪"><span aria-hidden="true">${D.PARTS[pt].icon}</span><b>${pct(v)}</b><small>${D.PARTS[pt].name} · ${E.masteryLabel(v)}</small></div>`; }).join('')}</div></div>
+        </section>
       <div class="fun-row"><section class="card fun-card" id="d-village"></section><section class="card fun-card" id="d-puzzle"></section></div>
       <section class="card">
         <h2 class="h-sm">🏅 الشارات</h2>
