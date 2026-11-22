@@ -9,8 +9,8 @@
   const D = PR.data, E = PR.engine;
   const { $, $$, esc, ar, pct, wait } = PR.util;
   const CLUE_BTNS = [
-    { k: 'soil', t: 'افحص التربة', i: '🟫' }, { k: 'root', t: 'افحص الجذر', i: '🌱' }, { k: 'stem', t: 'افحص الساق', i: '🌿' },
-    { k: 'leaf', t: 'افحص الأوراق', i: '🍃' }, { k: 'flower', t: 'افحص الزهرة', i: '🌸' }, { k: 'env', t: 'افحص المكان', i: '🏠' },
+    { k: 'soil', t: 'الماء', i: '💧' }, { k: 'root', t: 'الجذر', i: '🌱' }, { k: 'stem', t: 'الساق', i: '🌿' },
+    { k: 'leaf', t: 'الأوراق', i: '🍃' }, { k: 'env', t: 'الضوء', i: '☀️' }, { k: 'flower', t: 'الزهرة', i: '🌸' },
   ];
 
   PR.pages.rescue = async function () {
@@ -40,11 +40,14 @@
 
     // ---- ١) الإنذار ----
     setStep(0);
-    stage.innerHTML = `<div class="card alarm reveal"><div class="alarm-art" id="al-lulu"></div><div><p class="eyebrow blink">🚨 إنذار عاجل</p><h2>لولو في خطر: ${esc(C.title)}</h2>
-      <p>لولو ذابلة جدًا! أنت العالم النباتي الوحيد القادر على إنقاذها. اجمع الأدلة بعناية، ثم حدّد المشكلة والجزء والحل.</p>
+    stage.innerHTML = `<div class="card alarm reveal"><div class="alarm-art" id="al-lulu"></div><div><p class="eyebrow blink">🚨 إنذار!</p><h2>لولو ما زالت تحتاج إلى مساعدتك!</h2>
+      ${PR.lulu.html('ساعدني… أنا ذابلة جدًا! 😢', 'help', { cls: 'inline', health: 30 })}
+      <p>افحص الأدلة: 💧 الماء، 🌱 الجذر، 🌿 الساق، 🍃 الأوراق، ☀️ الضوء. ثم قرّر خطوة بخطوة: ما المشكلة؟ وأيّ جزء؟ وما الحل؟</p>
       <div class="row-end"><button class="btn btn-red lg" id="al-go">🔎 ابدأ التحقيق</button></div></div></div>`;
-    drawLulu($('#al-lulu'));
+    drawLulu($('#al-lulu'), { mood: 'help' });
     PR.nabti.say('لولو تحتاجك الآن! لا تتسرّع، فالعالِم يجمع الأدلة قبل أن يحكم.', 'concern');
+    if (PR.lulu) PR.lulu.say('ساعدني… أنا ذابلة جدًا! 😢', 'help');
+    if (PR.audio) PR.audio.narrate('final');
     $('#al-go').focus();
     await new Promise((r) => { $('#al-go').onclick = r; });
 
@@ -129,7 +132,13 @@
     $('#heal-go').disabled = true;
     Object.assign(state, C.fix, { health: state.health });
     $('.act-fb').className = 'act-fb good'; $('.act-fb').textContent = C.fixText;
-    for (const hv of [50, 65, 80, 92, 100]) { state.health = hv; drawLulu($('#heal-lulu'), { flow: true }); await wait(380); }
+    // لولو تستعيد عافيتها تدريجيًا، مع سلسلة الفهم: الجذر يمتص ← الساق ينقل ← الأوراق تصنع الغذاء
+    $('.act-fb').insertAdjacentHTML('afterend', `<ol class="heal-chain" aria-label="ماذا حدث داخل لولو؟">
+      <li>🌱 <b>الجذر</b> يمتص الماء.</li><li>🌿 <b>الساق</b> ينقل الماء.</li><li>🍃 <b>الأوراق</b> تستخدم الماء وضوء الشمس لصنع الغذاء.</li></ol>`);
+    const chain = document.querySelectorAll('.heal-chain li');
+    const moods = ['help', 'help', 'happy', 'happy', 'excited'];
+    for (let k = 0; k < 5; k++) { state.health = [50, 65, 80, 92, 100][k]; drawLulu($('#heal-lulu'), { flow: true, mood: moods[k] }); if (chain[k - 1]) chain[k - 1].classList.add('on'); await wait(520); }
+    if (PR.lulu) PR.lulu.say('أحسنت! لقد أنقذتني! 🌱💚', 'excited');
     PR.sfx.play('win'); PR.fx.confetti(50);
     PR.nabti.say('لقد أنقذتَ لولو! انظر كيف عادت إليها الحياة 🌺 بقي التقييم النهائي القصير.', 'cheer');
     p.rescue = { caseId: C.id, clues: [...seen], completedAt: new Date().toISOString() };
@@ -165,17 +174,19 @@
       setStep(6);
       const pre = p.diagnosticResults.adjusted, post = p.postTest ? p.postTest.adjusted : null;
       const gain = post != null ? post - pre : 0;
-      stage.innerHTML = `<div class="card summary reveal"><div class="sum-top"><div class="final-lulu">${PR.art.plant({ mode: 'pot', health: 100, water: 2 })}</div>
-        <div><p class="eyebrow">🏆 مهمة مكتملة</p><h2>أنقذتَ لولو يا ${esc(p.name)}!</h2>
-        <p>لقد نجحت في اكتشاف وظائف أجزاء النبات وساعدت لولو على استعادة عافيتها.</p>
+      stage.innerHTML = `<div class="card summary reveal"><div class="sum-top"><div class="final-lulu">${PR.art.plant({ mode: 'pot', health: 100, water: 2, mood: 'excited' })}</div>
+        <div><p class="eyebrow">🏆 مهمة مكتملة</p><h2>🎉 لقد أنقذت لولو!</h2>
+        <p class="big-t">أصبحت الآن عالم نبات صغيرًا يا ${esc(p.name)}!</p>
+        ${PR.lulu.html('أحسنت! لقد أنقذتني! 🌱💚', 'excited', { cls: 'inline' })}
         <div class="kpis"><div class="kpi"><b>${pct(pre)}</b><span>قبل الرحلة</span></div><div class="kpi kpi-main"><b>${post != null ? pct(post) : '—'}</b><span>بعد الرحلة</span></div><div class="kpi"><b>${gain >= 0 ? '+' : '−'}${ar(Math.abs(gain))}</b><span>مكسب التعلم</span></div><div class="kpi"><b>${pct(E.overallMastery(p))}</b><span>الإتقان العام</span></div></div>
-        <div class="row-end"><a class="btn" href="dashboard.html">📊 لوحتي</a><a class="btn" href="report.html">📄 تقرير رحلة التعلم</a><a class="btn btn-red lg" href="certificate.html">🏆 شهادتي</a></div>
+        <div class="row-end"><a class="btn" href="dashboard.html">📊 لوحتي</a><a class="btn" href="report.html">📄 تقرير رحلة التعلم</a><a class="btn btn-red lg" href="certificate.html">📄 عرض الشهادة</a></div>
         ${revisit ? '<p class="muted small">يمكنك <a href="rescue.html?again=1">إعادة مهمة الإنقاذ</a> للتدريب.</p>' : ''}</div></div>
         <div class="card-inner mt" id="final-village">${PR.village.panel(p)}</div></div>`;
       PR.village.mountPanel($('#final-village'), p);
       PR.puzzle.stop(p); PR.progress.save(p);
       PR.village.mountAside(p);
-      if (!revisit) { setTimeout(() => PR.ui.badge('lulu_savior'), 600); }
+      $('#final-village').insertAdjacentHTML('afterend', `<div class="card-inner mt">${PR.passport.html(p)}</div>`);
+      if (!revisit) { PR.fx.confetti(40); setTimeout(async () => { await PR.passport.stamp(p, 'rescue'); PR.ui.badge('lulu_savior'); }, 700); }
       PR.nabti.say(revisit ? 'لولو بخير بفضلك! شاهد تقريرك وشهادتك.' : 'أنت منقذ لولو! 🏆 شهادتك جاهزة.', 'cheer');
     }
   };

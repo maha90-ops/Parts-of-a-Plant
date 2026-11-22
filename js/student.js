@@ -14,7 +14,7 @@
           <h1 class="h-md">🔬 سجّل بطاقة عالم النبات الصغير</h1>
           <form id="join" novalidate>
             <div class="field"><label for="nm">ما اسمك؟</label><input class="input" id="nm" name="nm" autocomplete="given-name" maxlength="40" required placeholder="اكتب اسمك هنا"></div>
-            <div class="field"><label for="gr">صفّك</label><select class="input" id="gr"><option>الثالث الأساسي</option><option selected>الرابع الأساسي</option><option>الخامس الأساسي</option><option>السادس الأساسي</option></select></div>
+            <div class="field"><label for="gr">صفّك</label><select class="input" id="gr"><option selected>الثالث الأساسي</option><option>الرابع الأساسي</option><option>الخامس الأساسي</option><option>السادس الأساسي</option></select></div>
             <p class="form-err" id="err" role="alert"></p>
             <button class="btn btn-red lg" type="submit">🚀 انطلق في المهمة</button>
           </form>

@@ -3,27 +3,29 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>مهمة إنقاذ النبتة — مركز إنقاذ لولو</title>
+  <title>مهمة إنقاذ لولو — مركز إنقاذ لولو</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/main.css?v=20261122e">
-  <link rel="stylesheet" href="styles/pages.css?v=20261122e">
-  <script defer src="js/data.js?v=20261122e"></script>
-  <script defer src="js/adaptive-engine.js?v=20261122e"></script>
-  <script defer src="js/student-progress.js?v=20261122e"></script>
-  <script defer src="js/characters.js?v=20261122e"></script>
-  <script defer src="js/app.js?v=20261122e"></script>
-  <script defer src="js/village.js?v=20261122e"></script>
-  <script defer src="js/puzzle.js?v=20261122e"></script>
-  <script defer src="js/question-card.js?v=20261122e"></script>
-  <script defer src="js/rescue.js?v=20261122e"></script>
+  <link rel="stylesheet" href="styles/main.css?v=20261123d">
+  <link rel="stylesheet" href="styles/pages.css?v=20261123d">
+  <script defer src="js/data.js?v=20261123d"></script>
+  <script defer src="js/adaptive-engine.js?v=20261123d"></script>
+  <script defer src="js/student-progress.js?v=20261123d"></script>
+  <script defer src="js/characters.js?v=20261123d"></script>
+  <script defer src="js/app.js?v=20261123d"></script>
+  <script defer src="js/village.js?v=20261123d"></script>
+  <script defer src="js/puzzle.js?v=20261123d"></script>
+  <script defer src="js/passport.js?v=20261123d"></script>
+  <script defer src="js/question-card.js?v=20261123d"></script>
+  <script defer src="js/rescue.js?v=20261123d"></script>
 </head>
 <body data-page="rescue">
   <a class="skip" href="#main">تخطَّ إلى المحتوى</a>
   <header id="app-header"></header>
   <main id="main" tabindex="-1" class="container page-pad">
-    <div class="zone-banner zb-rescue"><span class="zb-ic" aria-hidden="true">🚨</span><div><p class="eyebrow">المنطقة ٦ · المهمة النهائية</p><h1 class="h-md">مركز إنقاذ لولو</h1></div><span class="grow"></span><div id="rescue-path"></div></div>
+    <div class="zone-banner zb-rescue"><span class="zb-ic" aria-hidden="true">🚨</span><div><p class="eyebrow">المحطة ٦ · المهمة النهائية</p><h1 class="h-md">مركز إنقاذ لولو <button class="icon-btn sm audio-btn" type="button" data-audio="final" aria-label="استمع إلى شرح المهمة" title="استمع إلى شرح المهمة">🔊</button></h1></div><span class="grow"></span><div id="rescue-path"></div>
+      <div id="lulu-slot" class="lulu-slot" aria-live="polite"></div></div>
     <ol class="steps" id="rescue-steps" aria-label="خطوات المهمة"></ol>
     <div class="play-layout">
       <div id="rescue-stage" class="zone-stage"></div>

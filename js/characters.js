@@ -24,10 +24,26 @@
   const f = (n) => Math.round(n * 10) / 10;
 
   /* -------------------- وجه لولو -------------------- */
-  function face(h, x, y, s) {
+  function face(h, x, y, s, mood) {
     s = s || 1;
     let eyes, mouth, extra = '';
-    if (h >= 0.65) {
+    // تعابير لولو حسب حالة التعلم (تتقدّم على التعبير المرتبط بالصحة)
+    if (mood === 'surprised') {
+      eyes = '<circle cx="-6" cy="-3" r="4.2" fill="#fff"/><circle cx="6" cy="-3" r="4.2" fill="#fff"/><circle cx="-6" cy="-3" r="2" fill="#111"/><circle cx="6" cy="-3" r="2" fill="#111"/><path d="M-10 -10 q4 -3 8 0 M2 -10 q4 -3 8 0" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
+      mouth = '<ellipse cx="0" cy="7" rx="3" ry="3.6" fill="#fff"/>';
+    } else if (mood === 'help') {
+      eyes = '<ellipse cx="-6" cy="-2" rx="3.3" ry="3.6" fill="#fff"/><ellipse cx="6" cy="-2" rx="3.3" ry="3.6" fill="#fff"/><circle cx="-6" cy="-1" r="1.9" fill="#111"/><circle cx="6" cy="-1" r="1.9" fill="#111"/><path d="M-10 -8 L-3 -6 M10 -8 L3 -6" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>';
+      mouth = '<path d="M-5 8 q2.5 -2 5 0 q2.5 2 5 0" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round"/>';
+      extra = '<path d="M11 -9 q2.6 4.5 0 6.5 q-2.6 -2 0 -6.5z" fill="#7cc8ff"/>';
+    } else if (mood === 'sad') {
+      eyes = '<path d="M-9 -1 q3 2.5 6 0 M3 -1 q3 2.5 6 0" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/>';
+      mouth = '<path d="M-6 9 Q0 4 6 9" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/>';
+      extra = '<path d="M-8 2 q2 4 0 6 q-2 -2 0 -6z" fill="#7cc8ff"/>';
+    } else if (mood === 'excited') {
+      eyes = '<path d="M-9 -2 q3 -5 6 0 M3 -2 q3 -5 6 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>';
+      mouth = '<path d="M-7 4 Q0 13 7 4 Z" fill="#fff"/><path d="M-4 7 Q0 10 4 7" fill="#ff8a9a"/>';
+      extra = '<path d="M-16 -12 l1.2 2.6 2.6 1.2 -2.6 1.2 -1.2 2.6 -1.2 -2.6 -2.6 -1.2 2.6 -1.2z M16 -12 l1.2 2.6 2.6 1.2 -2.6 1.2 -1.2 2.6 -1.2 -2.6 -2.6 -1.2 2.6 -1.2z" fill="#ffd23f"/>';
+    } else if (mood === 'happy' || h >= 0.65) {
       eyes = `<ellipse cx="-6" cy="-3" rx="3.4" ry="4.2" fill="#fff"/><ellipse cx="6" cy="-3" rx="3.4" ry="4.2" fill="#fff"/><circle cx="-5.4" cy="-2.4" r="2" fill="#111"/><circle cx="6.6" cy="-2.4" r="2" fill="#111"/><circle cx="-4.6" cy="-3.6" r=".8" fill="#fff"/><circle cx="7.4" cy="-3.6" r=".8" fill="#fff"/>`;
       mouth = '<path d="M-6 5 Q0 11 6 5" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/>';
     } else if (h >= 0.4) {
@@ -184,7 +200,7 @@
     } else {
       head += `<path d="M-14 6 Q-20 -6 -8 -10 M14 6 Q20 -6 8 -10" stroke="#2f8f46" stroke-width="5" fill="none"/><circle r="17" fill="${mix('#3fae5a', '#9c9a3a', w)}"/><circle cx="-5" cy="-6" r="6" fill="#fff" opacity=".18"/>`;
     }
-    if (o.face) head += face(h, 0, 0, 1);
+    if (o.face) head += face(h, 0, 0, 1, o.mood);
     const headHit = o.hotspots ? '<circle class="hit" r="50" fill="transparent"/>' : '';
     out.push(`<g class="${cls('flower')}" data-part="flower"${hs('flower', 'الزهرة')} transform="translate(${f(H[0])} ${f(H[1])}) rotate(${f(tilt)})">${headHit}${head}</g>`);
 

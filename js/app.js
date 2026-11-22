@@ -19,7 +19,7 @@
 
   /* ---------- الإعدادات (UDL) ---------- */
   const SKEY = 'plantRescue.settings';
-  const defaults = { fontScale: 1, contrast: false, reduceMotion: false, autoRead: false, volume: 0.7, sfx: true, dyslexia: false };
+  const defaults = { fontScale: 1, contrast: false, reduceMotion: false, autoRead: false, volume: 0.7, sfx: true, dyslexia: false, cvd: false, narration: false, ttsFallback: true };
   function loadSettings() {
     let s = {};
     try { s = JSON.parse(localStorage.getItem(SKEY)) || {}; } catch (e) { /* تجاهل */ }
@@ -34,6 +34,7 @@
     h.classList.toggle('hc', !!s.contrast);
     h.classList.toggle('reduce-motion', !!s.reduceMotion);
     h.classList.toggle('dyslexia', !!s.dyslexia);
+    h.classList.toggle('cvd', !!s.cvd);
   }
   applySettings();
 
@@ -57,6 +58,38 @@
     },
     stop() { if (this.supported) speechSynthesis.cancel(); },
   };
+
+  /* ---------- الشرح الصوتي: تسجيلات بشرية من مجلد audio/ ----------
+     PR.audio.play('roots') يشغّل audio/roots.mp3 إن وُجد. إن لم يوجد التسجيل، تُستخدم القراءة الآلية
+     فقط إذا سمح بها المستخدم من «خيارات الوصول». لا يتكرّر الصوت ولا يعمل وحده إلا إذا فُعّل «الشرح التلقائي». */
+  const audioCache = {};
+  let current = null;
+  PR.audio = {
+    keys: ['welcome', 'roots', 'stem', 'leaves', 'flower', 'lab', 'final', 'success', 'error'],
+    stop() { if (current) { current.pause(); current = null; } PR.tts.stop(); },
+    play(key, fallbackText) {
+      this.stop();
+      const text = fallbackText || (D.AUDIO_SCRIPTS && D.AUDIO_SCRIPTS[key]) || '';
+      const fallback = () => { if (PR.settings.ttsFallback && text) PR.tts.speak(text); else if (text) PR.toast('🔈 التسجيل الصوتي غير متوفر بعد. فعّل «القراءة الآلية» من خيارات الوصول للاستماع.'); };
+      if (!key || audioCache[key] === false || location.protocol === 'file:') { fallback(); return; }
+      const a = new Audio(`audio/${key}.mp3`);
+      a.volume = PR.settings.volume;
+      a.onerror = () => { audioCache[key] = false; if (current === a) current = null; fallback(); };
+      a.oncanplay = () => { audioCache[key] = true; };
+      current = a;
+      a.play().catch(() => { /* يمنع المتصفح التشغيل قبل تفاعل المستخدم */ });
+    },
+    /** شرح المحطة يعمل تلقائيًا مرة واحدة فقط عند الدخول، إذا فعّله المستخدم */
+    narrate(key) {
+      if (!PR.settings.narration) return;
+      const k = 'plantRescue.narrated.' + key;
+      try { if (sessionStorage.getItem(k)) return; sessionStorage.setItem(k, '1'); } catch (e) { /* */ }
+      this.play(key);
+    },
+  };
+  /** زر استماع مرتبط بتسجيل صوتي */
+  PR.ui = PR.ui || {};
+  PR.ui.audioBtn = (key, label) => `<button class="icon-btn sm audio-btn" type="button" data-audio="${key}" aria-label="${label || 'استمع إلى الشرح'}" title="${label || 'استمع إلى الشرح'}">🔊</button>`;
 
   /* ---------- مؤثرات صوتية خفيفة (WebAudio، بلا ملفات) ---------- */
   let actx = null;
@@ -94,6 +127,35 @@
       dock._t = setTimeout(function fold() { if (dock.matches(':hover, :focus-within')) { dock._t = setTimeout(fold, 3000); return; } dock.classList.add('collapsed'); }, Math.max(7000, text.length * 90));
       announce('نبتي: ' + text);
       if ((opts && opts.speak) || PR.settings.autoRead) PR.tts.speak(text);
+    },
+  };
+
+  /* ---------- لولو: الشخصية الرئيسية (نبتة تتكلم وتتغير تعابيرها) ----------
+     moods: happy (سعيدة) | surprised (متفاجئة) | sad (حزينة) | help (تحتاج المساعدة) | excited (سعيدة جدًا) */
+  const LULU_HEALTH = { happy: 90, surprised: 70, sad: 30, help: 45, excited: 100 };
+  PR.lulu = {
+    /** يرسم لولو مع فقاعة كلام داخل حاوية */
+    html(text, mood, opts) {
+      opts = opts || {};
+      mood = mood || 'happy';
+      return `<div class="lulu-talk ${opts.cls || ''}" data-mood="${mood}">
+        <div class="lt-art">${PR.art.plant({ mode: 'pot', health: opts.health != null ? opts.health : LULU_HEALTH[mood], water: mood === 'help' || mood === 'sad' ? 0 : 2, mood, title: `لولو ${({ happy: 'سعيدة', surprised: 'متفاجئة', sad: 'حزينة', help: 'تحتاج المساعدة', excited: 'سعيدة جدًا' })[mood] || ''}` })}</div>
+        <div class="lt-bubble" role="status"><b class="lt-name">🌱 لولو</b><p class="lt-text">${esc(text)}</p></div></div>`;
+    },
+    /** يحدّث لولو في المكان المخصص لها في الصفحة (#lulu-slot) */
+    say(text, mood) {
+      const slot = $('#lulu-slot'); if (!slot) return;
+      slot.innerHTML = this.html(text, mood, { cls: 'compact' });
+      const t = $('.lulu-talk', slot); if (t) PR.fx.pop(t);
+      announce('لولو: ' + text);
+    },
+    /** ردّ فعل سريع على الإجابة: تتغير التعابير فقط */
+    react(kind) {
+      const slot = $('#lulu-slot'); if (!slot || !slot.firstElementChild) return;
+      const text = $('.lt-text', slot) ? $('.lt-text', slot).textContent : '';
+      const map = { correct: ['excited', 'رائع! أشعر أنني أفضل! 💚'], wrong: ['surprised', 'لا بأس! فكّر معي مرة أخرى 🌱'], levelup: ['excited', 'ممتاز! يبدو أنك مستعد لتحدٍّ أكبر! 🚀'] };
+      const [mood, line] = map[kind] || ['happy', text];
+      this.say(line, mood);
     },
   };
 
@@ -225,7 +287,7 @@
     if (hdr) {
       hdr.className = 'app-header';
       hdr.innerHTML = `<div class="hdr-in">
-        <a class="brand" href="index.html" aria-label="مهمة إنقاذ النبتة — الرئيسية"><span class="brand-mark" aria-hidden="true">${PR.icon('sprout')}</span><span class="brand-t">مَهَمَّةُ إِنْقَاذِ النَّبْتَة</span></a>
+        <a class="brand" href="index.html" aria-label="مهمة إنقاذ لولو — الرئيسية"><span class="brand-mark" aria-hidden="true">${PR.icon('sprout')}</span><span class="brand-t">مَهَمَّةُ إِنْقَاذِ لُولُو</span></a>
         <nav class="main-nav" aria-label="التنقل الرئيس">${NAV.map((n) => `<a href="${n.href}" ${n.id === page || (page === 'certificate' && n.id === 'report') ? 'aria-current="page"' : ''} aria-label="${n.t}" title="${n.t}">${PR.icon(n.i)}<span class="nav-t">${n.t}</span></a>`).join('')}</nav>
         <div class="hdr-end"><div id="hdr-stats" class="hdr-stats" aria-label="إحصاءاتي"></div>
         <button class="icon-btn a11y-btn" id="a11y-open" aria-haspopup="dialog" aria-label="خيارات الوصول" title="خيارات الوصول">${PR.icon('a11y')}</button></div>
@@ -252,7 +314,7 @@
       ft.className = 'app-footer';
       ft.innerHTML = `<div class="tatreez-strip" aria-hidden="true"></div><div class="flag-ribbon" aria-hidden="true"></div>
         <div class="ft-in">
-          <div class="ft-brand"><span class="brand-mark" aria-hidden="true">${PR.icon('sprout')}</span><div><b>مَهَمَّةُ إِنْقَاذِ النَّبْتَة</b><p>بيئة تعلّم تكيفية لدرس «أجزاء النبات ووظائفها» — مستوحاة من أرض فلسطين: الزيتون، وشقائق النعمان، والتطريز الفلسطيني.</p></div></div>
+          <div class="ft-brand"><span class="brand-mark" aria-hidden="true">${PR.icon('sprout')}</span><div><b>مَهَمَّةُ إِنْقَاذِ لُولُو</b><p>بيئة تعلّم تكيفية لدرس «أجزاء النبات ووظائفها» — مستوحاة من أرض فلسطين: الزيتون، وشقائق النعمان، والتطريز الفلسطيني.</p></div></div>
           <nav class="ft-nav" aria-label="روابط التذييل">${NAV.map((n) => `<a href="${n.href}">${PR.icon(n.i)}${n.t}</a>`).join('')}</nav>
         </div>`;
     }
@@ -263,13 +325,21 @@
     const s = PR.settings;
     PR.modal(`<h2>♿ خيارات الوصول</h2><p class="muted">اختر ما يناسبك. تُحفظ اختياراتك تلقائيًا.</p>
       <div class="a11y-grid">
+        <p class="a11y-sec">👁️ القراءة والعرض</p>
         <div class="a11y-row"><span>🔠 حجم النص</span><div class="seg"><button class="btn sm" id="fs-dn" aria-label="تصغير النص">أ−</button><output id="fs-val">${ar(Math.round(s.fontScale * 100))}٪</output><button class="btn sm" id="fs-up" aria-label="تكبير النص">أ+</button></div></div>
         <label class="a11y-row"><span>👁️ تباين مرتفع</span><input type="checkbox" class="switch" id="o-contrast" ${s.contrast ? 'checked' : ''}></label>
-        <label class="a11y-row"><span>⏸️ إيقاف الحركات</span><input type="checkbox" class="switch" id="o-motion" ${s.reduceMotion ? 'checked' : ''}></label>
-        <label class="a11y-row"><span>🔊 قراءة رسائل نَبْتي تلقائيًا</span><input type="checkbox" class="switch" id="o-read" ${s.autoRead ? 'checked' : ''}></label>
-        <label class="a11y-row"><span>🎵 المؤثرات الصوتية</span><input type="checkbox" class="switch" id="o-sfx" ${s.sfx ? 'checked' : ''}></label>
+        <label class="a11y-row"><span>🎨 ألوان مناسبة لعمى الألوان<small>أزرق وبرتقالي بدل الأخضر والأحمر</small></span><input type="checkbox" class="switch" id="o-cvd" ${s.cvd ? 'checked' : ''}></label>
         <label class="a11y-row"><span>📖 تباعد مريح للقراءة</span><input type="checkbox" class="switch" id="o-dys" ${s.dyslexia ? 'checked' : ''}></label>
+        <p class="a11y-sec">⏸️ الحركة</p>
+        <label class="a11y-row"><span>⏸️ إيقاف الحركات</span><input type="checkbox" class="switch" id="o-motion" ${s.reduceMotion ? 'checked' : ''}></label>
+        <p class="a11y-sec">🔊 الصوت</p>
+        <label class="a11y-row"><span>🎧 الشرح الصوتي عند دخول كل محطة<small>مرة واحدة فقط، ويمكن إيقافه بأي زر 🔊</small></span><input type="checkbox" class="switch" id="o-narr" ${s.narration ? 'checked' : ''}></label>
+        <label class="a11y-row"><span>🗣️ القراءة الآلية عند عدم توفر تسجيل<small>للنصوص التي لم تُسجَّل بصوت بشري بعد</small></span><input type="checkbox" class="switch" id="o-tts" ${s.ttsFallback ? 'checked' : ''}></label>
+        <label class="a11y-row"><span>🤖 قراءة رسائل نَبْتي تلقائيًا</span><input type="checkbox" class="switch" id="o-read" ${s.autoRead ? 'checked' : ''}></label>
+        <label class="a11y-row"><span>🎵 المؤثرات الصوتية</span><input type="checkbox" class="switch" id="o-sfx" ${s.sfx ? 'checked' : ''}></label>
         <label class="a11y-row"><span>🔈 مستوى الصوت</span><input type="range" id="o-vol" min="0" max="1" step="0.1" value="${s.volume}" aria-label="مستوى الصوت"></label>
+        <p class="a11y-sec">⌨️ التفاعل</p>
+        <p class="a11y-note">⌨️ كل الأنشطة تعمل بلوحة المفاتيح (Tab ثم Enter). 👆 كل نشاط سحب وإفلات له بديل بالنقر: اختر البطاقة ثم اختر مكانها. 📝 لكل صورة وصف نصي لقارئات الشاشة. ✓ و✗ ترافق الألوان دائمًا.</p>
       </div>
       ${PR.tts.supported ? '' : '<p class="note">⚠️ متصفحك لا يدعم القراءة الصوتية؛ النص مكتوب دائمًا بجانب كل محتوى.</p>'}
       <p class="muted small">⌨️ يمكنك استخدام Tab للتنقل، وEnter أو المسافة للاختيار، وEsc للإغلاق.</p>
@@ -284,8 +354,11 @@
         $('#o-read', ov).onchange = (e) => set('autoRead', e.target.checked);
         $('#o-sfx', ov).onchange = (e) => set('sfx', e.target.checked);
         $('#o-dys', ov).onchange = (e) => set('dyslexia', e.target.checked);
+        $('#o-cvd', ov).onchange = (e) => set('cvd', e.target.checked);
+        $('#o-narr', ov).onchange = (e) => set('narration', e.target.checked);
+        $('#o-tts', ov).onchange = (e) => set('ttsFallback', e.target.checked);
         $('#o-vol', ov).oninput = (e) => set('volume', +e.target.value);
-        $('#a11y-test', ov).onclick = () => { PR.sfx.play('correct'); PR.tts.speak('مرحبًا أيها العالم الصغير!'); };
+        $('#a11y-test', ov).onclick = () => { PR.sfx.play('correct'); PR.audio.play('success', 'مرحبًا يا عالم النبات الصغير!'); };
       },
     });
   }
@@ -293,8 +366,14 @@
 
   /* ---------- تفويض أحداث عامة ---------- */
   document.addEventListener('click', (e) => {
+    const au = e.target.closest('[data-audio]');
+    if (au) { e.preventDefault(); PR.audio.play(au.dataset.audio, au.dataset.speak); return; }
     const sp = e.target.closest('[data-speak]');
-    if (sp) { e.preventDefault(); PR.tts.speak(sp.dataset.speak); }
+    if (sp) {
+      e.preventDefault();
+      if (PR.settings.ttsFallback) PR.tts.speak(sp.dataset.speak);
+      else PR.toast('🗣️ القراءة الآلية متوقفة. فعّلها من «خيارات الوصول» للاستماع.');
+    }
   });
   // عناصر role=button غير الأزرار: Enter/Space
   document.addEventListener('keydown', (e) => {

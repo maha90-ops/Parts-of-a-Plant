@@ -35,7 +35,12 @@ function botStep({ prof, n }) {
     if (card._w < budget && wr) { card._w++; return click(wr, 'wrong'); }
     return click(right, 'right');
   }
-  const ids = ['next', 'to-map', 'micro-next', 'ex-next', 'br-next', 'wj-go', 'wj-cut', 'wj-fix', 'wj-next', 'fl-next', 'maze-next', 'fac-next', 'go-rem', 'rm-go', 'skip-r', 'nx-st', 'sim-done', 'al-go', 'inv-next', 'heal-go', 'post-go', 'tr-go'];
+  // الأنشطة الجديدة: سمِّ أجزاء لولو، والتجارب (توقّع ← جرّب)
+  const lchip = document.querySelector('.lchip');
+  if (lchip) { lchip.dispatchEvent(new MouseEvent('click', { bubbles: true })); return click(document.querySelector(`.lbl-target[data-part="${lchip.dataset.part}"]:not(.filled)`), 'label'); }
+  const xpred = [...document.querySelectorAll('.exp-preds .opt')].find((o) => !o.disabled && o.dataset.ok === (prof === 'weak' && n % 2 ? '0' : '1'));
+  if (xpred) return click(xpred, 'exp-predict');
+  const ids = ['scn-next', 'lbl-next', 'exp-try', 'next', 'to-map', 'micro-next', 'ex-next', 'br-next', 'wj-go', 'wj-cut', 'wj-fix', 'wj-next', 'fl-next', 'maze-next', 'fac-next', 'go-rem', 'rm-go', 'skip-r', 'nx-st', 'sim-done', 'al-go', 'inv-next', 'heal-go', 'post-go', 'tr-go'];
   for (const id of ids) { const e = document.getElementById(id); if (vis(e)) return click(e, id); }
   // ---- أنشطة ----
   const hl = $('.micro .part.is-hl'); if (hl && !hl.classList.contains('picked-ok')) return click(hl, 'micro-part');

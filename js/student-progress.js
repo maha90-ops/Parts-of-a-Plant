@@ -56,7 +56,7 @@
       points: 0, seeds: 0, drops: 0, stars: 0,
       badges: [],
       zones,
-      labStations: { match: false, whatif: false, sim: false },
+      labStations: { exp: false, match: false, sim: false },
       puzzles: {},        // تحدّي البازل: لوحة لكل محطة
       puzzleActive: null,
       rescueVillage: null, // تحدّي الخيمة والزيتون في مركز الإنقاذ

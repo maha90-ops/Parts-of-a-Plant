@@ -1,5 +1,5 @@
 /* =========================================================================
-   data.js — المحتوى التعليمي لمشروع «مَهَمَّةُ إِنْقَاذِ النَّبْتَة»
+   data.js — المحتوى التعليمي لمشروع «مَهَمَّةُ إِنْقَاذِ لُولُو»
    كل المحتوى هنا (بيانات فقط، بلا واجهة)، ليسهل تعديله أو نقله إلى قاعدة بيانات.
    يعمل في المتصفح (window.PR.data) وفي Node (module.exports) للاختبارات.
    ========================================================================= */
@@ -109,9 +109,9 @@
 
   /* ---------- المسارات التكيفية ---------- */
   const PATHS = {
-    challenge:   { name: 'المسار المتقدم', icon: '🟢', cls: 'challenge', desc: 'مواقف علمية، وأسئلة «ماذا يحدث لو؟»، وقرارات، وتلميحات أقل.' },
-    practice:    { name: 'المسار المتوسط', icon: '🟡', cls: 'practice', desc: 'شرح مختصر، وأنشطة تفاعلية، وأسئلة متدرجة مع تلميحات عند الحاجة.' },
-    remediation: { name: 'المسار العلاجي', icon: '🔵', cls: 'remediation', desc: 'خطوات صغيرة، ودعم يزداد تدريجيًا، وإعادة محاولة.' },
+    challenge:   { name: 'مستكشف متقدم', icon: '🟢', cls: 'challenge', desc: 'مواقف علمية، وأسئلة «ماذا يحدث لو؟»، وقرارات، وتلميحات أقل.' },
+    practice:    { name: 'مستكشف متوسط', icon: '🟡', cls: 'practice', desc: 'شرح قصير، وأنشطة تفاعلية، وأسئلة تتدرّج خطوة خطوة مع تلميحات عند الحاجة.' },
+    remediation: { name: 'مستكشف يحتاج إلى دعم', icon: '🔵', cls: 'remediation', desc: 'خطوات صغيرة، ومساعدة تزداد عند الحاجة، وفرص كثيرة للمحاولة.' },
   };
 
   /* ---------- المناطق (خريطة الرحلة) ---------- */
@@ -120,7 +120,7 @@
     { id: 'stem', kind: 'part', part: 'stem', title: 'طريق الساق', icon: '🌿', learn: 'وظيفة الساق', href: 'zone.html?z=stem', badge: 'water_expert', activity: 'waterJourney', x: 64, y: 56 },
     { id: 'leaves', kind: 'part', part: 'leaf', title: 'مصنع الأوراق', icon: '🍃', learn: 'وظيفة الأوراق', href: 'zone.html?z=leaves', badge: 'leaf_guardian', activity: 'leafFactory', x: 40, y: 70 },
     { id: 'flower', kind: 'part', part: 'flower', title: 'حديقة الأزهار', icon: '🌸', learn: 'وظيفة الزهرة', href: 'zone.html?z=flower', badge: 'flower_friend', activity: 'flowerCycle', x: 18, y: 48 },
-    { id: 'lab', kind: 'lab', title: 'المختبر النباتي', icon: '🔬', learn: 'ربط الأجزاء بالوظائف', href: 'plant-lab.html', badge: 'little_scientist', x: 42, y: 30 },
+    { id: 'lab', kind: 'lab', title: 'مختبر العالم الصغير', icon: '🔬', learn: 'ربط الأجزاء بالوظائف', href: 'plant-lab.html', badge: 'little_scientist', x: 42, y: 30 },
     { id: 'rescue', kind: 'rescue', title: 'مركز إنقاذ لولو', icon: '🚨', learn: 'المهمة النهائية', href: 'rescue.html', badge: 'lulu_savior', x: 72, y: 18 },
   ];
 
@@ -314,6 +314,86 @@
     },
   };
 
+  /* ---------- مستويات التفكير الخمسة (تظهر على كل سؤال) ---------- */
+  const THINK_LEVELS = {
+    identify: { n: 1, t: 'التعرف' }, name: { n: 1, t: 'التعرف' },
+    function: { n: 2, t: 'المطابقة' }, match: { n: 2, t: 'المطابقة' },
+    explain: { n: 3, t: 'التفسير' },
+    infer: { n: 4, t: 'الاستنتاج' },
+    apply: { n: 5, t: 'حل المشكلة' }, solve: { n: 5, t: 'حل المشكلة' },
+  };
+
+  /* ---------- الموقف الافتتاحي لكل محطة (لولو تطلب المساعدة) ---------- */
+  const SCENARIOS = {
+    roots: { lulu: 'أنا أشعر بالعطش... هل تساعدني؟ 💧', mood: 'help', title: 'لولو عطشانة! 💧',
+      state: { water: 2, health: 45 }, anim: 'root',
+      q: { id: 'roots-scn', zone: 'roots', part: 'root', skill: 'identify', level: 1, prompt: 'أيّ جزء من النبات يساعد لولو على امتصاص الماء من التربة؟',
+        options: [{ t: '🌱 الجذر', c: 1 }, { t: '🌿 الساق', e: 'part-confusion', p: 'stem' }, { t: '🍃 الورقة', e: 'part-confusion', p: 'leaf' }, { t: '🌸 الزهرة', e: 'part-confusion', p: 'flower' }],
+        hints: ['فكّر مرة أخرى... أيّ جزء يوجد داخل التربة؟', 'تذكّر: الجزء الذي تحت التربة يشرب للنبات.'] },
+      done: 'أحسنت! الجذر يمتص الماء والأملاح المعدنية من التربة.' },
+    stem: { lulu: 'أوه! هناك مشكلة في ساقي! هل تستطيع مساعدتي؟', mood: 'surprised', title: 'الماء لا يصل إلى أوراق لولو! 🌿',
+      state: { water: 2, health: 55 }, anim: 'stem',
+      q: { id: 'stem-scn', zone: 'stem', part: 'stem', skill: 'identify', level: 1, prompt: 'أيّ جزء ينقل الماء من الجذر إلى أوراق لولو؟',
+        options: [{ t: '🌿 الساق', c: 1 }, { t: '🌱 الجذر', e: 'partial', p: 'root' }, { t: '🍃 الورقة', e: 'part-confusion', p: 'leaf' }, { t: '🌸 الزهرة', e: 'part-confusion', p: 'flower' }],
+        hints: ['فكّر مرة أخرى... أيّ جزء يقع بين الجذر والأوراق؟', 'تذكّر: هذا الجزء يعمل مثل أنبوب يصعد فيه الماء.'] },
+      done: 'أحسنت! الساق تنقل الماء من الجذر إلى الأوراق، وتحمل النبتة.' },
+    leaves: { lulu: 'أنا جائعة... ساعدني أصنع غذائي! 🍎', mood: 'help', title: 'لولو جائعة! 🍎',
+      state: { water: 2, health: 60, leaves: 'yellow', light: 1 }, anim: 'leaf',
+      q: { id: 'leaves-scn', zone: 'leaves', part: 'leaf', skill: 'identify', level: 1, prompt: 'أيّ جزء من لولو يصنع لها الغذاء؟',
+        options: [{ t: '🍃 الأوراق', c: 1 }, { t: '🌱 الجذر', e: 'function-confusion', p: 'root' }, { t: '🌿 الساق', e: 'function-confusion', p: 'stem' }, { t: '🌸 الزهرة', e: 'function-confusion', p: 'flower' }],
+        hints: ['فكّر مرة أخرى... أيّ جزء أخضر يواجه الشمس؟', 'تذكّر: الأوراق تعمل مثل مصنع صغير.'] },
+      done: 'أحسنت! الأوراق تصنع الغذاء للنبات من ضوء الشمس والماء والهواء.' },
+    flower: { lulu: 'أريد أن تنمو نبتات صغيرة مثلي! 🌰', mood: 'happy', title: 'لولو تريد بذورًا جديدة! 🌸',
+      state: { water: 2, health: 85 }, anim: 'flower',
+      q: { id: 'flower-scn', zone: 'flower', part: 'flower', skill: 'identify', level: 1, prompt: 'أيّ جزء من لولو تتكوّن منه البذور؟',
+        options: [{ t: '🌸 الزهرة', c: 1 }, { t: '🌱 الجذر', e: 'function-confusion', p: 'root' }, { t: '🌿 الساق', e: 'function-confusion', p: 'stem' }, { t: '🍃 الورقة', e: 'function-confusion', p: 'leaf' }],
+        hints: ['فكّر مرة أخرى... أيّ جزء ملوّن تزوره النحلة؟', 'تذكّر: الزهرة تتحوّل إلى ثمرة فيها بذور.'] },
+      done: 'أحسنت! الزهرة تساعد النبات على تكوين البذور، والبذور تصبح نبتات جديدة.' },
+  };
+  /* ما تقوله لولو عند إنهاء كل محطة */
+  const LULU_DONE = { roots: 'رائع! لقد اكتشفت وظيفة الجذر! 💧', stem: 'شكرًا! الماء يصعد في ساقي الآن! 🌿', leaves: 'ممتاز! مصنع أوراقي يعمل! 🍎', flower: 'رائع! ستتكوّن عندي بذور جديدة! 🌸', lab: 'أنت عالم حقيقي! جرّبت وفكّرت مثل العلماء! 🔬', rescue: 'أحسنت! لقد أنقذتني! 🌱💚' };
+
+  /* ---------- «مختبر العالم الصغير»: توقّع ← جرّب ← شاهد ← فسّر ---------- */
+  const EXPERIMENTS = [
+    { id: 'x1', title: 'ماذا يحدث للنبتة إذا لم تحصل على الماء؟', part: 'root', skill: 'infer',
+      from: { water: 2, health: 100 }, to: { water: 0, health: 25 }, tryLabel: '🚱 أوقف الماء',
+      predict: [{ t: 'تذبل النبتة', c: 1 }, { t: 'تبقى خضراء كما هي' }, { t: 'تكبر أسرع' }],
+      observe: 'جفّت التربة… وذبلت أوراق لولو وانحنت زهرتها.',
+      explain: { id: 'x1-why', zone: 'lab', part: 'root', skill: 'infer', level: 2, prompt: 'لماذا ذبلت لولو؟',
+        options: [{ t: 'لأن الجذر لم يجد ماءً ليمتصه', c: 1 }, { t: 'لأن الأوراق تعبت من الشمس', e: 'misconception', p: 'leaf' }, { t: 'لأن الزهرة كبيرة', e: 'irrelevant', p: 'flower' }] } },
+    { id: 'x2', title: 'ماذا يحدث إذا لم تحصل النبتة على الضوء؟', part: 'leaf', skill: 'infer',
+      from: { water: 2, light: 2, health: 100 }, to: { water: 2, light: 0, leaves: 'yellow', health: 40 }, tryLabel: '🌑 أطفئ الضوء',
+      predict: [{ t: 'تصفرّ أوراقها وتضعف', c: 1 }, { t: 'تبقى قوية لأن عندها ماء' }, { t: 'تتفتّح أزهار أكثر' }],
+      observe: 'في الظلام اصفرّت أوراق لولو وضعفت، مع أن التربة رطبة.',
+      explain: { id: 'x2-why', zone: 'lab', part: 'leaf', skill: 'infer', level: 2, prompt: 'لماذا اصفرّت الأوراق؟',
+        options: [{ t: 'لأن الأوراق تحتاج الضوء لتصنع الغذاء', c: 1 }, { t: 'لأن الجذر لا يعمل في الظلام', e: 'misconception', p: 'root' }, { t: 'لأن الماء صار باردًا', e: 'irrelevant' }] } },
+    { id: 'x3', title: 'ماذا يحدث إذا توقف الجذر عن امتصاص الماء؟', part: 'root', skill: 'solve',
+      from: { water: 2, root: 'healthy', health: 100 }, to: { water: 2, root: 'damaged', health: 30 }, tryLabel: '🛑 أوقف الجذر',
+      predict: [{ t: 'تذبل النبتة رغم أن التربة رطبة', c: 1 }, { t: 'لا يحدث شيء لأن الماء موجود' }, { t: 'تشرب الأوراق الماء من التربة' }],
+      observe: 'التربة مليئة بالماء… لكن لولو ذبلت! الماء بقي في التربة.',
+      explain: { id: 'x3-why', zone: 'lab', part: 'root', skill: 'solve', level: 3, prompt: 'لماذا ذبلت لولو مع وجود الماء؟',
+        options: [{ t: 'لأن الجذر هو الذي يمتص الماء، فإذا توقف لا يصل الماء إلى النبتة', c: 1 }, { t: 'لأن الماء الكثير يضر دائمًا', e: 'misconception' }, { t: 'لأن الساق تصنع الماء', e: 'misconception', p: 'stem' }] } },
+    { id: 'x4', title: 'تتبّع رحلة الماء داخل النبات', part: 'stem', skill: 'explain',
+      from: { water: 2, health: 85 }, to: { water: 2, health: 100, flow: true }, tryLabel: '💧 أطلق الماء',
+      predict: [{ t: 'من الجذر إلى الساق ثم إلى الأوراق', c: 1 }, { t: 'من الأوراق إلى الجذر' }, { t: 'من الزهرة إلى الساق' }],
+      observe: 'شاهد القطرات: تدخل الجذر، ثم تصعد في الساق، ثم تصل إلى كل ورقة!',
+      explain: { id: 'x4-why', zone: 'lab', part: 'stem', skill: 'explain', level: 2, prompt: 'ما دور الساق في رحلة الماء؟',
+        options: [{ t: 'الساق طريق ينقل الماء من الجذر إلى الأوراق', c: 1 }, { t: 'الساق تمتص الماء من التربة', e: 'function-confusion', p: 'root' }, { t: 'الساق تصنع الماء', e: 'misconception' }] } },
+  ];
+
+  /* ---------- نصوص التسجيلات الصوتية (جاهزة لتسجيلها بصوت بشري في audio/) ---------- */
+  const AUDIO_SCRIPTS = {
+    welcome: 'كانت هناك نبتة صغيرة اسمها لولو. لكن لولو بدأت تذبل. هناك مشكلة ما في أحد أجزاء نباتها. هل تستطيع أن تصبح عالم نبات صغيرًا وتساعدها؟',
+    roots: 'مرحبًا بك في مدينة الجذور. لولو عطشانة! الجذر يمتص الماء والأملاح المعدنية من التربة، ويثبّت النبات فيها.',
+    stem: 'مرحبًا بك في طريق الساق. الساق تحمل النبات، وتنقل الماء من الجذر إلى الأوراق.',
+    leaves: 'مرحبًا بك في مصنع الأوراق. الأوراق تصنع غذاء النبات من ضوء الشمس والماء والهواء.',
+    flower: 'مرحبًا بك في حديقة الأزهار. الزهرة تساعد النبات على تكوين البذور، والبذور تنمو نبتات جديدة.',
+    lab: 'مرحبًا بك في مختبر العالم الصغير. توقّع، ثم جرّب، ثم شاهد النتيجة، ثم فسّر ما تعلّمته.',
+    final: 'إنذار! لولو ما زالت تحتاج إلى مساعدتك. افحص الأدلة، وحدّد المشكلة، واختر الحل المناسب.',
+    success: 'أحسنت!',
+    error: 'فكّر مرة أخرى.',
+  };
+
   /* ---------- «طابق وأنقذ» حسب المستوى ---------- */
   const MATCH_SETS = {
     1: [{ part: 'root', t: 'امتصاص الماء والأملاح', icon: '💧' }, { part: 'stem', t: 'دعم النبات ونقل الماء والأملاح', icon: '🚰' }, { part: 'leaf', t: 'صنع الغذاء', icon: '🍎' }, { part: 'flower', t: 'المساعدة في التكاثر', icon: '🌰' }],
@@ -483,5 +563,5 @@
     { name: 'عمر', target: 63 }, { name: 'ريم', target: 83 },
   ];
 
-  return { util, SKILLS, SKILL_ORDER, ERROR_TYPES, PARTS, MAIN_PARTS, PATHS, ZONES, BADGES, LEVELS, DIAGNOSTIC, BANK, ZONE_CONTENT, MATCH_SETS, WHATIF, WHATIF_OPEN, LAB_CHALLENGES, RESCUE_CASES, RESCUE_BY_PATH, FACTS, RESCUE_FACTS, POSTTEST_FACTS, POSTTEST, DEMO_CLASS };
+  return { util, SKILLS, SKILL_ORDER, ERROR_TYPES, PARTS, MAIN_PARTS, PATHS, THINK_LEVELS, SCENARIOS, LULU_DONE, EXPERIMENTS, AUDIO_SCRIPTS, ZONES, BADGES, LEVELS, DIAGNOSTIC, BANK, ZONE_CONTENT, MATCH_SETS, WHATIF, WHATIF_OPEN, LAB_CHALLENGES, RESCUE_CASES, RESCUE_BY_PATH, FACTS, RESCUE_FACTS, POSTTEST_FACTS, POSTTEST, DEMO_CLASS };
 });

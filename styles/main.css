@@ -386,3 +386,46 @@ html.hc .app-header { background: #000; }
 /* زر ثانوي ناعم */
 .btn-soft { background: rgba(255, 255, 255, .85); border-color: var(--line); }
 .eyebrow.light { color: #ffb3bf; }
+
+/* =========================================================================
+   الإصدار ٤: لولو شخصية رئيسية + تغذية راجعة إيجابية + وضع عمى الألوان
+   ========================================================================= */
+/* وضع ألوان مناسب لعمى الألوان: أزرق للصحيح وبرتقالي للمحاولة (مع ✓ و✗ دائمًا) */
+html.cvd { --ok: #1d6fb8; --bad: #c25e00; --green: #1d6fb8; --green-d: #134a7c; --green-l: #e3effa; --red: #c25e00; --red-d: #8f4500; --red-l: #fdeedd; }
+html.cvd .mbar.lo .mbar-fill { background: repeating-linear-gradient(135deg, #e07a10 0 4px, #c25e00 4px 8px); }
+html.cvd .mbar.hi .mbar-fill { background: linear-gradient(90deg, #4a95d6, #1d6fb8); }
+/* تغذية «حاول مرة أخرى» بلون دافئ لطيف بدل الأحمر */
+.q-feedback.try, .act-fb.try { padding: 10px 14px; background: var(--gold-l); color: #6b4a00; border-inline-start: 5px solid var(--gold); border-radius: 12px; }
+/* مستوى التفكير على السؤال */
+.think-tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: .8rem; font-weight: 900; background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; }
+.think-tag.lv1 { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+.think-tag.lv2 { background: #f0f9ff; color: #075985; border-color: #bae6fd; }
+.think-tag.lv3 { background: #fefce8; color: #854d0e; border-color: #fde68a; }
+.think-tag.lv4 { background: #fdf4ff; color: #86198f; border-color: #f5d0fe; }
+.think-tag.lv5 { background: #fff1f2; color: #9f1239; border-color: #fecdd3; }
+/* خيارات الوصول: أقسام */
+.a11y-sec { margin: 10px 0 0; font-weight: 900; color: var(--green-d); font-size: .9rem; }
+.a11y-row small { display: block; color: var(--muted); font-size: .78rem; font-weight: 600; }
+.a11y-note { margin: 0; background: var(--paper); border: 1px dashed var(--line); border-radius: 12px; padding: 10px 12px; font-size: .86rem; line-height: 1.9; }
+.audio-btn { vertical-align: middle; }
+.btn-xl { min-height: 64px; padding: 16px 34px; font-size: 1.25rem; border-radius: 18px; }
+
+/* ---------- لولو تتكلم ---------- */
+.lulu-talk { display: flex; align-items: flex-end; gap: 10px; }
+.lulu-talk .lt-art { width: 92px; flex: none; filter: drop-shadow(0 8px 10px rgba(60, 40, 10, .18)); }
+.lulu-talk .lt-bubble { position: relative; background: #fff; border: 2px solid var(--green); border-radius: 18px 18px 18px 4px; padding: 8px 14px; box-shadow: var(--shadow); max-width: 360px; animation: rise .35s; }
+.lulu-talk .lt-name { display: block; font-size: .75rem; color: var(--green-d); }
+.lulu-talk .lt-text { margin: 0; font-weight: 800; font-size: 1rem; line-height: 1.7; }
+.lulu-talk[data-mood="help"] .lt-bubble, .lulu-talk[data-mood="sad"] .lt-bubble { border-color: #3a8fb7; }
+.lulu-talk[data-mood="surprised"] .lt-bubble { border-color: var(--gold); }
+.lulu-talk[data-mood="excited"] .lt-bubble { border-color: var(--gold); background: var(--gold-l); }
+.lulu-talk.compact .lt-art { width: 64px; }
+.lulu-talk.compact .lt-text { font-size: .92rem; }
+.lulu-talk.inline { margin: 10px 0; }
+.lulu-talk.inline .lt-art { width: 70px; }
+.lulu-talk.hero { flex-direction: column; align-items: center; }
+.lulu-talk.hero .lt-art { width: min(330px, 70vw); }
+.lulu-talk.hero .lt-bubble { order: -1; border-radius: 18px 18px 18px 18px; font-size: 1.05rem; }
+.lulu-talk.stacked { flex-direction: column; align-items: center; }
+.lulu-talk.stacked .lt-art { width: 150px; }
+.lulu-talk.stacked .lt-bubble { order: -1; text-align: center; }

@@ -638,3 +638,107 @@ html.hc .video-section { background: #000; }
 .cert-corner svg { display: block; }
 .cert-sign .cert-lulu .plant-svg { width: 150px; }
 .cert-sign > .cert-lulu { width: 160px; }
+
+/* ---------- الإصدار ٤: الصفحات ---------- */
+/* الرئيسية: سطور القصة تظهر واحدًا تلو الآخر */
+.story { position: relative; padding: 16px 20px 16px 56px; border-inline-start: 6px solid var(--red); margin-bottom: 20px; }
+.story .audio-btn { position: absolute; left: 12px; top: 12px; }
+.story-lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.story-lines li { font-size: 1.12rem; font-weight: 700; opacity: 0; transform: translateY(8px); transition: opacity .5s, transform .5s; }
+.story-lines li.on { opacity: 1; transform: none; }
+html.reduce-motion .story-lines li { opacity: 1; transform: none; }
+.stage-lulu { max-width: 360px; }
+/* لولو في لافتة المحطة */
+.lulu-slot { flex-basis: 100%; display: flex; justify-content: flex-start; min-height: 0; }
+.lulu-slot:empty { display: none; }
+.zone-banner .lulu-talk .lt-bubble { color: var(--ink); }
+/* الموقف الافتتاحي */
+.scn-grid { display: grid; grid-template-columns: 300px 1fr; gap: 22px; align-items: start; }
+.scn-art { border-radius: 18px; overflow: hidden; border: 1px solid var(--line); }
+.scn-title { margin-bottom: 4px; }
+.scn-done { font-size: 1.1rem; }
+@media (max-width: 760px) { .scn-grid { grid-template-columns: 1fr; } .scn-art { max-width: 300px; margin: 0 auto; width: 100%; } }
+/* نشاط: سمِّ أجزاء لولو */
+.lbl-wrap { display: grid; grid-template-columns: minmax(0, 360px) 1fr; gap: 20px; align-items: center; margin-top: 10px; }
+.lbl-art { position: relative; width: 100%; border-radius: 18px; overflow: hidden; border: 1px solid var(--line); }
+.lbl-target { position: absolute; left: var(--x); top: var(--y); transform: translate(-50%, -50%); min-width: 54px; min-height: 40px; padding: 4px 10px; border-radius: 999px; border: 3px dashed #fff; background: rgba(20, 20, 20, .55); color: #fff; font-weight: 900; cursor: pointer; box-shadow: 0 4px 10px rgba(0, 0, 0, .25); }
+.lbl-target.over { background: var(--gold); border-style: solid; }
+.lbl-target.filled { background: #fff; color: var(--green-d); border: 3px solid var(--green); cursor: default; white-space: nowrap; font-size: .85rem; }
+.lbl-chips { display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; }
+.lchip { min-height: 54px; padding: 8px 18px; border-radius: 16px; border: 2px solid var(--ink); background: #fff; font-weight: 900; font-size: 1.05rem; cursor: grab; touch-action: none; user-select: none; box-shadow: 0 4px 0 rgba(0, 0, 0, .15); }
+.lchip[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.lchip.dragging { opacity: .35; }
+@media (max-width: 680px) { .lbl-wrap { grid-template-columns: 1fr; } .lbl-art { max-width: 340px; margin: 0 auto; } }
+/* مختبر العالم الصغير: التجارب */
+.exp-head h3 { font-size: 1.3rem; margin: 0 0 8px; }
+.exp-steps { list-style: none; padding: 0; margin: 0 0 14px; display: flex; gap: 6px; flex-wrap: wrap; }
+.exp-steps li { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; background: var(--paper); border: 1px solid var(--line); font-weight: 800; color: var(--muted); }
+.exp-steps li span { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: #fff; font-size: .78rem; }
+.exp-steps li.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.exp-steps li.done { color: var(--green-d); border-color: var(--green); background: var(--green-l); }
+.exp-grid { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+.exp-art { border-radius: 18px; overflow: hidden; border: 1px solid var(--line); }
+.exp-q { font-size: 1.2rem; font-weight: 900; }
+.exp-obs { font-size: 1.15rem; font-weight: 800; background: var(--blue-l); border-radius: 14px; padding: 12px 14px; }
+.opt.chosen { border-color: var(--blue); background: var(--blue-l); }
+@media (max-width: 760px) { .exp-grid { grid-template-columns: 1fr; } .exp-art { max-width: 300px; margin: 0 auto; width: 100%; } }
+/* مركز الإنقاذ: سلسلة الفهم أثناء الشفاء */
+.heal-chain { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
+.heal-chain li { padding: 8px 12px; border-radius: 12px; background: var(--paper); border: 1px solid var(--line); font-weight: 700; opacity: .35; transition: opacity .4s, background .4s; }
+.heal-chain li.on { opacity: 1; background: var(--green-l); border-color: var(--green); }
+.heal-chain li.on::after { content: ' ✓'; color: var(--green-d); font-weight: 900; }
+/* الخريطة: شريط التقدّم ونقطة البداية */
+.journey-progress { padding: 14px 18px; margin-bottom: 16px; }
+.jp-text { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; font-size: 1.1rem; }
+.jp-text span { font-weight: 900; color: var(--green-d); font-size: 1.2rem; }
+.jp-bar { position: relative; height: 16px; background: var(--paper-2); border-radius: 99px; border: 1px solid var(--line); margin: 6px 14px 12px; }
+.jp-bar > i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #1aa35a, var(--green)); transition: width .8s; }
+.jp-dot { position: absolute; top: 50%; right: calc(var(--i) / 5 * 100%); transform: translate(50%, -50%); width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: .9rem; background: #fff; border: 2px solid var(--line); }
+.jp-dot.done { background: var(--green); color: #fff; border-color: var(--green-d); font-weight: 900; }
+.jp-dot.open { border-color: var(--red); animation: pulse 1.8s infinite; }
+.jp-dot.locked { opacity: .55; filter: grayscale(1); }
+.node-start .node-btn { border-color: var(--green); background: var(--green-l); width: 58px; height: 58px; font-size: 1.6rem; cursor: default; }
+.node-start .node-btn:hover { transform: none; }
+.node-lbl .st-ok, .node-done .st-t { color: var(--green-d); font-weight: 900; }
+.node-locked .node-lbl { opacity: .6; }
+.node-done .node-btn { box-shadow: 0 0 0 6px rgba(15, 122, 63, .18), 0 6px 0 rgba(0, 0, 0, .2); }
+.lulu-card .lulu-talk .lt-text { font-size: .92rem; }
+/* جواز سفر عالم النبات */
+.passport { background: linear-gradient(180deg, #0b4f2c, #0d5f35); color: #fff; border-radius: 20px; padding: 14px; box-shadow: var(--shadow); text-align: start; }
+.pp-cover { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+.pp-emblem { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-size: 1.6rem; background: #f2c33a; box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .2); }
+.pp-kicker { margin: 0; font-size: .75rem; letter-spacing: .02em; color: #f2c33a; font-weight: 900; }
+.pp-title { margin: 0; font-size: 1.2rem; color: #fff; }
+.pp-owner { margin: 0; font-size: .85rem; color: #cfe6d6; }
+.pp-grid { list-style: none; padding: 10px; margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; background: #fbf6ec; border-radius: 14px; color: var(--ink); }
+.pp-slot { display: grid; justify-items: center; text-align: center; gap: 2px; padding: 6px 4px; }
+.pp-stamp { position: relative; width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; border: 2px dashed #c9b993; font-size: 1.5rem; filter: grayscale(1); opacity: .5; }
+.pp-slot.stamped .pp-stamp { filter: none; opacity: 1; border: 3px double var(--red); background: radial-gradient(circle, #fff 55%, #fde4e7); transform: rotate(-12deg); }
+.pp-ok { position: absolute; bottom: -6px; font-size: .62rem; font-weight: 900; background: var(--red); color: #fff; padding: 0 6px; border-radius: 6px; transform: rotate(8deg); }
+.pp-slot b { font-size: .85rem; }
+.pp-slot small { font-size: .68rem; color: var(--muted); font-weight: 700; }
+.pp-slot.stamped small { color: var(--green-d); }
+.pp-slot.fresh .pp-stamp { animation: stampIn .7s cubic-bezier(.2, 1.6, .4, 1) both; }
+@keyframes stampIn { 0% { transform: scale(2.4) rotate(-30deg); opacity: 0; } 100% { transform: scale(1) rotate(-12deg); opacity: 1; } }
+.pp-foot { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: .9rem; }
+.pp-bar { flex: 1; height: 8px; border-radius: 99px; background: rgba(255, 255, 255, .2); overflow: hidden; }
+.pp-bar i { display: block; height: 100%; background: #f2c33a; }
+.pp-title-won { display: block; width: 100%; text-align: center; font-size: 1.15rem; font-weight: 900; background: #f2c33a; color: #3b2a00; border-radius: 12px; padding: 6px; }
+.modal .passport { max-width: 460px; margin: 12px auto; }
+/* لوحة المعلم: ملف الطالب */
+.st-sum { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.st-sum .kpi b { font-size: 1.1rem; }
+@media (max-width: 620px) { .st-sum { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.chip-ok { background: var(--green-l); border-color: var(--green); }
+.chip-bad { background: var(--gold-l); border-color: var(--gold); }
+.chip-off { opacity: .6; }
+.wrong-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.wrong-list li { display: grid; gap: 2px; padding: 8px 10px; background: var(--paper); border-inline-start: 4px solid var(--gold); border-radius: 8px; font-weight: 700; font-size: .9rem; }
+.wrong-list small { color: var(--muted); }
+.mini-prog { display: inline-block; width: 48px; height: 8px; border-radius: 99px; background: var(--paper-2); overflow: hidden; vertical-align: middle; }
+.mini-prog i { display: block; height: 100%; background: var(--green); }
+/* سطور القصة: مساحة أوسع وخط أنسب */
+.hero-in { grid-template-columns: 1.25fr 1fr; }
+.story { padding: 14px 18px 14px 52px; }
+.story-lines li { font-size: 1.05rem; line-height: 1.75; }
+@media (max-width: 860px) { .hero-in { grid-template-columns: 1fr; } }

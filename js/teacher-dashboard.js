@@ -12,7 +12,7 @@
   function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
   function makeDemo(d, i) {
     const R = rng(1000 + i * 77);
-    const p = PR.newProfile(d.name, 'الرابع الأساسي');
+    const p = PR.newProfile(d.name, 'الثالث الأساسي');
     p.studentId = 'demo_' + i; p.demo = true;
     const T = d.target;
     const off = { identify: 12, name: 9, function: -4, match: -13, explain: -6, infer: -3, apply: 2, solve: 0 };
@@ -118,8 +118,8 @@
         <section class="card"><div class="row"><h2 class="h-sm">📋 تقدّم كل طالب</h2><span class="grow"></span>
           <input class="input sm-input" id="q" placeholder="🔎 ابحث بالاسم" value="${esc(query)}" aria-label="ابحث بالاسم">
           <select class="input sm-input" id="f" aria-label="تصفية حسب المسار"><option value="all">كل المسارات</option>${Object.keys(D.PATHS).map((k) => `<option value="${k}" ${filter === k ? 'selected' : ''}>${D.PATHS[k].name}</option>`).join('')}</select></div>
-          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>الطالب</th><th>المسار</th><th>الإتقان</th><th>الربط</th><th>المناطق</th><th>التلميحات</th><th>الأخطاء</th><th>🧩 لوحات · 🏠 / <i class="olive-ic" aria-hidden="true"></i></th><th></th></tr></thead><tbody>
-          ${list.map((x) => `<tr><td><b>${esc(x.s.name)}</b>${x.s.demo ? ' <small class="muted">(تجريبي)</small>' : ''}</td><td>${PR.ui.pathBadge(x.s.currentPath)}</td><td><span class="${x.m >= 80 ? 'pill-ok' : x.m < 60 ? 'pill-bad' : ''}">${pct(x.m)}</span></td><td>${pct(x.s.skillMastery.match || 0)}</td><td>${ar(D.ZONES.filter((z) => x.s.zones[z.id].status === 'done').length)}/${ar(6)}</td><td>${ar(x.s.hintsUsed)}</td><td>${ar(x.s.mistakes.length)}</td><td>${ar(PR.puzzle.completed(x.s).length)}/٥ · ${ar(PR.village.counts(x.s).houses)} / ${ar(PR.village.counts(x.s).olives)}</td><td><button class="btn sm" data-id="${x.s.studentId}">فتح الملف</button></td></tr>`).join('')}
+          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>الطالب</th><th>المستوى</th><th>الإنجاز</th><th>الإتقان</th><th>الربط</th><th>المناطق</th><th>التلميحات</th><th>الأخطاء</th><th>🧩 لوحات · 🏠 / <i class="olive-ic" aria-hidden="true"></i></th><th></th></tr></thead><tbody>
+          ${list.map((x) => `<tr><td><b>${esc(x.s.name)}</b>${x.s.demo ? ' <small class="muted">(تجريبي)</small>' : ''}</td><td>${PR.ui.pathBadge(x.s.currentPath)}</td><td><span class="mini-prog"><i style="width:${x.s.progress || 0}%"></i></span> ${pct(x.s.progress || 0)}</td><td><span class="${x.m >= 80 ? 'pill-ok' : x.m < 60 ? 'pill-bad' : ''}">${pct(x.m)}</span></td><td>${pct(x.s.skillMastery.match || 0)}</td><td>${ar(D.ZONES.filter((z) => x.s.zones[z.id].status === 'done').length)}/${ar(6)}</td><td>${ar(x.s.hintsUsed)}</td><td>${ar(x.s.mistakes.length)}</td><td>${ar(PR.puzzle.completed(x.s).length)}/٥ · ${ar(PR.village.counts(x.s).houses)} / ${ar(PR.village.counts(x.s).olives)}</td><td><button class="btn sm" data-id="${x.s.studentId}">فتح الملف</button></td></tr>`).join('')}
           </tbody></table></div>
           ${realN ? '<div class="row-end"><button class="btn sm btn-ghost" id="wipe">🗑️ حذف بيانات الطلاب الحقيقيين من هذا الجهاز</button></div>' : ''}
         </section>`;
@@ -134,12 +134,37 @@
       const w = $('#wipe'); if (w) w.onclick = async () => { const ok = await PR.modal('<h2>تأكيد الحذف</h2><p>سيتم حذف جميع بيانات الطلاب الحقيقيين المحفوظة على هذا الجهاز. لا يمكن التراجع.</p><div class="row-end"><button class="btn" data-close="no">إلغاء</button><button class="btn btn-red" data-close="yes">حذف</button></div>'); if (ok === 'yes') { PR.progress.clearAll(); PR.ui.refreshStats(); render(); } };
     }
 
+    /* نصّ السؤال من معرّفه (لعرض الأسئلة التي أخطأ فيها الطالب) */
+    const QTEXT = (() => {
+      const m = {};
+      [].concat(D.BANK, D.DIAGNOSTIC, D.POSTTEST, D.WHATIF, D.LAB_CHALLENGES.map((c) => c.question).filter(Boolean),
+        Object.values(D.SCENARIOS).map((x) => x.q), D.EXPERIMENTS.map((x) => Object.assign({}, x.explain, { id: x.id, prompt: x.title }))).forEach((q) => { if (q && q.id) m[q.id] = q.prompt; });
+      return m;
+    })();
+    function studentSummary(s) {
+      const done = D.ZONES.filter((z) => s.zones[z.id].status === 'done');
+      const mastered = D.SKILL_ORDER.filter((k) => (s.skillMastery[k] || 0) >= 80);
+      const support = D.SKILL_ORDER.filter((k) => (s.skillMastery[k] || 0) < 60);
+      const wrong = {};
+      (s.responses || []).forEach((r) => { if (r.qid && (!r.correct || (r.attempts || 1) > 1)) { const w = wrong[r.qid] = wrong[r.qid] || { n: 0, failed: false }; w.n += Math.max(1, (r.attempts || 1) - (r.correct ? 1 : 0)); if (!r.correct) w.failed = true; } });
+      const wl = Object.entries(wrong).sort((a, b) => b[1].n - a[1].n).slice(0, 8);
+      const lvl = { challenge: '🟢 متقدم', practice: '🟡 متوسط', remediation: '🔵 يحتاج إلى دعم' }[s.currentPath];
+      return `<div class="st-sum">
+        <div class="kpi"><b>${pct(s.progress || PR.progress.computeProgress(s))}</b><span>نسبة الإنجاز</span></div>
+        <div class="kpi"><b>${ar(done.length)} / ${ar(D.ZONES.length)}</b><span>المحطات المكتملة</span></div>
+        <div class="kpi"><b>${lvl}</b><span>مستوى الطالب</span></div>
+        <div class="kpi"><b>${ar(s.hintsUsed || 0)}</b><span>التلميحات</span></div></div>
+        <div class="grid-2 mt"><div><h3>✅ المحطات المكتملة</h3><p>${D.ZONES.map((z) => `<span class="chip ${s.zones[z.id].status === 'done' ? 'chip-ok' : 'chip-off'}">${s.zones[z.id].status === 'done' ? '✅' : '⬜'} ${z.title}</span>`).join(' ')}</p>
+          <h3>🌟 المهارات المتقنة</h3><p>${mastered.length ? mastered.map((k) => `<span class="chip chip-ok">▲ ${D.SKILLS[k].name}</span>`).join(' ') : '<span class="muted">لا يوجد بعد</span>'}</p>
+          <h3>🌱 مهارات تحتاج إلى دعم</h3><p>${support.length ? support.map((k) => `<span class="chip chip-bad">▼ ${D.SKILLS[k].name}</span>`).join(' ') : '<span class="muted">لا يوجد 🎉</span>'}</p></div>
+        <div><h3>❓ الأسئلة التي أخطأ فيها</h3>${wl.length ? `<ul class="wrong-list">${wl.map(([id, w]) => `<li><span>${esc(QTEXT[id] || id)}</span><small>${w.failed ? '⬜ لم تُحل' : '✓ حُلّت بعد محاولات'} · ${ar(w.n)} ${w.n === 1 ? 'خطأ' : 'أخطاء'}</small></li>`).join('')}</ul>` : '<p class="muted">لم يخطئ في أي سؤال 🎉</p>'}</div></div>`;
+    }
     function openStudent(s) {
       const m = E.overallMastery(s);
       const mc = {}; s.mistakes.forEach((x) => { const l = mistakeLabel(x); mc[l] = (mc[l] || 0) + 1; });
       const recs = E.recommendations(s);
       PR.modal(`<div class="row"><div class="avatar-lg">🔬</div><div><h2 class="h-sm">${esc(s.name)}</h2>${PR.ui.pathBadge(s.currentPath)} ${s.demo ? '<small class="muted">(طالب تجريبي)</small>' : ''}</div><span class="grow"></span><div class="kpi kpi-main"><b>${pct(m)}</b><span>الإتقان العام</span></div></div>
-        <div class="grid-2 mt"><div><h3>📊 المهارات</h3>${D.SKILL_ORDER.map((k) => PR.ui.masteryBar(D.SKILLS[k].name, s.skillMastery[k], { icon: D.SKILLS[k].icon })).join('')}</div>
+        ${studentSummary(s)}<div class="grid-2 mt"><div><h3>📊 المهارات</h3>${D.SKILL_ORDER.map((k) => PR.ui.masteryBar(D.SKILLS[k].name, s.skillMastery[k], { icon: D.SKILLS[k].icon })).join('')}</div>
         <div><h3>🌿 الأجزاء</h3><div class="parts-row">${D.MAIN_PARTS.map((pt) => `<div class="part-tile ${s.partMastery[pt] >= 80 ? 'hi' : s.partMastery[pt] >= 60 ? 'mid' : 'lo'}"><span>${D.PARTS[pt].icon}</span><b>${pct(s.partMastery[pt])}</b><small>${D.PARTS[pt].name}</small></div>`).join('')}</div>
           <h3 class="mt">❌ الأخطاء</h3><ul class="reasons">${Object.entries(mc).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([l, n]) => `<li>${esc(l)} (${ar(n)})</li>`).join('') || '<li>لا أخطاء.</li>'}</ul>
           <h3>🎯 التوصية</h3><p>${esc(recs[0].text)}</p>

@@ -46,7 +46,8 @@
       container.innerHTML = `<article class="qcard card" aria-labelledby="qp-${q.id}">
         <div class="q-head">
           ${opts.label ? `<span class="q-num">${esc(opts.label)}</span>` : ''}
-          <span class="skill-tag" title="المهارة المقيسة">${sk.icon} ${esc(sk.short)}</span>
+          ${(() => { const T = (D.THINK_LEVELS || {})[q.skill]; return T ? `<span class="think-tag lv${T.n}" title="مستوى التفكير">🧠 المستوى ${ar(T.n)}: ${T.t}</span>` : ''; })()}
+          ${(D.THINK_LEVELS || {})[q.skill] ? '' : `<span class="skill-tag" title="المهارة المقيسة">${sk.icon} ${esc(sk.short)}</span>`}
           <span class="lvl-tag" title="مستوى الصعوبة" aria-label="مستوى الصعوبة ${ar(q.level || 1)} من ٣">${lvlDots}</span>
           <span class="grow"></span>${PR.ui.speakBtn(q.prompt, 'استمع إلى السؤال')}
         </div>
@@ -141,15 +142,23 @@
         st.errorsDetail.push({ errorType: et, chosen: opt.t || opt.label, chosenPart: opt.p || null, stage });
         if (btn) { btn.classList.add('wrong'); btn.disabled = true; $('.opt-mark', btn).textContent = '✗'; PR.fx.shake(btn); }
         PR.sfx.play('wrong');
-        let msg = `✗ ${esc(wrongFeedback(Object.assign({}, opt, { e: et === 'guess' ? 'guess' : opt.e })))}`;
-        feedback(msg, 'bad');
+        // تغذية راجعة تعليمية وإيجابية: الأولى «فكّر مرة أخرى»، الثانية «تذكّر»، ثم شرح مصغّر
+        const P = D.PARTS[q.part] || null;
+        const about = opt.p && D.PARTS[opt.p] && opt.p !== q.part ? ` (${esc(opt.t || '').replace(/^[^؀-ۿ]+/, '')} ليس الجزء المطلوب هنا.)` : '';
+        let msg;
+        if (et === 'guess') msg = '⏳ خذ وقتك… اقرأ السؤال مرة أخرى بهدوء، ثم اختر.';
+        else if (st.wrong === 1) msg = `💡 فكّر مرة أخرى… ${esc(hints[0])}${about}`;
+        else if (st.wrong === 2) msg = `🌱 تذكّر: ${esc(P ? P.mini.tip : (hints[1] || hints[0]))}`;
+        else msg = `🌱 اقتربت! ${esc(wrongFeedback(opt))}`;
+        feedback(msg, 'try');
+        if (PR.lulu) PR.lulu.react('wrong');
 
         if (!opts.ladder) {
           if (st.attempts >= opts.maxAttempts) {
             feedback('لا بأس! 🌱 سنتعلّم هذا معًا خلال الرحلة.', 'neutral');
             finish(false);
           } else {
-            feedback(msg + ' <b>لديك محاولة أخرى.</b>', 'bad');
+            feedback(msg + ' <b>لديك محاولة أخرى.</b>', 'try');
             PR.nabti.say('حاول مرة أخرى، يمكنك طلب تلميح إن احتجت.', 'think');
           }
           return;
@@ -247,8 +256,9 @@
         resp.firstTry = correct && st.wrong === 0;
         if (correct) {
           const credit = E.responseCredit(resp);
-          const praise = credit >= 0.85 ? 'ممتاز! 🌟' : credit >= 0.55 ? 'أحسنت! 👏' : 'وصلت إلى الإجابة الصحيحة! 💪';
-          feedback(`✓ ${praise} ${esc(q.explain || '')}`, 'good');
+          const praise = credit >= 0.85 ? '🎉 أحسنت!' : credit >= 0.55 ? '🎉 أحسنت!' : '💪 وصلت إلى الإجابة الصحيحة!';
+          feedback(`✓ ${praise} ${esc(q.explain || (D.PARTS[q.part] ? D.PARTS[q.part].name + ': ' + D.PARTS[q.part].func + '.' : ''))}`, 'good');
+          if (PR.lulu) PR.lulu.react('correct');
           PR.nabti.say(credit >= 0.85 ? 'رائع! تفكيرك علمي ودقيق.' : 'أحسنت لأنك لم تستسلم! المحاولة جزء من التعلم.', 'cheer');
           PR.fx.pop(card);
         }

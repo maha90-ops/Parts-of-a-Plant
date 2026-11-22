@@ -10,10 +10,62 @@
   const D = PR.data, E = PR.engine;
   const { $, $$, esc, ar, pct, shuffle, wait } = PR.util;
   const STATIONS = [
+    { id: 'exp', t: 'التجارب الأربع', i: '🧪' },
     { id: 'match', t: 'طابق وأنقذ', i: '🧩' },
-    { id: 'whatif', t: 'ماذا يحدث لو؟', i: '❓' },
-    { id: 'sim', t: 'مختبر لولو', i: '🧪' },
+    { id: 'sim', t: 'مختبر لولو', i: '🎛️' },
   ];
+
+  /* ======================= التجارب الأربع: توقّع ← جرّب ← شاهد ← فسّر ======================= */
+  async function experimentsStation(box, p) {
+    const X = D.EXPERIMENTS;
+    const STAGES = [['predict', '🔮 توقّع'], ['try', '🧪 جرّب'], ['see', '👀 شاهد'], ['explain', '💡 فسّر']];
+    PR.nabti.say('العلماء يتوقعون أولًا، ثم يجرّبون، ثم يشاهدون، ثم يفسّرون. لنبدأ!', 'happy');
+    for (let i = 0; i < X.length; i++) {
+      const x = X[i];
+      let predOk = false;
+      box.innerHTML = `<div class="exp">
+        <div class="exp-head"><p class="eyebrow">🔬 التجربة ${ar(i + 1)} من ${ar(X.length)}</p><h3>${esc(x.title)}</h3>
+          <ol class="exp-steps">${STAGES.map(([k, t], n) => `<li data-k="${k}" class="${n === 0 ? 'on' : ''}"><span>${ar(n + 1)}</span> ${t}</li>`).join('')}</ol></div>
+        <div class="exp-grid"><div class="exp-art" id="exp-art"></div><div class="exp-panel" id="exp-panel"></div></div></div>`;
+      const art = $('#exp-art', box), panel = $('#exp-panel', box);
+      const drawPlant = (st) => { art.innerHTML = PR.art.plant(Object.assign({ scene: true, title: x.title }, st)); };
+      const stage = (k) => $$('.exp-steps li', box).forEach((li, n) => { const idx = STAGES.findIndex((s) => s[0] === k); li.classList.toggle('on', n === idx); li.classList.toggle('done', n < idx); });
+      drawPlant(x.from);
+
+      // ١) توقّع
+      stage('predict');
+      panel.innerHTML = `<p class="exp-q">🔮 ماذا تتوقع أن يحدث؟</p><div class="q-options exp-preds">${shuffle(x.predict).map((o) => `<button class="opt" data-ok="${o.c ? 1 : 0}"><span class="opt-t">${esc(o.t)}</span><span class="opt-mark" aria-hidden="true"></span></button>`).join('')}</div>`;
+      await new Promise((res) => $$('.exp-preds .opt', panel).forEach((b) => b.onclick = () => {
+        predOk = b.dataset.ok === '1';
+        $$('.exp-preds .opt', panel).forEach((o) => { o.disabled = true; });
+        b.classList.add('chosen'); $('.opt-mark', b).textContent = '🔮';
+        PR.sfx.play('click'); res();
+      }));
+
+      // ٢) جرّب
+      stage('try');
+      panel.insertAdjacentHTML('beforeend', `<div class="row-end"><button class="btn btn-red lg" id="exp-try">${x.tryLabel}</button></div>`);
+      $('#exp-try', panel).focus();
+      await new Promise((res) => { $('#exp-try', panel).onclick = res; });
+      $('#exp-try', panel).disabled = true;
+      const h0 = x.from.health, h1 = x.to.health;
+      for (let k = 1; k <= 4; k++) { await wait(380); drawPlant(Object.assign({}, k >= 2 ? x.to : x.from, { health: Math.round(h0 + (h1 - h0) * k / 4) })); }
+
+      // ٣) شاهد
+      stage('see');
+      panel.innerHTML = `<p class="exp-obs">👀 ${esc(x.observe)}</p>
+        <p class="act-fb ${predOk ? 'good' : 'try'}">${predOk ? '✓ توقّعك كان صحيحًا! 🎉' : '🔬 النتيجة تختلف عن توقّعك… وهكذا يتعلّم العلماء من التجربة!'}</p>`;
+      PR.sfx.play(predOk ? 'correct' : 'hint');
+      await wait(900);
+
+      // ٤) فسّر
+      stage('explain');
+      panel.insertAdjacentHTML('beforeend', '<div id="exp-q"></div>');
+      const resp = await PR.QuestionCard($('#exp-q', panel), x.explain, { path: p.currentPath, zone: 'lab', activity: 'experiment', label: '💡 ماذا تعلّمت؟', onDecision: (t) => log(p, t) });
+      rec(p, Object.assign({}, resp, { qid: x.id, attempts: resp.attempts + (predOk ? 0 : 1), prediction: predOk }));
+    }
+    box.innerHTML = `<div class="center"><div class="badge-medal">🔬</div><h3>أنهيت التجارب الأربع مثل العلماء!</h3><p class="muted">توقّعتَ، ثم جرّبتَ، ثم شاهدتَ، ثم فسّرتَ.</p></div>`;
+  }
 
   function rec(p, r) { const res = PR.progress.recordResponse(p, Object.assign({ zone: 'lab' }, r)); PR.progress.save(p); PR.ui.reward(res.reward); return res; }
   function log(p, t) { PR.progress.log(p, 'adapt', t); PR.progress.save(p); }
@@ -295,7 +347,8 @@
           if (!again) { box.innerHTML = '<div class="center"><div class="badge-medal">🧩</div><h3>✓ أكملت «طابق وأنقذ» والنشاط العلاجي</h3><p class="muted">يمكنك العودة لإعادة المحاولة في أي وقت.</p></div>'; break; }
           round++;
         }
-      } else if (id === 'whatif') await whatifStation(box, p);
+      } else if (id === 'exp') await experimentsStation(box, p);
+      else if (id === 'whatif') await whatifStation(box, p);
       else await simStation(box, p);
       p.labStations[id] = true;
       PR.progress.completeActivity(p, 'lab-' + id);
@@ -325,10 +378,13 @@
         <div class="row-end" style="justify-content:center"><a class="btn" href="dashboard.html">📊 لوحتي</a><a class="btn btn-red lg" href="map.html?done=lab">🚨 إلى مركز إنقاذ لولو</a></div></div>`;
       PR.sfx.play('win'); PR.fx.confetti(30); PR.ui.reward({ points: 30, drops: 5 });
       PR.nabti.say('أنت الآن عالم نبات صغير حقيقي! لولو تنتظرك في مركز الإنقاذ.', 'cheer');
-      if (nb) setTimeout(() => PR.ui.badge('little_scientist'), 800);
+      if (PR.lulu) PR.lulu.say(D.LULU_DONE.lab, 'excited');
+      setTimeout(async () => { if (PR.passport) await PR.passport.stamp(p, 'lab'); if (nb) PR.ui.badge('little_scientist'); }, 800);
     }
     const first = params.get('station') || (STATIONS.find((s) => !p.labStations[s.id]) || STATIONS[0]).id;
-    PR.nabti.say('مرحبًا بك في المختبر! ثلاث محطات تربط فيها الأجزاء بوظائفها.', 'happy');
+    PR.nabti.say('مرحبًا بك في مختبر العالم الصغير! ثلاث محطات: التجارب الأربع، وطابق وأنقذ، ومختبر لولو.', 'happy');
+    if (PR.lulu) PR.lulu.say('لنجرّب معًا كالعلماء! 🔬', 'happy');
+    if (PR.audio) PR.audio.narrate('lab');
     open(first);
   };
   PR.lab = { simulate };

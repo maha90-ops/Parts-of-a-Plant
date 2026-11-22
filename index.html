@@ -3,21 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>مَهَمَّةُ إِنْقَاذِ النَّبْتَة — لولو تحتاج إلى مساعدتك</title>
+  <title>مَهَمَّةُ إِنْقَاذِ لُولُو — لولو تحتاج إلى مساعدتك</title>
   <meta name="description" content="بيئة تعليمية تكيفية تفاعلية لتعلّم أجزاء النبات ووظائفها">
   <link rel="icon" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/main.css?v=20261122e">
-  <link rel="stylesheet" href="styles/pages.css?v=20261122e">
-  <script defer src="js/data.js?v=20261122e"></script>
-  <script defer src="js/adaptive-engine.js?v=20261122e"></script>
-  <script defer src="js/student-progress.js?v=20261122e"></script>
-  <script defer src="js/characters.js?v=20261122e"></script>
-  <script defer src="js/app.js?v=20261122e"></script>
-  <script defer src="js/village.js?v=20261122e"></script>
-  <script defer src="js/puzzle.js?v=20261122e"></script>
-  <script defer src="js/home.js?v=20261122e"></script>
+  <link rel="stylesheet" href="styles/main.css?v=20261123d">
+  <link rel="stylesheet" href="styles/pages.css?v=20261123d">
+  <script defer src="js/data.js?v=20261123d"></script>
+  <script defer src="js/adaptive-engine.js?v=20261123d"></script>
+  <script defer src="js/student-progress.js?v=20261123d"></script>
+  <script defer src="js/characters.js?v=20261123d"></script>
+  <script defer src="js/app.js?v=20261123d"></script>
+  <script defer src="js/village.js?v=20261123d"></script>
+  <script defer src="js/puzzle.js?v=20261123d"></script>
+  <script defer src="js/passport.js?v=20261123d"></script>
+  <script defer src="js/home.js?v=20261123d"></script>
 </head>
 <body data-page="home">
   <a class="skip" href="#main">تخطَّ إلى المحتوى</a>
@@ -43,15 +44,20 @@
       </div>
       <div class="container hero-in">
         <div class="hero-text reveal">
-          <p class="eyebrow">مغامرة علمية تكيفية · درس أجزاء النبات ووظائفها</p>
-          <h1>🌱 مَهَمَّةُ إِنْقَاذِ النَّبْتَة</h1>
-          <p class="hero-sub">لولو تحتاج إلى مساعدتك!</p>
-          <div class="hero-quote card">
-            <p id="hero-line">هناك مشكلة في أحد أجزاء لولو… هل تستطيع اكتشافها وإنقاذها؟</p>
-            <button class="icon-btn sm" type="button" data-speak="هناك مشكلة في أحد أجزاء لولو. هل تستطيع اكتشافها وإنقاذها؟" aria-label="استمع">🔊</button>
+          <p class="eyebrow">مغامرة في عالم النبات · الصف الثالث الأساسي · أجزاء النبات ووظائفها</p>
+          <h1>🌱 مَهَمَّةُ إِنْقَاذِ لُولُو</h1>
+          <p class="hero-sub">مغامرة في عالم النبات</p>
+          <div class="story card" aria-label="قصة لولو">
+            <ol class="story-lines">
+              <li>🌱 كانت هناك نبتة صغيرة اسمها <b>لولو</b>...</li>
+              <li>لكن لولو بدأت تذبل! 😢</li>
+              <li>هناك مشكلة ما في أحد أجزاء نباتها.</li>
+              <li><b>هل تستطيع أن تصبح عالم نبات صغيرًا وتساعدها؟</b></li>
+            </ol>
+            <button class="icon-btn sm audio-btn" type="button" data-audio="welcome" aria-label="استمع إلى القصة" title="استمع إلى القصة">🔊</button>
           </div>
           <div class="hero-actions">
-            <a class="btn btn-red lg" id="start-btn" href="student.html">🚀 ابدأ المهمة</a>
+            <a class="btn btn-red lg btn-xl" id="start-btn" href="student.html">🚀 ابدأ مهمة الإنقاذ</a>
             <button class="btn btn-soft" type="button" id="how-btn">📖 كيف ألعب؟</button>
             <button class="btn btn-soft" type="button" id="access-btn">♿ خيارات الوصول</button>
           </div>

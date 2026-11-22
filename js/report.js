@@ -53,7 +53,7 @@
         <section><h2 class="h-sm">❌ تحليل الأخطاء</h2><table class="tbl"><thead><tr><th>نوع الخطأ</th><th>العدد</th></tr></thead><tbody>${Object.entries(mc).sort((a, b) => b[1] - a[1]).map(([k, n]) => `<tr><td>${(D.ERROR_TYPES[k] || { label: k }).label}</td><td>${ar(n)}</td></tr>`).join('') || '<tr><td colspan="2">لا أخطاء</td></tr>'}</tbody></table>
           <h2 class="h-sm mt">🧭 تاريخ المسار</h2><ul class="reasons">${p.pathHistory.map((h) => `<li><b>${D.PATHS[h.path].name}</b> — ${h.source === 'diagnostic' ? 'بعد التشخيص' : 'إعادة تقييم'}${h.reasons && h.reasons.length ? `: ${esc(h.reasons.join(' '))}` : ''}</li>`).join('')}</ul></section>
       </div>
-      <div class="row-end no-print"><button class="btn" onclick="window.print()">🖨️ طباعة / PDF</button>${p.zones.rescue.status === 'done' ? '<a class="btn btn-red" href="certificate.html">🏆 الشهادة</a>' : '<a class="btn btn-primary" href="map.html">🗺️ تابع الرحلة</a>'}</div>
+      <div class="row-end no-print"><button class="btn" onclick="window.print()">🖨️ طباعة / PDF</button>${p.zones.rescue.status === 'done' ? '<a class="btn btn-red" href="certificate.html">📄 عرض الشهادة</a>' : '<a class="btn btn-primary" href="map.html">🗺️ تابع الرحلة</a>'}</div>
     </article>`;
     PR.nabti.say(R.rec, 'happy');
   };
@@ -88,12 +88,12 @@
       const w = canvas.width * ratio, h = canvas.height * ratio;
       pdf.setFillColor(251, 246, 236); pdf.rect(0, 0, pw, ph, 'F');
       pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', (pw - w) / 2, (ph - h) / 2, w, h);
-      pdf.setProperties({ title: `شهادة العالم النباتي الصغير — ${p.name}`, subject: 'مهمة إنقاذ النبتة', creator: 'مهمة إنقاذ النبتة' });
+      pdf.setProperties({ title: `شهادة عالم النبات الصغير — ${p.name}`, subject: 'مهمة إنقاذ لولو', creator: 'مهمة إنقاذ لولو' });
       const safe = String(p.name).replace(/[\\/:*?"<>|]/g, '').trim() || 'طالب';
       // الحفظ بأنفسنا (رابط تنزيل باسم الملف) ليبقى اسم الطالب في اسم الملف على كل المتصفحات
       const url = URL.createObjectURL(pdf.output('blob'));
       const a = document.createElement('a');
-      a.href = url; a.download = `شهادة-العالم-النباتي-الصغير-${safe}.pdf`;
+      a.href = url; a.download = `شهادة-عالم-النبات-الصغير-${safe}.pdf`;
       document.body.appendChild(a); a.click();
       setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 4000);
       PR.toast('✓ نُزّلت الشهادة على جهازك', 'reward');
@@ -119,15 +119,15 @@
       return;
     }
     const c = p.certificate || { issuedAt: new Date().toISOString(), mastery: E.overallMastery(p), level: E.levelFor(p.points).name };
-    root.innerHTML = `<article class="certificate" aria-label="شهادة العالم النباتي الصغير">
+    root.innerHTML = `<article class="certificate" aria-label="شهادة عالم النبات الصغير">
       <div class="cert-in">
         <div class="cert-corner tl" aria-hidden="true">🌺</div><div class="cert-corner tr" aria-hidden="true"><svg viewBox="0 0 64 64" width="52" height="52"><path d="M8 56C22 44 34 30 56 8" stroke="#6b4a2a" stroke-width="3" fill="none" stroke-linecap="round"/><g fill="#6f8f42"><ellipse cx="22" cy="40" rx="9" ry="3.6" transform="rotate(-50 22 40)"/><ellipse cx="34" cy="26" rx="9" ry="3.6" transform="rotate(-20 34 26)"/><ellipse cx="44" cy="20" rx="9" ry="3.6" transform="rotate(-70 44 20)"/><ellipse cx="28" cy="36" rx="8" ry="3.2" transform="rotate(10 28 36)"/></g><g fill="#2f4a12"><ellipse cx="40" cy="30" rx="4.2" ry="5.6" transform="rotate(-30 40 30)"/><ellipse cx="26" cy="46" rx="4.2" ry="5.6" transform="rotate(-30 26 46)"/></g></svg></div>
-        <p class="cert-eyebrow">مَهَمَّةُ إِنْقَاذِ النَّبْتَة</p>
+        <p class="cert-eyebrow">مَهَمَّةُ إِنْقَاذِ لُولُو</p>
         <div class="cert-medal" aria-hidden="true">🏆</div>
-        <h1>شهادة «العالم النباتي الصغير»</h1>
-        <p class="cert-to">تُمنح هذه الشهادة إلى</p>
+        <h1>شهادة عالم النبات الصغير</h1>
+        <p class="cert-to">تشهد هذه الشهادة بأن</p>
         <p class="cert-name">${esc(p.name)}</p>
-        <p class="cert-text">لقد نجحت في اكتشاف وظائف أجزاء النبات وساعدت لولو على استعادة عافيتها.</p>
+        <p class="cert-text">قد نجح في إتمام مهمة إنقاذ لولو، وتعرّف إلى أجزاء النبات ووظائفها، وأظهر مهارات في الملاحظة والاستقصاء وحل المشكلات.</p>
         <div class="cert-meta">
           <div><span>التاريخ</span><b>${new Date(c.issuedAt).toLocaleDateString('ar-EG', { dateStyle: 'long' })}</b></div>
           <div><span>نسبة الإتقان</span><b>${pct(c.mastery)}</b></div>
@@ -136,7 +136,7 @@
         <div class="cert-badges">${p.badges.map((b) => `<span title="${D.BADGES[b].name}">${D.BADGES[b].icon}</span>`).join('')}</div>
         <div class="cert-sign"><div>${PR.art.nabti('cheer')}<small>نَبْتي — المساعد الذكي</small></div><div class="cert-lulu">${PR.art.plant({ mode: 'pot', health: 100, water: 2 })}<small>لولو 🌺</small></div></div>
       </div></article>
-      <div class="row-end no-print"><a class="btn" href="report.html">📄 التقرير</a><button class="btn" onclick="window.print()">🖨️ طباعة</button><button class="btn btn-red lg" id="cert-pdf">⬇️ تنزيل الشهادة (PDF)</button></div>`;
+      <div class="row-end no-print"><a class="btn" href="report.html">📄 التقرير</a><button class="btn" onclick="window.print()">🖨️ طباعة الشهادة</button><button class="btn btn-red lg" id="cert-pdf">⬇️ تنزيل الشهادة (PDF)</button></div>`;
     $('#cert-pdf').onclick = (e) => downloadPDF(p, e.currentTarget);
     PR.fx.confetti(40); PR.sfx.play('badge');
     PR.nabti.say(`مبارك يا ${p.name}! أنت العالم النباتي الصغير ومنقذ لولو.`, 'cheer');

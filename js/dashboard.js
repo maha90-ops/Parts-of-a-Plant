@@ -54,6 +54,7 @@
           </div><div class="sk-col"><h3>🌿 إتقان أجزاء النبات</h3>
           <div class="parts-row">${D.MAIN_PARTS.map((pt) => { const v = p.partMastery[pt]; return `<div class="part-tile ${v >= 80 ? 'hi' : v >= 60 ? 'mid' : 'lo'}" title="${D.PARTS[pt].name}: ${v}٪"><span aria-hidden="true">${D.PARTS[pt].icon}</span><b>${pct(v)}</b><small>${D.PARTS[pt].name} · ${E.masteryLabel(v)}</small></div>`; }).join('')}</div></div>
         </section>
+      <section class="card pp-section"><h2 class="h-sm">🌱 جواز سفر عالم النبات</h2>${PR.passport.html(p)}</section>
       <div class="fun-row"><section class="card fun-card" id="d-village"></section><section class="card fun-card" id="d-puzzle"></section></div>
       <section class="card">
         <h2 class="h-sm">🏅 الشارات</h2>

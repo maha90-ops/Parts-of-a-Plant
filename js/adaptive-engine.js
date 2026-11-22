@@ -237,9 +237,10 @@
 
   /* ---------- ٧) خطوات المنطقة حسب المسار ---------- */
   function stepsFor(path) {
-    if (path === 'remediation') return ['micro', 'activity', 'questions', 'summary'];
-    if (path === 'challenge') return ['explore', 'activity', 'questions', 'reasoning', 'summary'];
-    return ['explore', 'brief', 'activity', 'questions', 'summary'];
+    // كل محطة تبدأ بموقف من لولو (scenario) ثم تتكيّف الخطوات حسب المسار
+    if (path === 'remediation') return ['scenario', 'micro', 'activity', 'questions', 'summary'];
+    if (path === 'challenge') return ['scenario', 'explore', 'activity', 'questions', 'reasoning', 'summary'];
+    return ['scenario', 'explore', 'brief', 'activity', 'questions', 'summary'];
   }
   function activityLevel(path) { return path === 'remediation' ? 1 : path === 'challenge' ? 3 : 2; }
   function questionPlan(path) { return CONFIG.questionPlan[path] || CONFIG.questionPlan.practice; }

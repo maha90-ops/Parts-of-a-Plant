@@ -16,7 +16,7 @@
     stem:   { t: 'طريق الساق', i: '🌿', theme: 'morning', tl: 'صباح القدس' },
     leaves: { t: 'مصنع الأوراق', i: '🍃', theme: 'noon', tl: 'ظهيرة القدس' },
     flower: { t: 'حديقة الأزهار', i: '🌸', theme: 'sunset', tl: 'غروب القدس' },
-    lab:    { t: 'المختبر النباتي', i: '🔬', theme: 'night', tl: 'ليل القدس' },
+    lab:    { t: 'مختبر العالم الصغير', i: '🔬', theme: 'night', tl: 'ليل القدس' },
   };
   const KEYS = Object.keys(STATIONS);
   const THEMES = {
@@ -29,9 +29,10 @@
 
   /* ---------- عدد القطع = عدد أسئلة المحطة في مسار الطالب ---------- */
   function totalFor(key, path) {
-    if (key === 'lab') return { remediation: 8, practice: 10, challenge: 12 }[path] || 10;
+    // المختبر: ٤ تجارب + ٤ مطابقات + تحديات المحاكاة (٢ في المسار الداعم، ٣ لغيره)
+    if (key === 'lab') return 8 + (path === 'remediation' ? 2 : 3);
     const plan = PR.engine.questionPlan(path);
-    return 1 /* استكشاف */ + 1 /* النشاط */ + 1 /* سؤال لماذا */ + plan.count + (path === 'challenge' ? 1 /* مسألة مفتوحة */ : 0);
+    return 1 /* موقف لولو */ + 1 /* استكشاف */ + (key === 'roots' ? 1 : 0) /* سمِّ الأجزاء */ + 1 /* النشاط */ + 1 /* سؤال لماذا */ + plan.count + (path === 'challenge' ? 1 /* مسألة مفتوحة */ : 0);
   }
 
   /* ---------- شبكة القطع وأشكالها (ألسنة وتجاويف) ---------- */

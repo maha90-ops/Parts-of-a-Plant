@@ -11,7 +11,7 @@
   const D = PR.data, E = PR.engine;
   const { $, $$, esc, ar, pct, shuffle, wait } = PR.util;
 
-  const STEP_LABELS = { micro: '👣 خطوة بخطوة', explore: '🔎 استكشف', brief: '📖 شرح مختصر', activity: '🎮 نشاط', questions: '❓ أسئلة', reasoning: '🧠 فكّر كالعلماء', summary: '🏁 النتيجة' };
+  const STEP_LABELS = { scenario: '💬 لولو تحتاجك', micro: '👣 خطوة بخطوة', explore: '🔎 استكشف', brief: '📖 شرح مختصر', activity: '🎮 نشاط', questions: '❓ أسئلة', reasoning: '🧠 فكّر كالعلماء', summary: '🏁 النتيجة' };
 
   /* أسئلة «لماذا؟» بعد كل نشاط */
   const WHY = {
@@ -56,9 +56,13 @@
         } else {
           mistakes++; errorsDetail.push({ errorType: 'sequence', chosen: it.label, stage: next });
           PR.fx.shake(b); PR.sfx.play('wrong');
-          fb.className = 'act-fb bad';
-          fb.textContent = next === 0 ? `✗ ليست هذه البداية. ${cfg.startHint || 'من أين تبدأ الرحلة؟'}` : `✗ فكّر: ما الذي يأتي مباشرة بعد «${cfg.items[next - 1].label}»؟`;
+          fb.className = 'act-fb try';
+          // تلميح خاص بالخطوة المطلوبة (مثل: «اقتربت! فكّر: ما الجزء الذي ينقل الماء…؟») ثم محاولة أخرى
+          const expected = cfg.items[next];
+          const tip = cfg.stepHints && cfg.stepHints[expected.id];
+          fb.textContent = tip || (next === 0 ? `💡 اقتربت! ${cfg.startHint || 'من أين تبدأ الرحلة؟'}` : `💡 اقتربت! فكّر: ما الذي يأتي مباشرة بعد «${cfg.items[next - 1].label}»؟`);
           if (mistakes === 2 && cfg.hint) PR.nabti.say(cfg.hint, 'think');
+          if (PR.lulu) PR.lulu.react('wrong');
         }
       });
     });
@@ -190,10 +194,18 @@
     const t0 = performance.now();
     let mistakes = 0, hints = 0; const errorsDetail = [];
     box.innerHTML = '<div class="act-head"><h3>💧 رحلة الماء</h3></div><div id="wj-a"></div><div id="wj-b"></div>';
-    const items = level === 1
-      ? [{ id: 'root', label: 'الجذر', icon: '🌱' }, { id: 'stem', label: 'الساق', icon: '🌿' }, { id: 'leaf', label: 'الأوراق', icon: '🍃' }]
-      : [{ id: 'soil', label: 'التربة', icon: '🟫' }, { id: 'root', label: 'الجذر', icon: '🌱' }, { id: 'stem', label: 'الساق', icon: '🌿' }, { id: 'leaf', label: 'الأوراق', icon: '🍃' }];
-    const r1 = await orderActivity($('#wj-a', box), { instructions: 'رتّب المحطات التي يمرّ بها الماء من البداية إلى النهاية (اضغط على البطاقات بالترتيب):', items, startHint: 'من أين يأتي الماء أولًا؟', hint: 'الماء يبدأ من الأسفل ويصعد إلى الأعلى.' });
+    // المسار الكامل لكل المستويات: التربة ← الجذر ← الساق ← الأوراق
+    const items = [{ id: 'soil', label: 'التربة', icon: '🟫' }, { id: 'root', label: 'الجذر', icon: '🌱' }, { id: 'stem', label: 'الساق', icon: '🌿' }, { id: 'leaf', label: 'الأوراق', icon: '🍃' }];
+    const r1 = await orderActivity($('#wj-a', box), {
+      instructions: 'رتّب مسار الماء من البداية إلى النهاية (اضغط على البطاقات بالترتيب):', items,
+      startHint: 'من أين يأتي الماء أولًا؟', hint: 'الماء يبدأ من التربة في الأسفل ويصعد إلى الأعلى.',
+      stepHints: {
+        soil: '💡 اقتربت! فكّر: أين يكون الماء قبل أن يدخل النبات؟',
+        root: '💡 اقتربت! فكّر: ما الجزء الذي يمتص الماء من التربة أولًا؟',
+        stem: '💡 اقتربت! فكّر: ما الجزء الذي ينقل الماء من الجذر إلى بقية أجزاء النبات؟',
+        leaf: '💡 اقتربت! فكّر: إلى أين يصل الماء في النهاية ليصنع الغذاء؟',
+      },
+    });
     mistakes += r1.mistakes; errorsDetail.push(...r1.errorsDetail);
     const b = $('#wj-b', box);
     let state = { stem: 'healthy', health: 90, flow: false };
@@ -241,9 +253,9 @@
   async function leafFactory(box, level, ctx) {
     const t0 = performance.now();
     let mistakes = 0, hints = 0; const errorsDetail = [];
-    box.innerHTML = '<div class="act-head"><h3>🏭 مصنع الأوراق</h3></div><div id="lf-a"></div><div id="lf-b"></div>';
+    box.innerHTML = '<div class="act-head"><h3>🏭 ساعد لولو على تشغيل مصنع الغذاء</h3><p class="act-ins">الورقة مصنع صغير: يدخلها ☀️ ضوء الشمس و💧 الماء و🌬️ الهواء، فتصنع 🍎 الغذاء للنبات.</p></div><div id="lf-a"></div><div id="lf-b"></div>';
     if (level >= 2) {
-      const cards = [{ id: 'light', t: 'ضوء الشمس', i: '☀️', bin: 'in' }, { id: 'water', t: 'الماء', i: '💧', bin: 'in' }, { id: 'co2', t: 'ثاني أكسيد الكربون', i: '🌬️', bin: 'in' }, { id: 'food', t: 'الغذاء', i: '🍎', bin: 'out' }, { id: 'o2', t: 'الأكسجين', i: '🫧', bin: 'out' }];
+      const cards = [{ id: 'light', t: 'ضوء الشمس', i: '☀️', bin: 'in' }, { id: 'water', t: 'الماء', i: '💧', bin: 'in' }, { id: 'co2', t: 'الهواء (ثاني أكسيد الكربون)', i: '🌬️', bin: 'in' }, { id: 'food', t: 'الغذاء', i: '🍎', bin: 'out' }, { id: 'o2', t: 'الأكسجين', i: '🫧', bin: 'out' }];
       if (level === 3) cards.push({ id: 'rock', t: 'الحجارة', i: '🪨', bin: 'none' });
       const bins = [{ id: 'in', t: '⬇️ يدخل إلى المصنع' }, { id: 'out', t: '⬆️ يخرج من المصنع' }].concat(level === 3 ? [{ id: 'none', t: '🚫 لا يحتاجه المصنع' }] : []);
       const a = $('#lf-a', box);
@@ -278,7 +290,7 @@
         <div class="fac-controls">
           <fieldset class="ctl"><legend>☀️ الضوء</legend><div class="segs">${['ضعيف', 'متوسط', 'مناسب'].map((t, i) => `<button class="seg-b" data-k="light" data-v="${i}">${t}</button>`).join('')}</div></fieldset>
           <fieldset class="ctl"><legend>💧 الماء</legend><div class="segs">${['قليل', 'متوسط', 'كافٍ'].map((t, i) => `<button class="seg-b" data-k="water" data-v="${i}">${t}</button>`).join('')}</div></fieldset>
-          <fieldset class="ctl"><legend>🌬️ ثاني أكسيد الكربون</legend><div class="segs">${['غير متوفر', 'متوفر'].map((t, i) => `<button class="seg-b" data-k="co2" data-v="${i}">${t}</button>`).join('')}</div></fieldset>
+          <fieldset class="ctl"><legend>🌬️ الهواء (ثاني أكسيد الكربون)</legend><div class="segs">${['غير متوفر', 'متوفر'].map((t, i) => `<button class="seg-b" data-k="co2" data-v="${i}">${t}</button>`).join('')}</div></fieldset>
         </div>
         <div class="fac-visual" aria-hidden="true"><div class="fac-in"></div><div class="fac-leaf"></div><div class="fac-out"></div></div>
         <div class="fac-meter"><span>إنتاج الغذاء</span><div class="health"><div class="health-fill" id="fac-fill"></div></div><b id="fac-val"></b></div>
@@ -297,7 +309,7 @@
         reached = true; PR.sfx.play('correct');
         fb.className = 'act-fb good';
         fb.textContent = level === 1 ? '✓ المصنع يعمل بكامل طاقته! الورقة تصنع الغذاء 🍎 وتُطلق الأكسجين 🫧.' : '✓ إنتاج ١٠٠٪! الآن جرّب: غيّر متغيرًا واحدًا فقط لتجعل المصنع يتوقف. ماذا تلاحظ؟';
-        PR.nabti.say('رائع! الضوء والماء وثاني أكسيد الكربون معًا تجعل الورقة تصنع الغذاء.', 'cheer');
+        PR.nabti.say('رائع! الضوء والماء والهواء معًا تجعل الورقة تصنع الغذاء.', 'cheer');
       } else if (reached && !stopped && v === 0) {
         stopped = true; PR.sfx.play('correct'); fb.className = 'act-fb good';
         fb.textContent = '✓ اكتشاف علمي: إذا نقص أيّ مدخل توقف المصنع أو ضعف. الورقة تحتاجها جميعًا!';
@@ -320,9 +332,9 @@
     const t0 = performance.now();
     let mistakes = 0, hints = 0; const errorsDetail = [];
     const INFO = {
-      petals: { n: 'البتلات', t: '🌺 البتلات: ألوانها الزاهية تجذب النحل وطائر الشمس الفلسطيني.' },
-      stamens: { n: 'الأسدية', t: '✨ الأسدية: تحمل حبوب اللقاح الصفراء، فينقلها النحل إلى زهرة أخرى.' },
-      pistil: { n: 'المِدقة', t: '🟢 المِدقة: هنا تتكوّن البذور بعد التلقيح، وتكبر لتصبح ثمرة.' },
+      petals: { n: 'البتلات الملوّنة', t: '🌺 البتلات الملوّنة تنادي النحلة وطائر الشمس: تعالَي إليّ!' },
+      stamens: { n: 'حبوب اللقاح', t: '✨ حبوب اللقاح غبار أصفر صغير، تنقله النحلة من زهرة إلى زهرة.' },
+      pistil: { n: 'قلب الزهرة', t: '🟢 في قلب الزهرة تتكوّن البذور الصغيرة.' },
     };
     box.innerHTML = `<div class="act-head"><h3>🌸 استكشف زهرة شقائق النعمان</h3><p class="act-ins">اضغط على أجزاء الزهرة الثلاثة لتكتشف دور كل جزء.</p></div>
       <div class="fl-grid"><div class="fl-art">${PR.art.flowerParts({ hotspots: true })}<span class="bee" aria-hidden="true">🐝</span></div>
@@ -352,6 +364,67 @@
     return { mistakes, hints, errorsDetail, timeMs: performance.now() - t0 };
   }
 
+  /* =================== نشاط: سمِّ أجزاء لولو (سحب وإفلات + بديل بالنقر) =================== */
+  function labelParts(box) {
+    return new Promise((resolve) => {
+      const parts = ['root', 'stem', 'leaf', 'flower'];
+      const pos = { flower: [50, 11], leaf: [27, 44], stem: [58, 58], root: [50, 77] }; // مواقع الأهداف على الصورة (٪)
+      let mistakes = 0, placed = 0, selected = null; const errorsDetail = []; const t0 = performance.now();
+      box.innerHTML = `<div class="act-head"><h3>🏷️ سمِّ أجزاء لولو</h3>
+        <p class="act-ins">اسحب كل بطاقة إلى مكانها على لولو. أو اضغط على البطاقة ثم اضغط على الدائرة المناسبة 👆</p></div>
+        <div class="lbl-wrap"><div class="lbl-art">${PR.art.plant({ health: 90, scene: true, water: 2, title: 'لولو مع دوائر لتسمية أجزائها' })}
+          ${parts.map((pt) => `<button class="lbl-target" data-part="${pt}" style="--x:${pos[pt][0]}%;--y:${pos[pt][1]}%" aria-label="مكان اسم: ${{ root: 'الجزء تحت التربة', stem: 'الجزء الذي يحمل الأوراق', leaf: 'الجزء الأخضر المنبسط', flower: 'الجزء الملوّن في الأعلى' }[pt]}"><span>؟</span></button>`).join('')}</div>
+        <div class="lbl-chips" role="group" aria-label="بطاقات الأسماء">${shuffle(parts).map((pt) => `<button class="lchip" data-part="${pt}" aria-pressed="false">${D.PARTS[pt].icon} ${D.PARTS[pt].name}</button>`).join('')}</div></div>
+        <p class="act-fb" role="status"></p><div class="row-end"><button class="btn btn-primary" id="lbl-next" hidden>التالي ←</button></div>`;
+      const fb = $('.act-fb', box);
+      function select(chip) { $$('.lchip', box).forEach((c) => c.setAttribute('aria-pressed', 'false')); selected = chip; chip.setAttribute('aria-pressed', 'true'); fb.className = 'act-fb'; fb.textContent = `اخترت «${D.PARTS[chip.dataset.part].name}». أين مكانه على لولو؟`; }
+      function drop(chip, target) {
+        if (!chip || !target || target.classList.contains('filled')) return;
+        const pt = chip.dataset.part;
+        if (pt === target.dataset.part) {
+          target.classList.add('filled'); target.innerHTML = `<span>${D.PARTS[pt].icon} ${D.PARTS[pt].name} ✓</span>`; target.setAttribute('aria-label', `${D.PARTS[pt].name} ✓`);
+          chip.remove(); selected = null; placed++; PR.sfx.play('correct'); PR.fx.pop(target);
+          fb.className = 'act-fb good'; fb.textContent = `🎉 أحسنت! هذا ${D.PARTS[pt].name}: ${D.PARTS[pt].func}.`;
+          if (placed === parts.length) {
+            if (PR.lulu) PR.lulu.say('رائع! عرفتَ أسماء أجزائي كلها! 🌱', 'excited');
+            $('#lbl-next', box).hidden = false; $('#lbl-next', box).focus();
+            $('#lbl-next', box).onclick = () => resolve({ mistakes, errorsDetail, timeMs: performance.now() - t0 });
+          }
+        } else {
+          mistakes++; errorsDetail.push({ errorType: 'location-confusion', chosen: D.PARTS[pt].name, chosenPart: pt, expectedPart: target.dataset.part });
+          PR.fx.shake(target); PR.sfx.play('wrong');
+          fb.className = 'act-fb try'; fb.textContent = `💡 فكّر مرة أخرى… ${D.PARTS[pt].name} يوجد ${D.PARTS[pt].location}.`;
+          if (PR.lulu) PR.lulu.react('wrong');
+        }
+      }
+      $$('.lchip', box).forEach((chip) => {
+        chip.addEventListener('click', () => { if (chip._dragged) { chip._dragged = false; return; } select(chip); });
+        chip.addEventListener('pointerdown', (e) => {
+          if (e.button !== 0) return;
+          const sx = e.clientX, sy = e.clientY; let ghost = null, over = null;
+          const move = (ev) => {
+            if (!ghost && Math.hypot(ev.clientX - sx, ev.clientY - sy) > 6) { ghost = chip.cloneNode(true); ghost.classList.add('ghost'); document.body.appendChild(ghost); chip.classList.add('dragging'); }
+            if (ghost) { ev.preventDefault(); ghost.style.left = ev.clientX + 'px'; ghost.style.top = ev.clientY + 'px'; const t = document.elementFromPoint(ev.clientX, ev.clientY); const tg = t && t.closest('.lbl-target'); if (over && over !== tg) over.classList.remove('over'); over = tg; if (tg) tg.classList.add('over'); }
+          };
+          const up = () => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); if (ghost) { ghost.remove(); chip.classList.remove('dragging'); chip._dragged = true; if (over) { over.classList.remove('over'); drop(chip, over); } setTimeout(() => { chip._dragged = false; }, 50); } };
+          document.addEventListener('pointermove', move, { passive: false }); document.addEventListener('pointerup', up);
+        });
+      });
+      $$('.lbl-target', box).forEach((t) => t.addEventListener('click', () => { if (selected) drop(selected, t); else { fb.className = 'act-fb'; fb.textContent = '👆 اختر بطاقة اسم أولًا، ثم اضغط على مكانها.'; } }));
+    });
+  }
+
+  /* حركة بصرية بعد إجابة الموقف الافتتاحي (الماء من التربة إلى الجذر، ثم الساق، ثم الأوراق…) */
+  async function scenarioAnimation(holder, S) {
+    const st = Object.assign({ scene: true, mood: 'help' }, S.state);
+    const draw = (extra) => { holder.innerHTML = PR.art.plant(Object.assign({}, st, extra, { title: 'لولو تتحسن' })); };
+    const steps = { root: [{ flow: true, health: 60 }, { flow: true, health: 85, mood: 'happy' }],
+      stem: [{ flow: true, health: 70 }, { flow: true, health: 92, mood: 'happy' }],
+      leaf: [{ light: 2, health: 75 }, { light: 2, leaves: 'healthy', flow: true, health: 95, mood: 'happy' }],
+      flower: [{ health: 95, mood: 'happy' }, { health: 100, mood: 'excited' }] }[S.anim] || [{ health: 90 }];
+    for (const s of steps) { draw(s); await wait(900); }
+  }
+
   const ACTIVITIES = { rootMaze, waterJourney, leafFactory, flowerCycle };
 
   /* =================== منفّذ المنطقة =================== */
@@ -365,6 +438,26 @@
   function decision(ctx, text) { PR.progress.log(ctx.p, 'adapt', text); ctx.decisions.push(text); PR.progress.save(ctx.p); }
 
   const STEPS = {
+    /* موقف افتتاحي: لولو تطلب المساعدة ← سؤال ← حركة بصرية للنتيجة */
+    async scenario(ctx) {
+      const S = D.SCENARIOS[ctx.zone.id];
+      if (!S) return;
+      if (PR.lulu) PR.lulu.say(S.lulu, S.mood);
+      ctx.stage.innerHTML = `<div class="card scenario reveal"><div class="scn-grid">
+        <div class="scn-art" id="scn-art">${PR.art.plant(Object.assign({ scene: true, mood: S.mood, title: S.title }, S.state))}</div>
+        <div><p class="eyebrow">💬 موقف من لولو</p><h2 class="h-md scn-title">${esc(S.title)}</h2><div id="scn-q"></div></div></div></div>`;
+      const resp = await new Promise((res) => {
+        PR.QuestionCard($('#scn-q'), S.q, { path: ctx.p.currentPath, zone: ctx.zone.id, label: 'موقف البداية', nextLabel: '▶ شاهد ماذا يحدث', onDecision: (t) => decision(ctx, t) }).then(res);
+      });
+      record(ctx, resp);
+      $('#scn-q').innerHTML = `<p class="act-fb good scn-done">🎉 ${esc(S.done)}</p>`;
+      await scenarioAnimation($('#scn-art'), S);
+      if (PR.lulu) PR.lulu.say('شكرًا! أشعر بتحسّن! 💚', 'excited');
+      $('#scn-q').insertAdjacentHTML('beforeend', '<div class="row-end"><button class="btn btn-primary" id="scn-next">لنكمل الرحلة ←</button></div>');
+      $('#scn-next').focus();
+      await new Promise((r) => { $('#scn-next').onclick = r; });
+    },
+
     async micro(ctx) {
       const part = D.PARTS[ctx.zone.part];
       const cards = [
@@ -444,6 +537,10 @@
       const level = E.activityLevel(ctx.p.currentPath);
       PR.nabti.say(level === 1 ? 'نشاط بسيط: خذ وقتك، وأنا هنا لمساعدتك.' : level === 3 ? 'نشاط متقدم: فكّر وجرّب كالعلماء!' : 'حان وقت النشاط التفاعلي!', 'happy');
       ctx.stage.innerHTML = '<div class="card activity reveal" id="act-box"></div>';
+      if (ctx.zone.id === 'roots') {
+        const lr = await labelParts($('#act-box'));
+        record(ctx, { qid: 'roots-label', activity: 'labelParts', skill: 'name', part: 'root', level: 1, correct: true, attempts: 1 + Math.min(lr.mistakes, 4), hints: 0, timeMs: lr.timeMs, errors: lr.errorsDetail.map((e) => e.errorType), errorsDetail: lr.errorsDetail, zone: ctx.zone.id });
+      }
       const r = await ACTIVITIES[ctx.zone.activity]($('#act-box'), level, ctx);
       const ra = record(ctx, { qid: `${ctx.zone.id}-activity`, activity: ctx.zone.activity, skill: 'apply', part: ctx.zone.part, level, correct: true, attempts: 1 + Math.min(r.mistakes, 4), hints: r.hints, timeMs: r.timeMs, errors: r.errorsDetail.map((e) => e.errorType), errorsDetail: r.errorsDetail, zone: ctx.zone.id });
       // سؤال «لماذا؟»
@@ -472,8 +569,8 @@
         record(ctx, resp); qResps.push(resp);
         const ad = E.adaptDifficulty(state, resp, path);
         state = ad.state;
-        if (ad.event === 'level-up') { PR.toast('⬆️ إجابات متتالية ممتازة! رفعنا مستوى التحدي.'); decision(ctx, `رفع مستوى الصعوبة إلى ${state.level}`); }
-        if (ad.event === 'level-down') { PR.toast('🤝 سنخفف الصعوبة قليلًا لنثبّت الفكرة.'); decision(ctx, `خفض مستوى الصعوبة إلى ${state.level}`); }
+        if (ad.event === 'level-up') { PR.toast('🚀 ممتاز! يبدو أنك مستعد لتحدٍّ أكبر!', 'reward'); PR.nabti.say('ممتاز! يبدو أنك مستعد لتحدٍّ أكبر! السؤال التالي أعلى مستوى.', 'cheer'); if (PR.lulu) PR.lulu.react('levelup'); decision(ctx, `رفع مستوى الصعوبة إلى ${state.level}`); }
+        if (ad.event === 'level-down') { PR.toast('🌱 لنتدرّب بخطوة أسهل قليلًا، ثم نعود للتحدي.'); decision(ctx, `خفض مستوى الصعوبة إلى ${state.level}`); }
       }
       if (E.shouldEnrich(qResps, path)) {
         const extra = pool.find((q) => q.level === 3 && !asked.includes(q.id));
@@ -556,7 +653,9 @@
         <div class="row-end"><a class="btn" href="dashboard.html">📊 لوحتي</a><a class="btn btn-primary lg" href="map.html?done=${ctx.zone.id}">🗺️ ${nextZ ? 'إلى المحطة التالية: ' + nextZ.title : 'العودة إلى الخريطة'}</a></div></div>`;
       PR.sfx.play('win'); PR.fx.confetti(30);
       PR.nabti.say(pathMsg || (stars === 3 ? 'عمل مذهل! حصلت على ثلاث نجوم.' : 'أحسنت! كل منطقة تجعلك عالمًا أفضل.'), 'cheer');
-      if (newBadge) setTimeout(() => PR.ui.badge(ctx.zone.badge), 800);
+      if (PR.lulu) PR.lulu.say(D.LULU_DONE[ctx.zone.id] || 'شكرًا لك! 💚', 'excited');
+      // ختم جديد في «جواز سفر عالم النبات»، ثم الشارة
+      setTimeout(async () => { if (first && PR.passport) await PR.passport.stamp(p, ctx.zone.id); if (newBadge) PR.ui.badge(ctx.zone.badge); }, 700);
       if (first) PR.ui.reward({ points: 30, drops: 5 });
     },
   };
@@ -576,7 +675,10 @@
     const path = p.currentPath;
     const steps = E.stepsFor(path);
     const ctx = { p, zone, stage: $('#zone-stage'), responses: [], credits: [], decisions: [], before: Object.assign({}, p.skillMastery), beforePart: p.partMastery[zone.part], intro: D.ZONE_CONTENT[zone.id].intro[path] };
-    $('#zone-head').innerHTML = `<div class="zone-banner zb-${zone.id}"><span class="zb-ic" aria-hidden="true">${zone.icon}</span><div><p class="eyebrow">المنطقة ${ar(D.ZONES.indexOf(zone) + 1)} · تعلّم: ${zone.learn}</p><h1 class="h-md">${zone.title}</h1></div><span class="grow"></span>${PR.ui.pathBadge(path)}</div>`;
+    $('#zone-head').innerHTML = `<div class="zone-banner zb-${zone.id}"><span class="zb-ic" aria-hidden="true">${zone.icon}</span><div><p class="eyebrow">المنطقة ${ar(D.ZONES.indexOf(zone) + 1)} · تعلّم: ${zone.learn}</p><h1 class="h-md">${zone.title} ${PR.ui.audioBtn(zone.id, 'استمع إلى شرح المحطة')}</h1></div><span class="grow"></span>${PR.ui.pathBadge(path)}</div>
+      <div id="lulu-slot" class="lulu-slot" aria-live="polite"></div>`;
+    if (PR.lulu && D.SCENARIOS[zone.id]) PR.lulu.say(D.SCENARIOS[zone.id].lulu, D.SCENARIOS[zone.id].mood);
+    if (PR.audio) PR.audio.narrate(zone.id);
     const nav = $('#zone-steps');
     nav.innerHTML = steps.map((s, i) => `<li data-s="${s}"><span class="sn">${ar(i + 1)}</span> ${STEP_LABELS[s]}</li>`).join('');
     PR.progress.log(p, 'zone', `دخل «${zone.title}» (${D.PATHS[path].name}): ${steps.join(' → ')}`);
