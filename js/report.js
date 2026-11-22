@@ -58,6 +58,56 @@
     PR.nabti.say(R.rec, 'happy');
   };
 
+  /* ---------- تنزيل الشهادة PDF ----------
+     تُلتقط الشهادة كما تظهر على الشاشة (html2canvas) وتوضع في صفحة A4 (jsPDF).
+     المكتبتان مضمّنتان في assets/vendor وتُحمَّلان فقط عند الضغط على الزر. */
+  function loadScript(src) {
+    return new Promise((res, rej) => {
+      if (document.querySelector(`script[data-src="${src}"]`)) return res();
+      const s = document.createElement('script'); s.src = src; s.dataset.src = src;
+      s.onload = res; s.onerror = () => rej(new Error('تعذّر تحميل ' + src));
+      document.head.appendChild(s);
+    });
+  }
+  async function downloadPDF(p, btn) {
+    const label = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = '⏳ جارٍ تجهيز الشهادة…';
+    const el = document.querySelector('.certificate');
+    try {
+      await loadScript('assets/vendor/html2canvas.min.js');
+      await loadScript('assets/vendor/jspdf.umd.min.js');
+      if (document.fonts && document.fonts.ready) await document.fonts.ready;
+      el.classList.add('capturing');
+      const canvas = await window.html2canvas(el, { scale: 2, backgroundColor: '#fffdf6', useCORS: true, logging: false, windowWidth: 1100 });
+      el.classList.remove('capturing');
+      const { jsPDF } = window.jspdf;
+      const landscape = canvas.width > canvas.height;
+      const pdf = new jsPDF({ orientation: landscape ? 'landscape' : 'portrait', unit: 'mm', format: 'a4' });
+      const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight(), m = 8;
+      const ratio = Math.min((pw - 2 * m) / canvas.width, (ph - 2 * m) / canvas.height);
+      const w = canvas.width * ratio, h = canvas.height * ratio;
+      pdf.setFillColor(251, 246, 236); pdf.rect(0, 0, pw, ph, 'F');
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', (pw - w) / 2, (ph - h) / 2, w, h);
+      pdf.setProperties({ title: `شهادة العالم النباتي الصغير — ${p.name}`, subject: 'مهمة إنقاذ النبتة', creator: 'مهمة إنقاذ النبتة' });
+      const safe = String(p.name).replace(/[\\/:*?"<>|]/g, '').trim() || 'طالب';
+      // الحفظ بأنفسنا (رابط تنزيل باسم الملف) ليبقى اسم الطالب في اسم الملف على كل المتصفحات
+      const url = URL.createObjectURL(pdf.output('blob'));
+      const a = document.createElement('a');
+      a.href = url; a.download = `شهادة-العالم-النباتي-الصغير-${safe}.pdf`;
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 4000);
+      PR.toast('✓ نُزّلت الشهادة على جهازك', 'reward');
+      PR.progress.log(p, 'certificate', 'نزّل الطالب الشهادة بصيغة PDF'); PR.progress.save(p);
+    } catch (err) {
+      el.classList.remove('capturing');
+      PR.reportError(err, 'certificate-pdf');
+      PR.toast('تعذّر التنزيل المباشر، ستُفتح نافذة الطباعة: اختر «حفظ بتنسيق PDF».', 'bad');
+      setTimeout(() => window.print(), 800);
+    } finally {
+      btn.disabled = false; btn.innerHTML = label;
+    }
+  }
+
   PR.pages.certificate = function () {
     const p = getStudent(); if (!p) return;
     const root = $('#cert-root');
@@ -71,7 +121,7 @@
     const c = p.certificate || { issuedAt: new Date().toISOString(), mastery: E.overallMastery(p), level: E.levelFor(p.points).name };
     root.innerHTML = `<article class="certificate" aria-label="شهادة العالم النباتي الصغير">
       <div class="cert-in">
-        <div class="cert-corner tl" aria-hidden="true">🌺</div><div class="cert-corner tr" aria-hidden="true"><i class="olive-ic" aria-hidden="true"></i></div>
+        <div class="cert-corner tl" aria-hidden="true">🌺</div><div class="cert-corner tr" aria-hidden="true"><svg viewBox="0 0 64 64" width="52" height="52"><path d="M8 56C22 44 34 30 56 8" stroke="#6b4a2a" stroke-width="3" fill="none" stroke-linecap="round"/><g fill="#6f8f42"><ellipse cx="22" cy="40" rx="9" ry="3.6" transform="rotate(-50 22 40)"/><ellipse cx="34" cy="26" rx="9" ry="3.6" transform="rotate(-20 34 26)"/><ellipse cx="44" cy="20" rx="9" ry="3.6" transform="rotate(-70 44 20)"/><ellipse cx="28" cy="36" rx="8" ry="3.2" transform="rotate(10 28 36)"/></g><g fill="#2f4a12"><ellipse cx="40" cy="30" rx="4.2" ry="5.6" transform="rotate(-30 40 30)"/><ellipse cx="26" cy="46" rx="4.2" ry="5.6" transform="rotate(-30 26 46)"/></g></svg></div>
         <p class="cert-eyebrow">مَهَمَّةُ إِنْقَاذِ النَّبْتَة</p>
         <div class="cert-medal" aria-hidden="true">🏆</div>
         <h1>شهادة «العالم النباتي الصغير»</h1>
@@ -86,7 +136,8 @@
         <div class="cert-badges">${p.badges.map((b) => `<span title="${D.BADGES[b].name}">${D.BADGES[b].icon}</span>`).join('')}</div>
         <div class="cert-sign"><div>${PR.art.nabti('cheer')}<small>نَبْتي — المساعد الذكي</small></div><div class="cert-lulu">${PR.art.plant({ mode: 'pot', health: 100, water: 2 })}<small>لولو 🌺</small></div></div>
       </div></article>
-      <div class="row-end no-print"><a class="btn" href="report.html">📄 التقرير</a><button class="btn btn-primary" onclick="window.print()">🖨️ طباعة الشهادة</button></div>`;
+      <div class="row-end no-print"><a class="btn" href="report.html">📄 التقرير</a><button class="btn" onclick="window.print()">🖨️ طباعة</button><button class="btn btn-red lg" id="cert-pdf">⬇️ تنزيل الشهادة (PDF)</button></div>`;
+    $('#cert-pdf').onclick = (e) => downloadPDF(p, e.currentTarget);
     PR.fx.confetti(40); PR.sfx.play('badge');
     PR.nabti.say(`مبارك يا ${p.name}! أنت العالم النباتي الصغير ومنقذ لولو.`, 'cheer');
   };

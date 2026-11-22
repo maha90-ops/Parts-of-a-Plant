@@ -623,3 +623,18 @@ html.hc .video-section { background: #000; }
 .badge-medal { width: 72px; height: 72px; font-size: 2rem; }
 
 @media (max-width: 520px) { .hero-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); } .hero-actions .btn-soft { flex: 1 1 140px; } }
+
+/* التقاط الشهادة لملف PDF: بلا حركات ولا تباعد أحرف (التباعد يكسر اتصال الحروف العربية في الالتقاط) */
+.certificate.capturing, .certificate.capturing * { animation: none !important; transition: none !important; letter-spacing: 0 !important; }
+.certificate.capturing { box-shadow: none; }
+/* عند الالتقاط: الشهادة بنسبة صفحة A4 العمودية لتملأ الصفحة */
+.certificate.capturing { width: 820px; max-width: none; }
+.certificate.capturing .cert-in { min-height: 1100px; display: flex; flex-direction: column; justify-content: space-between; padding-top: 60px; padding-bottom: 40px; }
+.certificate.capturing .cert-medal { font-size: 5rem; }
+.certificate.capturing .cert-name { font-size: 3.6rem; }
+.certificate.capturing .cert-text { font-size: 1.3rem; }
+.cert-sign > div { width: 130px; }
+.cert-sign .cert-lulu .plant-svg, .cert-sign .nabti-svg { width: 110px; height: auto; }
+.cert-corner svg { display: block; }
+.cert-sign .cert-lulu .plant-svg { width: 150px; }
+.cert-sign > .cert-lulu { width: 160px; }
