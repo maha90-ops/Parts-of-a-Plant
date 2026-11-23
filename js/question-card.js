@@ -211,7 +211,7 @@
       function remedial(box, stage) {
         const part = D.PARTS[q.part] || D.PARTS.root;
         const rq = part.remedial[0] || { prompt: `أين يوجد ${part.name}؟`, options: [{ t: part.location, c: 1 }, { t: 'في الهواء فوق النبات', e: 'location-confusion' }] };
-        box.innerHTML = `<div class="mini card-inner"><p class="eyebrow">🎮 نشاط علاجي سريع</p><h4>${esc(rq.prompt)}</h4><div class="q-options two"></div><p class="mini-fb" role="status"></p></div>`;
+        box.innerHTML = `<div class="mini card-inner"><p class="eyebrow">🎮 لعبة مساعدة سريعة</p><h4>${esc(rq.prompt)}</h4><div class="q-options two"></div><p class="mini-fb" role="status"></p></div>`;
         const ob = $('.q-options', box);
         rq.options.forEach((o) => {
           const b = document.createElement('button'); b.type = 'button'; b.className = 'opt big'; b._opt = o; b.innerHTML = `<span class="opt-t">${esc(o.t)}</span><span class="opt-mark" aria-hidden="true"></span>`;

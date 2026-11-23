@@ -128,6 +128,14 @@
       announce('نبتي: ' + text);
       if ((opts && opts.speak) || PR.settings.autoRead) PR.tts.speak(text);
     },
+    /** إخفاء/إظهار الزر العائم بسلاسة (مثلًا: يُخفى في قسم البداية لأن نَبْتي مرسوم فيه أصلًا) */
+    setHidden(hidden) {
+      const dock = $('#nabti-dock'); if (!dock) return;
+      dock.classList.toggle('dock-hidden', !!hidden);
+      dock.setAttribute('aria-hidden', hidden ? 'true' : 'false');
+      if (hidden) dock.classList.add('collapsed');
+      dock.querySelectorAll('button').forEach((b) => { b.tabIndex = hidden ? -1 : 0; });
+    },
   };
 
   /* ---------- لولو: الشخصية الرئيسية (نبتة تتكلم وتتغير تعابيرها) ----------
@@ -177,7 +185,7 @@
       const prev = document.activeElement;
       const ov = document.createElement('div');
       ov.className = 'modal-overlay';
-      ov.innerHTML = `<div class="modal ${opts.cls || ''}" role="dialog" aria-modal="true" aria-label="${esc(opts.label || 'نافذة')}"><button class="modal-x icon-btn" aria-label="إغلاق">✕</button><div class="modal-body">${html}</div></div>`;
+      ov.innerHTML = `<div class="modal ${opts.cls || ''}" role="dialog" aria-modal="true" aria-label="${esc(opts.label || 'نافذة')}"><button class="modal-x icon-btn" type="button" aria-label="إغلاق النافذة" title="إغلاق"><svg class="ic-x" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button><div class="modal-body">${html}</div></div>`;
       document.body.appendChild(ov);
       const close = (val) => { ov.remove(); document.removeEventListener('keydown', onKey); if (prev && prev.focus) prev.focus(); resolve(val); };
       const onKey = (e) => {
@@ -250,10 +258,10 @@
     const sym = val >= 80 ? '▲' : val >= 60 ? '●' : '▼';
     return `<div class="mbar ${tier}"><div class="mbar-top"><span>${opts.icon ? opts.icon + ' ' : ''}${esc(label)}</span><span class="mbar-val"><span aria-hidden="true">${sym}</span> ${v == null ? '—' : pct(val)}${opts.delta ? ` <small class="delta ${opts.delta > 0 ? 'up' : 'down'}">${opts.delta > 0 ? '↑' : '↓'}${ar(Math.abs(opts.delta))}</small>` : ''}</span></div><div class="mbar-track" role="progressbar" aria-label="${esc(label)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${val}"><div class="mbar-fill" style="width:${val}%"></div></div></div>`;
   };
-  PR.ui.pathBadge = function (path) {
+  PR.ui.pathBadge = function (path, opts) {
     if (!path) return '';
     const P = D.PATHS[path];
-    return `<span class="path-badge path-${path}"><span aria-hidden="true">${P.icon}</span> ${P.name}</span>`;
+    return `<span class="path-badge path-${path}"><span aria-hidden="true">${P.icon}</span> ${opts && opts.teacher ? P.name : (P.kid || P.name)}</span>`;
   };
   PR.ui.speakBtn = function (text, label) {
     return `<button class="icon-btn speak" type="button" data-speak="${esc(text)}" aria-label="${esc(label || 'استمع')}" title="استمع">🔊</button>`;
@@ -300,7 +308,7 @@
       d.id = 'nabti-dock'; d.className = 'nabti-dock collapsed'; d.setAttribute('aria-label', 'نَبْتي المساعد');
       d.innerHTML = `<button class="nabti-avatar" aria-label="أظهر أو أخفِ رسالة نَبْتي">${PR.art.nabti('happy')}</button>
         <div class="nabti-bubble"><p class="nabti-name">🤖 نَبْتي</p><p class="nabti-text">مرحبًا! أنا نَبْتي، مساعدك في الرحلة.</p>
-        <div class="nabti-tools"><button class="icon-btn sm" id="nabti-speak" aria-label="استمع إلى نبتي">🔊</button><button class="icon-btn sm" id="nabti-hide" aria-label="إخفاء الرسالة">⤵</button></div></div>`;
+        <div class="nabti-tools"><button class="icon-btn sm" id="nabti-speak" aria-label="استمع إلى نبتي">🔊</button><button class="icon-btn sm" id="nabti-hide" type="button" aria-label="إخفاء رسالة نبتي" title="إخفاء الرسالة"><svg class="ic-x" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>`;
       document.body.appendChild(d);
       $('.nabti-avatar', d).onclick = () => d.classList.toggle('collapsed');
       $('#nabti-hide', d).onclick = () => d.classList.add('collapsed');
@@ -308,6 +316,14 @@
       // تُطوى الفقاعة عند لمس أي مكان آخر أو عند لمس نصّها، حتى لا تغطي الأزرار
       $('.nabti-text', d).onclick = () => d.classList.add('collapsed');
       document.addEventListener('pointerdown', (e) => { if (!d.contains(e.target)) d.classList.add('collapsed'); }, true);
+    }
+    // عند الوصول إلى التذييل تُطوى فقاعة نَبْتي ويرتفع قليلًا حتى لا يغطي روابط التذييل
+    const dockEl = $('#nabti-dock'), ftEl = $('#app-footer');
+    if (dockEl && ftEl && 'IntersectionObserver' in root) {
+      new IntersectionObserver((es) => es.forEach((e) => {
+        dockEl.classList.toggle('near-footer', e.isIntersecting);
+        if (e.isIntersecting) dockEl.classList.add('collapsed');
+      }), { threshold: 0.05 }).observe(ftEl);
     }
     const ft = $('#app-footer');
     if (ft) {

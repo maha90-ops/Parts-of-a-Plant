@@ -429,3 +429,21 @@ html.cvd .mbar.hi .mbar-fill { background: linear-gradient(90deg, #4a95d6, #1d6f
 .lulu-talk.stacked { flex-direction: column; align-items: center; }
 .lulu-talk.stacked .lt-art { width: 150px; }
 .lulu-talk.stacked .lt-bubble { order: -1; text-align: center; }
+
+/* =========================================================================
+   الإصدار ٥: إصلاحات بصرية وتجربة استخدام
+   ========================================================================= */
+/* زر إغلاق النوافذ: أيقونة SVG متمركزة (بدل رمز ✕ الذي قد لا يظهر) */
+.modal-x { display: grid; place-items: center; padding: 0; color: var(--ink); }
+.modal-x .ic-x, #nabti-hide .ic-x { width: 20px; height: 20px; display: block; }
+.modal-x:hover { background: var(--red-l); color: var(--red-d); }
+/* نَبْتي العائم: إخفاء/إظهار بسلاسة، ولا يغطي روابط التذييل */
+.nabti-dock { transition: opacity .35s ease, transform .35s ease, bottom .35s ease; }
+.nabti-dock.dock-hidden { opacity: 0; transform: translateY(24px) scale(.92); pointer-events: none !important; visibility: hidden; }
+.nabti-dock.dock-hidden * { pointer-events: none !important; }
+.ft-in { padding-bottom: 128px !important; }
+.app-footer { overflow: hidden; }
+@media (min-width: 861px) { .ft-nav { margin-inline-end: 120px; } } /* مساحة لنَبْتي في الركن الأيسر */
+/* عنوان صغير ذهبي على الخلفيات الخضراء الداكنة (بدل الأحمر/الوردي ضعيف التباين) */
+.eyebrow.gold { color: #f2c33a; }
+.zone-banner .eyebrow { color: #f6d26b; }

@@ -19,7 +19,7 @@
     if (!PR.progress.isUnlocked(p, 'rescue')) { location.href = 'map.html?locked=rescue'; return; }
     const stage = $('#rescue-stage');
     const steps = $('#rescue-steps');
-    const STEP_T = ['🚨 الإنذار', '🔎 جمع الأدلة', '🧩 المشكلة', '🔗 الجزء', '💊 الحل', '📝 التقييم النهائي', '🏆 النتيجة'];
+    const STEP_T = ['🚨 الإنذار', '🔎 جمع الأدلة', '🧩 المشكلة', '🔗 الجزء', '💊 الحل', '🎓 تحدي التخرج', '🏆 النتيجة'];
     const setStep = (i) => { steps.innerHTML = STEP_T.map((t, k) => `<li class="${k === i ? 'on' : k < i ? 'done' : ''}" ${k === i ? 'aria-current="step"' : ''}><span class="sn">${ar(k + 1)}</span> ${t}</li>`).join(''); };
     $('#rescue-path').innerHTML = PR.ui.pathBadge(p.currentPath);
 
@@ -36,7 +36,7 @@
     PR.village.start(p); PR.puzzle.stop(p); PR.progress.save(p);
     PR.village.mountAside(p);
     const drawLulu = (el, extra) => { el.innerHTML = PR.art.plant(Object.assign({ scene: true }, state, extra || {}, { title: `لولو: ${C.title}` })); };
-    log(`بدء مهمة الإنقاذ: الحالة ${C.id} «${C.title}» حسب ${D.PATHS[p.currentPath].name}`);
+    log(`بدء مهمة الإنقاذ: الحالة ${C.id} «${C.title}» حسب ${(D.PATHS[p.currentPath].kid || D.PATHS[p.currentPath].name)}`);
 
     // ---- ١) الإنذار ----
     setStep(0);
@@ -140,10 +140,10 @@
     for (let k = 0; k < 5; k++) { state.health = [50, 65, 80, 92, 100][k]; drawLulu($('#heal-lulu'), { flow: true, mood: moods[k] }); if (chain[k - 1]) chain[k - 1].classList.add('on'); await wait(520); }
     if (PR.lulu) PR.lulu.say('أحسنت! لقد أنقذتني! 🌱💚', 'excited');
     PR.sfx.play('win'); PR.fx.confetti(50);
-    PR.nabti.say('لقد أنقذتَ لولو! انظر كيف عادت إليها الحياة 🌺 بقي التقييم النهائي القصير.', 'cheer');
+    PR.nabti.say('لقد أنقذتَ لولو! انظر كيف عادت إليها الحياة 🌺 بقي «تحدي التخرج» القصير 🎓', 'cheer');
     p.rescue = { caseId: C.id, clues: [...seen], completedAt: new Date().toISOString() };
     PR.progress.save(p);
-    $('#heal-go').outerHTML = '<button class="btn btn-red lg" id="post-go">📝 ابدأ التقييم النهائي</button>';
+    $('#heal-go').outerHTML = '<button class="btn btn-red lg" id="post-go">🎓 ابدأ تحدي التخرج</button>';
     $('#post-go').focus();
     await new Promise((r) => { $('#post-go').onclick = r; });
 
@@ -152,7 +152,7 @@
     const answers = [];
     for (let i = 0; i < D.POSTTEST.length; i++) {
       const pq = Object.assign({}, D.POSTTEST[i], { fact: D.POSTTEST_FACTS[D.POSTTEST[i].id] });
-      const r = await PR.QuestionCard(stage, pq, Object.assign({ path: p.currentPath, ladder: false, maxAttempts: 2, maxHints: 1, zone: 'posttest', label: `التقييم النهائي ${ar(i + 1)} من ${ar(D.POSTTEST.length)}`, nextLabel: i < D.POSTTEST.length - 1 ? 'التالي ←' : '🏆 النتيجة' }, challenge()));
+      const r = await PR.QuestionCard(stage, pq, Object.assign({ path: p.currentPath, ladder: false, maxAttempts: 2, maxHints: 1, zone: 'posttest', label: `🎓 تحدي التخرج ${ar(i + 1)} من ${ar(D.POSTTEST.length)}`, nextLabel: i < D.POSTTEST.length - 1 ? 'التالي ←' : '🏆 النتيجة' }, challenge()));
       answers.push(r);
       rec(Object.assign({}, r, { zone: 'posttest' }));
     }

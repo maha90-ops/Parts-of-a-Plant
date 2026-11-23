@@ -8,23 +8,23 @@
   <link rel="icon" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/main.css?v=20261123d">
-  <link rel="stylesheet" href="styles/pages.css?v=20261123d">
-  <script defer src="js/data.js?v=20261123d"></script>
-  <script defer src="js/adaptive-engine.js?v=20261123d"></script>
-  <script defer src="js/student-progress.js?v=20261123d"></script>
-  <script defer src="js/characters.js?v=20261123d"></script>
-  <script defer src="js/app.js?v=20261123d"></script>
-  <script defer src="js/village.js?v=20261123d"></script>
-  <script defer src="js/puzzle.js?v=20261123d"></script>
-  <script defer src="js/passport.js?v=20261123d"></script>
-  <script defer src="js/home.js?v=20261123d"></script>
+  <link rel="stylesheet" href="styles/main.css?v=20261123f">
+  <link rel="stylesheet" href="styles/pages.css?v=20261123f">
+  <script defer src="js/data.js?v=20261123f"></script>
+  <script defer src="js/adaptive-engine.js?v=20261123f"></script>
+  <script defer src="js/student-progress.js?v=20261123f"></script>
+  <script defer src="js/characters.js?v=20261123f"></script>
+  <script defer src="js/app.js?v=20261123f"></script>
+  <script defer src="js/village.js?v=20261123f"></script>
+  <script defer src="js/puzzle.js?v=20261123f"></script>
+  <script defer src="js/passport.js?v=20261123f"></script>
+  <script defer src="js/home.js?v=20261123f"></script>
 </head>
 <body data-page="home">
   <a class="skip" href="#main">تخطَّ إلى المحتوى</a>
   <header id="app-header"></header>
   <main id="main" tabindex="-1">
-    <section class="hero">
+    <section class="hero" id="sec-hero">
       <div class="hero-bg" aria-hidden="true">
         <svg viewBox="0 0 1440 520" preserveAspectRatio="xMidYMax slice">
           <defs><linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9e7c4"/><stop offset="1" stop-color="#fbf6ec"/></linearGradient></defs>
@@ -37,7 +37,7 @@
           <g transform="translate(330 374)"><rect x="-3" y="0" width="6" height="26" fill="#6b4a2a"/><circle cy="-6" r="20"/><circle cx="-13" cy="3" r="13"/><circle cx="13" cy="3" r="13"/></g>
           <g transform="translate(980 360)"><rect x="-3" y="0" width="6" height="28" fill="#6b4a2a"/><circle cy="-6" r="22"/><circle cx="-15" cy="4" r="15"/><circle cx="15" cy="4" r="15"/></g>
           <g transform="translate(1320 372)"><rect x="-3" y="0" width="6" height="26" fill="#6b4a2a"/><circle cy="-6" r="20"/><circle cx="-13" cy="3" r="13"/><circle cx="13" cy="3" r="13"/></g></g>
-          <g fill="#c8102e">
+          <g fill="#c8102e" opacity=".55">
             <circle cx="220" cy="430" r="6"/><circle cx="250" cy="445" r="5"/><circle cx="560" cy="420" r="6"/><circle cx="600" cy="440" r="5"/><circle cx="860" cy="430" r="6"/><circle cx="1180" cy="440" r="6"/><circle cx="1210" cy="425" r="5"/>
           </g>
         </svg>
@@ -61,63 +61,71 @@
             <button class="btn btn-soft" type="button" id="how-btn">📖 كيف ألعب؟</button>
             <button class="btn btn-soft" type="button" id="access-btn">♿ خيارات الوصول</button>
           </div>
-          <ul class="hero-facts" aria-label="عن المهمة">
-            <li><b>٨</b><span>مهارات تُقاس</span></li><li><b>٣</b><span>مسارات تكيفية</span></li><li><b>٦</b><span>محطات</span></li><li><b>٥</b><span>ألواح بازل</span></li>
-          </ul>
+
           <p class="muted small" id="continue-note"></p>
         </div>
         <div class="hero-stage" aria-label="لولو النبتة ونَبْتي المساعد">
-          <div class="stage-lulu float" id="hero-lulu"></div>
+          <div class="stage-lulu" id="hero-lulu"></div>
           <div class="stage-nabti">
             <div class="speech">مرحبًا أيها العالم الصغير! 👋</div>
             <div id="hero-nabti"></div>
           </div>
-          <div class="stage-tag">🌺 لولو — زهرة شقائق النعمان</div>
+          <div class="stage-tag">👆 المس أجزاء لولو لتتعرّف عليها</div>
         </div>
       </div>
     </section>
 
-    <section class="video-section" aria-labelledby="video-title">
+    <section class="container facts-strip" aria-label="عن المهمة">
+      <ul class="hero-facts calm" aria-label="عن المهمة">
+            <li><b>٨</b><span>مهارات تتعلّمها</span></li><li><b>٣</b><span>طرق تناسبك</span></li><li><b>٦</b><span>محطات</span></li><li><b>٥</b><span>ألواح بازل</span></li>
+          </ul>
+    </section>
+
+    <section class="video-section" id="sec-video" aria-labelledby="video-title">
       <div class="container">
-      <p class="eyebrow center">🎬 قبل أن تبدأ</p>
+      <p class="eyebrow gold center">🎬 قبل أن تبدأ</p>
       <h2 class="center" id="video-title">شاهد قصة لولو</h2>
       <p class="center video-sub">فيديو قصير (دقيقة واحدة) يعرّفك بلولو وبأجزاء النبات قبل انطلاق المهمة.</p>
       <figure class="video-frame">
-        <video controls preload="metadata" playsinline poster="assets/video/lulu-story-poster.jpg" aria-describedby="video-desc">
+        <div class="vwrap">
+        <video id="story-video" preload="metadata" playsinline poster="assets/video/lulu-story-poster.jpg" aria-describedby="video-desc">
           <source src="assets/video/lulu-story.mp4" type="video/mp4">
           متصفحك لا يدعم تشغيل الفيديو. <a href="assets/video/lulu-story.mp4">نزّل الفيديو</a>.
         </video>
+        <button class="vplay" id="vplay" type="button" aria-label="تشغيل فيديو قصة لولو"><span class="vplay-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span><span class="vplay-t">شاهد قصة لولو</span><span class="vplay-d">دقيقة واحدة</span></button>
+        </div>
         <figcaption id="video-desc">📝 ملخص الفيديو: لولو لا تبدو بخير. نتعرّف على الجذر الذي يمتص الماء والأملاح المعدنية من التربة، والساق التي تنقلها، والأوراق التي تصنع الغذاء كمصنع صغير، ثم نجيب عن سؤال: أيّ جزء يمتص الماء والأملاح؟ وننقذ لولو معًا.</figcaption>
       </figure>
       <div class="row-end" style="justify-content:center"><a class="btn btn-red lg" href="student.html">🚀 أنا مستعد، لنبدأ المهمة!</a></div>
       </div>
     </section>
 
-    <section class="container section">
-      <h2 class="center">كيف تتكيّف الرحلة معك؟</h2>
-      <p class="center muted">لا يسلك كل الطلاب الطريق نفسه. يحلّل نَبْتي أداءك باستمرار ويختار لك ما يناسبك.</p>
+    <section class="container section" id="sec-adaptive">
+      <h2 class="center">رحلة على قدّك! 🎒</h2>
+      <p class="center muted">كل عالم نبات صغير له طريقه. نَبْتي يتعرّف عليك، ويختار لك ما يناسبك، ويساعدك كلما احتجت.</p>
       <ol class="flow">
-        <li class="card"><span class="flow-i">🧠</span><h3>مهمة اكتشاف المستوى</h3><p>٨ أسئلة تقيس ٨ مهارات، من التعرف إلى حل المشكلات.</p></li>
-        <li class="card"><span class="flow-i">🧬</span><h3>ملفك الذكي</h3><p>إتقان كل مهارة مع مراعاة التلميحات والمحاولات والوقت.</p></li>
-        <li class="card"><span class="flow-i">🧭</span><h3>مسارك الشخصي</h3><p><span class="path-badge path-challenge">🟢 متقدم</span> <span class="path-badge path-practice">🟡 متوسط</span> <span class="path-badge path-remediation">🔵 علاجي</span></p></li>
-        <li class="card"><span class="flow-i">🎮</span><h3>تكيّف لحظي</h3><p>تلميح ← تلميح أوضح ← شرح مصغّر ← نشاط علاجي ← إعادة المحاولة.</p></li>
-        <li class="card"><span class="flow-i">🏆</span><h3>تقرير وشهادة</h3><p>تقرير ذكي بالمهارات المتقنة والتوصية التالية.</p></li>
+        <li class="card"><span class="flow-i">🧠</span><h3>لنتعارف!</h3><p>٨ أسئلة قصيرة ولطيفة لنعرف من أين نبدأ.</p></li>
+        <li class="card"><span class="flow-i">🧬</span><h3>بطاقة قوتك</h3><p>يكتشف نَبْتي ما تتقنه، وما تحب أن تتدرّب عليه أكثر.</p></li>
+        <li class="card"><span class="flow-i">🧭</span><h3>طريقك في المغامرة</h3><p><span class="path-badge path-challenge">🟢 مستكشف متقدم</span> <span class="path-badge path-practice">🟡 مستكشف متوسط</span> <span class="path-badge path-remediation">🔵 مهمة دعم إضافية</span></p></li>
+        <li class="card"><span class="flow-i">🎮</span><h3>مساعدة في وقتها</h3><p>تلميح، ثم تلميح أوضح، ثم شرح صغير، ثم لعبة مساعدة، ثم محاولة جديدة.</p></li>
+        <li class="card"><span class="flow-i">🏆</span><h3>جواز سفر وشهادة</h3><p>اجمع الأختام، وأكمل «تحدي التخرج»، واحصل على شهادة عالم النبات الصغير.</p></li>
       </ol>
     </section>
 
-    <section class="container section">
+    <section class="container section" id="sec-stations">
       <div class="zones-preview card tatreez-frame">
         <div class="zp-in">
-          <p class="eyebrow light">🗺️ خريطة الرحلة</p>
+          <p class="eyebrow gold">🗺️ خريطة الرحلة</p>
           <h2>رحلة إنقاذ لولو: ست محطات</h2>
-          <ol class="zp-tiles">
-            <li><span class="zt-n">١</span><span class="zt-i">🌱</span><b>مدينة الجذور</b><small>الامتصاص والتثبيت</small></li>
-            <li><span class="zt-n">٢</span><span class="zt-i">🌿</span><b>طريق الساق</b><small>رحلة الماء</small></li>
-            <li><span class="zt-n">٣</span><span class="zt-i">🍃</span><b>مصنع الأوراق</b><small>صنع الغذاء</small></li>
-            <li><span class="zt-n">٤</span><span class="zt-i">🌸</span><b>حديقة الأزهار</b><small>التكاثر والبذور</small></li>
-            <li><span class="zt-n">٥</span><span class="zt-i">🔬</span><b>المختبر النباتي</b><small>طابق وأنقذ والتجارب</small></li>
-            <li><span class="zt-n">٦</span><span class="zt-i">🚨</span><b>مركز إنقاذ لولو</b><small>الخيمة والزيتون</small></li>
+          <ol class="zp-tiles" id="zp-tiles">
+            <li data-zone="roots"><span class="zt-n">١</span><span class="zt-i">🌱</span><b>مدينة الجذور</b><small>الامتصاص والتثبيت</small><span class="zt-done" aria-hidden="true"></span></li>
+            <li data-zone="stem"><span class="zt-n">٢</span><span class="zt-i">🌿</span><b>طريق الساق</b><small>رحلة الماء</small><span class="zt-done" aria-hidden="true"></span></li>
+            <li data-zone="leaves"><span class="zt-n">٣</span><span class="zt-i">🍃</span><b>مصنع الأوراق</b><small>صنع الغذاء</small><span class="zt-done" aria-hidden="true"></span></li>
+            <li data-zone="flower"><span class="zt-n">٤</span><span class="zt-i">🌸</span><b>حديقة الأزهار</b><small>التكاثر والبذور</small><span class="zt-done" aria-hidden="true"></span></li>
+            <li data-zone="lab"><span class="zt-n">٥</span><span class="zt-i">🔬</span><b>مختبر العالم الصغير</b><small>توقّع وجرّب</small><span class="zt-done" aria-hidden="true"></span></li>
+            <li data-zone="rescue"><span class="zt-n">٦</span><span class="zt-i">🚨</span><b>مركز إنقاذ لولو</b><small>الخيمة والزيتون</small><span class="zt-done" aria-hidden="true"></span></li>
           </ol>
+          <p class="zp-progress" id="zp-progress" aria-live="polite"></p>
           <div class="row"><a class="btn btn-primary" href="student.html">🔬 ابدأ كعالم نبات صغير</a><a class="btn" href="teacher.html">👩‍🏫 لوحة المعلم</a></div>
         </div>
       </div>

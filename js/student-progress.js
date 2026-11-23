@@ -139,7 +139,7 @@
       const prev = p.currentPath;
       p.currentPath = path;
       p.pathHistory.push({ at: new Date().toISOString(), path, from: prev, source, reasons });
-      P.log(p, 'path', prev ? `تغيّر المسار من «${D.PATHS[prev].name}» إلى «${D.PATHS[path].name}»` : `تحدد المسار: «${D.PATHS[path].name}»`, { reasons });
+      P.log(p, 'path', prev ? `تغيّر المسار من «${(D.PATHS[prev].kid || D.PATHS[prev].name)}» إلى «${(D.PATHS[path].kid || D.PATHS[path].name)}»` : `تحدد المسار: «${(D.PATHS[path].kid || D.PATHS[path].name)}»`, { reasons });
     },
 
     isUnlocked(p, zoneId) { return p.zones[zoneId] && p.zones[zoneId].status !== 'locked'; },

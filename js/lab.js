@@ -171,13 +171,13 @@
       const P = D.PARTS[pt];
       const flag = `${pt}_function_matching`;
       log(p, `نشاط علاجي موجّه: ${flag}`);
-      box.innerHTML = `<div class="card-inner reveal"><p class="eyebrow">🎮 نشاط علاجي · ${flag}</p><h3>${P.icon} لنثبّت وظيفة ${P.name}</h3><ul class="mini-lines">${P.mini.lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ul><p class="tip">💡 ${esc(P.mini.tip)}</p><div class="row-end">${PR.ui.speakBtn(P.mini.lines.join(' '))}<button class="btn btn-primary" id="rm-go">لنتدرّب ←</button></div></div>`;
+      box.innerHTML = `<div class="card-inner reveal"><p class="eyebrow">🎮 لعبة مساعدة</p><h3>${P.icon} لنثبّت وظيفة ${P.name}</h3><ul class="mini-lines">${P.mini.lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ul><p class="tip">💡 ${esc(P.mini.tip)}</p><div class="row-end">${PR.ui.speakBtn(P.mini.lines.join(' '))}<button class="btn btn-primary" id="rm-go">لنتدرّب ←</button></div></div>`;
       $('#rm-go', box).focus();
       await new Promise((r) => { $('#rm-go', box).onclick = r; });
       for (let k = 0; k < P.remedial.length; k++) {
         const q = Object.assign({ id: `rem-${pt}-${k}`, skill: 'match', part: pt, level: 1 }, P.remedial[k]);
         const holder = document.createElement('div'); box.innerHTML = ''; box.appendChild(holder);
-        const resp = await PR.QuestionCard(holder, q, { path: 'remediation', zone: 'lab', activity: 'match-remedial', label: `تدريب علاجي ${ar(k + 1)} من ${ar(P.remedial.length)}`, onDecision: (t) => log(p, t) });
+        const resp = await PR.QuestionCard(holder, q, { path: 'remediation', zone: 'lab', activity: 'match-remedial', label: `لعبة مساعدة ${ar(k + 1)} من ${ar(P.remedial.length)}`, onDecision: (t) => log(p, t) });
         rec(p, resp);
       }
     }
@@ -335,8 +335,8 @@
           }
           const flags = r.weakParts.map((pt) => `${pt}_function_matching`);
           box.innerHTML = `<div class="card-inner"><p class="eyebrow">🤖 تحليل نَبْتي</p><h3>أكملت المطابقة، لكن لاحظت ضعفًا في:</h3>
-            <ul class="reasons">${r.weakParts.map((pt) => `<li>ربط <b>${D.PARTS[pt].name}</b> بوظيفته (${ar(r.wrong[pt])} ${r.wrong[pt] === 1 ? 'خطأ' : 'أخطاء'}) — <code>skill = ${pt}_function_matching</code></li>`).join('')}</ul>
-            <p>سأوجّهك إلى نشاط علاجي قصير مناسب، ثم يمكنك إعادة المحاولة.</p><div class="row-end"><button class="btn btn-primary" id="go-rem">🎮 ابدأ النشاط العلاجي</button></div></div>`;
+            <ul class="reasons">${r.weakParts.map((pt) => `<li>ربط <b>${D.PARTS[pt].name}</b> بوظيفته (${ar(r.wrong[pt])} ${r.wrong[pt] === 1 ? 'خطأ' : 'أخطاء'}) </li>`).join('')}</ul>
+            <p>لنلعب لعبة مساعدة قصيرة، ثم تحاول من جديد! 💪</p><div class="row-end"><button class="btn btn-primary" id="go-rem">🎮 ابدأ لعبة المساعدة</button></div></div>`;
           log(p, `طابق وأنقذ: ضعف في ${flags.join('، ')} ← توجيه إلى نشاط علاجي`);
           PR.nabti.say(`أحسنت لإكمال المطابقة! لنتدرّب قليلًا على ${r.weakParts.map((pt) => D.PARTS[pt].name).join(' و')}.`, 'concern');
           $('#go-rem').focus();

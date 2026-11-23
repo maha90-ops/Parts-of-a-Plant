@@ -742,3 +742,54 @@ html.reduce-motion .story-lines li { opacity: 1; transform: none; }
 .story { padding: 14px 18px 14px 52px; }
 .story-lines li { font-size: 1.05rem; line-height: 1.75; }
 @media (max-width: 860px) { .hero-in { grid-template-columns: 1fr; } }
+
+/* ---------- الإصدار ٥: الصفحة الرئيسية ---------- */
+/* إزالة الزوائد الزخرفية خارج الزوايا الدائرية */
+.zones-preview { overflow: hidden; isolation: isolate; border-radius: var(--radius); }
+.zones-preview.tatreez-frame::before, .zones-preview.tatreez-frame::after { inset-inline: 0; border-radius: 0; }
+.video-section { overflow: hidden; }
+/* بطاقات الأرقام: صف هادئ أسفل البداية، بخلفية صلبة فوق أي زخرفة */
+.facts-strip { margin-top: -28px; position: relative; z-index: 3; }
+.hero-facts.calm { justify-content: center; gap: 14px; margin: 0; }
+.hero-facts.calm li { position: relative; z-index: 2; background: #fff; border: 1px solid var(--line); box-shadow: var(--shadow); backdrop-filter: none; min-width: 120px; padding: 10px 16px; }
+.hero-facts.calm b { font-size: 1.6rem; }
+@media (max-width: 520px) { .facts-strip { margin-top: 12px; } }
+/* البداية أخف: القصة والزر هما المحور */
+.hero { min-height: 600px; }
+.hero-actions .btn-soft { font-size: .95rem; }
+.stage-tag { background: var(--green-d); }
+/* لولو التفاعلية */
+.lulu-talk.interactive .part { cursor: pointer; transition: filter .2s, opacity .2s; outline: none; }
+.lulu-talk.interactive .part:hover, .lulu-talk.interactive .part:focus-visible, .lulu-talk.interactive .part.is-active { filter: drop-shadow(0 0 6px #f2c33a) drop-shadow(0 0 2px #fff); }
+.lulu-talk.interactive .lt-art.wiggle { animation: luluWiggle .55s ease; transform-origin: 50% 100%; }
+@keyframes luluWiggle { 25% { transform: rotate(-3deg); } 60% { transform: rotate(2.5deg); } }
+@media (prefers-reduced-motion: reduce) { .lulu-talk.interactive .lt-art.wiggle { animation: none; } }
+.lulu-talk.hero .lt-bubble { min-height: 54px; }
+/* فيديو القصة: زر تشغيل مخصّص يغطي الغلاف، والتحكم يظهر بعد التشغيل */
+.video-frame { position: relative; }
+.vplay { position: absolute; inset: 0; bottom: auto; height: calc(100% - 0px); aspect-ratio: auto; width: 100%; display: grid; place-content: center; justify-items: center; gap: 6px; border: 0; border-radius: 16px; cursor: pointer; color: #fff; background: radial-gradient(circle at center, rgba(11, 79, 44, .35), rgba(11, 79, 44, .55)); }
+.video-frame:has(figcaption) .vplay { height: auto; aspect-ratio: 16 / 9; }
+.vplay[hidden] { display: none !important; }
+.vplay-ic { width: 92px; height: 92px; border-radius: 50%; display: grid; place-items: center; background: var(--red); box-shadow: 0 0 0 8px rgba(255, 255, 255, .35), 0 14px 30px rgba(0, 0, 0, .35); transition: transform .2s; }
+.vplay-ic svg { width: 44px; height: 44px; margin-inline-start: 6px; }
+.vplay:hover .vplay-ic, .vplay:focus-visible .vplay-ic { transform: scale(1.06); }
+.vplay-t { font-size: 1.3rem; font-weight: 900; text-shadow: 0 2px 6px rgba(0, 0, 0, .5); }
+.vplay-d { font-size: .85rem; font-weight: 800; background: rgba(0, 0, 0, .45); padding: 2px 10px; border-radius: 99px; }
+/* المحطات الست: أرقام ذهبية وحالة التقدّم المحفوظ */
+.zp-tiles .zt-n { color: #f2c33a; }
+.zp-tiles li.zt-done { background: rgba(255, 255, 255, .22); border: 2px solid #f2c33a; }
+.zp-tiles li.zt-open { border: 2px dashed #fff; }
+.zp-tiles li.zt-locked { opacity: .55; }
+.zp-tiles .zt-done:empty { display: none; }
+.zp-tiles .zt-done { font-size: .74rem; font-weight: 900; color: #3b2a00; background: #f2c33a; border-radius: 99px; padding: 1px 8px; margin-top: 4px; }
+.zp-tiles li.zt-open .zt-done { background: #fff; color: var(--green-d); }
+.zp-progress { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: -8px 0 18px; color: #fff; font-weight: 800; }
+.zp-bar { flex: 0 0 180px; height: 10px; border-radius: 99px; background: rgba(255, 255, 255, .2); overflow: hidden; }
+.zp-bar i { display: block; height: 100%; background: #f2c33a; border-radius: 99px; }
+/* الزر يغطي الفيديو فقط (لا الوصف أسفله) */
+.vwrap { position: relative; }
+.vwrap .vplay { position: absolute; inset: 0; height: auto; aspect-ratio: auto; border-radius: 16px; }
+
+/* v5: أزرار البطل صلبة حتى لا تظهر الزخارف الحمراء من خلفها */
+.hero-actions .btn-soft { background: #fff; position: relative; z-index: 1; }
+.story-card { position: relative; z-index: 1; }

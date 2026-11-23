@@ -44,7 +44,7 @@
             <p class="muted small mt">المناطق المكتملة: ${ar(doneZones.length)} من ${ar(D.ZONES.length)}</p>
             <div class="zones-mini">${D.ZONES.map((z) => `<span class="zm ${p.zones[z.id].status}" title="${z.title}">${z.icon}<small>${p.zones[z.id].status === 'done' ? '✓' : p.zones[z.id].status === 'open' ? '▶' : '🔒'}</small></span>`).join('')}</div></div>
           <div class="card"><p class="eyebrow">🧭 مسارك</p>${PR.ui.pathBadge(p.currentPath)}<p class="muted small mt">${esc(D.PATHS[p.currentPath].desc)}</p>
-            <ol class="timeline">${p.pathHistory.map((h) => `<li>${D.PATHS[h.path].icon} ${D.PATHS[h.path].name} <small class="muted">${h.source === 'diagnostic' ? 'بعد التشخيص' : 'بعد إعادة التقييم'}</small></li>`).join('')}</ol></div>
+            <ol class="timeline">${p.pathHistory.map((h) => `<li>${D.PATHS[h.path].icon} ${(D.PATHS[h.path].kid || D.PATHS[h.path].name)} <small class="muted">${h.source === 'diagnostic' ? 'بعد التشخيص' : 'بعد إعادة التقييم'}</small></li>`).join('')}</ol></div>
       </div>
         <section class="card skills-card"><div class="sk-col">
           <div class="row"><h2 class="h-sm">📊 مستوى المهارات</h2><span class="grow"></span><span class="chip">الإتقان العام ${pct(overall)}</span></div>

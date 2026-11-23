@@ -556,7 +556,7 @@
       const plan = E.questionPlan(path);
       const pool = D.BANK.filter((q) => q.zone === ctx.zone.id);
       let state = { level: E.startLevel(path, ctx.p.partMastery[ctx.zone.part]) };
-      decision(ctx, `بدء الأسئلة في «${ctx.zone.title}» بمستوى صعوبة ${state.level} (المسار: ${D.PATHS[path].name}، إتقان الجزء ${ctx.p.partMastery[ctx.zone.part]}٪)`);
+      decision(ctx, `بدء الأسئلة في «${ctx.zone.title}» بمستوى صعوبة ${state.level} (المسار: ${(D.PATHS[path].kid || D.PATHS[path].name)}، إتقان الجزء ${ctx.p.partMastery[ctx.zone.part]}٪)`);
       const asked = [];
       const qResps = [];
       for (let i = 0; i < plan.count; i++) {
@@ -634,8 +634,8 @@
       let pathMsg = '';
       if (re.changed) {
         PR.progress.setPath(p, re.path, re.reasons, 'reevaluation');
-        pathMsg = re.direction === 'up' ? `🚀 أداؤك رائع! انتقلت إلى «${D.PATHS[re.path].name}» لتحديات أكبر.` : `🤝 سننتقل إلى «${D.PATHS[re.path].name}» لنمنحك دعمًا أكثر في المنطقة القادمة.`;
-      } else PR.progress.log(p, 'path', `بقي المسار «${D.PATHS[p.currentPath].name}» بعد إعادة التقييم`, { reasons: re.reasons });
+        pathMsg = re.direction === 'up' ? `🚀 أداؤك رائع! انتقلت إلى «${(D.PATHS[re.path].kid || D.PATHS[re.path].name)}» لتحديات أكبر.` : `🤝 سننتقل إلى «${(D.PATHS[re.path].kid || D.PATHS[re.path].name)}» لنمنحك دعمًا أكثر في المنطقة القادمة.`;
+      } else PR.progress.log(p, 'path', `بقي المسار «${(D.PATHS[p.currentPath].kid || D.PATHS[p.currentPath].name)}» بعد إعادة التقييم`, { reasons: re.reasons });
       p.recommendations = E.recommendations(p);
       PR.progress.save(p);
       PR.ui.refreshStats();
@@ -681,7 +681,7 @@
     if (PR.audio) PR.audio.narrate(zone.id);
     const nav = $('#zone-steps');
     nav.innerHTML = steps.map((s, i) => `<li data-s="${s}"><span class="sn">${ar(i + 1)}</span> ${STEP_LABELS[s]}</li>`).join('');
-    PR.progress.log(p, 'zone', `دخل «${zone.title}» (${D.PATHS[path].name}): ${steps.join(' → ')}`);
+    PR.progress.log(p, 'zone', `دخل «${zone.title}» (${(D.PATHS[path].kid || D.PATHS[path].name)}): ${steps.join(' → ')}`);
     // تحدّي البازل: لوحة جديدة فارغة للمحطة، عدد قطعها = عدد أسئلتها
     PR.puzzle.start(p, zone.id);
     PR.progress.save(p);
@@ -739,7 +739,7 @@
     PR.progress.save(p); PR.ui.refreshStats();
     const skills = [...new Set(ctx.responses.map((r) => r.skill))];
     ctx.stage.innerHTML = `<div class="card summary reveal"><h2>🎯 أنهيت التدريب!</h2>${skills.map((s) => PR.ui.masteryBar(D.SKILLS[s].name, p.skillMastery[s], { icon: D.SKILLS[s].icon, delta: (p.skillMastery[s] ?? 0) - (ctx.before[s] ?? 0) })).join('')}
-      ${re.changed ? `<p class="note">🧭 تغيّر مسارك إلى «${D.PATHS[re.path].name}».</p>` : ''}<div class="row-end"><a class="btn" href="dashboard.html">📊 لوحتي</a><a class="btn btn-primary" href="map.html">🗺️ الخريطة</a></div></div>`;
+      ${re.changed ? `<p class="note">🧭 تغيّر مسارك إلى «${(D.PATHS[re.path].kid || D.PATHS[re.path].name)}».</p>` : ''}<div class="row-end"><a class="btn" href="dashboard.html">📊 لوحتي</a><a class="btn btn-primary" href="map.html">🗺️ الخريطة</a></div></div>`;
     PR.sfx.play('win'); PR.fx.confetti(20); PR.ui.reward({ drops: 2 });
   }
 
