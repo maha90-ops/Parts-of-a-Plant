@@ -826,3 +826,12 @@ html.reduce-motion .story-lines li { opacity: 1; transform: none; }
   .map-board .node-lbl small:not(.st-t) { display: none; }
   .map-board .route { stroke-width: 4; }
 }
+
+/* ===== v6: خلفية الصفحة الرئيسية — ريف فلسطيني مجسّم ===== */
+.hero-bg.hero-photo { position: absolute; inset: 0; background: #f3ecdd url('../assets/hero/countryside.webp') center bottom / cover no-repeat; }
+.hero-bg.hero-photo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to left, rgba(250, 245, 235, .55) 0%, rgba(250, 245, 235, .25) 45%, rgba(250, 245, 235, 0) 65%); }
+@media (max-width: 860px) {
+  .hero-bg.hero-photo { background: #f7efdf; }
+  .hero-bg.hero-photo::before { content: ''; position: absolute; inset-inline: 0; bottom: 0; height: min(100%, 150vw); background: url('../assets/hero/countryside.webp') 12% bottom / cover no-repeat; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 35%); mask-image: linear-gradient(to bottom, transparent 0, #000 35%); }
+  .hero-bg.hero-photo::after { display: none; }
+}
