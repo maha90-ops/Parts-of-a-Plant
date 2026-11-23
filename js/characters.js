@@ -68,7 +68,8 @@
     const id = 'pl' + (++uid);
     const h = clamp(o.health, 0, 100) / 100, w = 1 - h;
     const pot = o.mode === 'pot';
-    const G = pot ? 388 : 330;
+    const mound = o.mode === 'mound';
+    const G = pot ? 388 : mound ? 318 : 330;
     const B = [200, G];
     let H, C1, C2;
     if (o.stem === 'broken') { H = [292, G - 140]; C1 = [200, G - 105]; C2 = [214, G - 150]; }
@@ -86,6 +87,10 @@
       <radialGradient id="${id}-petal" cx=".5" cy=".85" r=".9"><stop offset="0" stop-color="${mix('#7a0a1c', '#5a3a3a', w * .6)}"/><stop offset=".35" stop-color="${mix('#d0122f', '#9a6a5a', w * .7)}"/><stop offset="1" stop-color="${mix('#ff4d63', '#c49a8a', w * .7)}"/></radialGradient>
       <linearGradient id="${id}-pot" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d9784a"/><stop offset=".55" stop-color="#bf5a30"/><stop offset="1" stop-color="#8f3f1f"/></linearGradient>
       <mask id="${id}-bite" maskUnits="userSpaceOnUse" x="-20" y="-60" width="140" height="120"><rect x="-20" y="-60" width="140" height="120" fill="#fff"/><circle cx="70" cy="-20" r="11" fill="#000"/><circle cx="84" cy="-12" r="7" fill="#000"/><circle cx="40" cy="10" r="6" fill="#000"/></mask>
+      <radialGradient id="${id}-grass" cx=".42" cy=".25" r=".85"><stop offset="0" stop-color="#cfe39a"/><stop offset=".55" stop-color="#9cc26a"/><stop offset="1" stop-color="#6f9a45"/></radialGradient>
+      <linearGradient id="${id}-earth" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a6a42"/><stop offset=".5" stop-color="#7a4d2c"/><stop offset="1" stop-color="#5a361f"/></linearGradient>
+      <clipPath id="${id}-bowl"><path d="M62 ${G} Q66 ${G + 186} 200 ${G + 190} Q334 ${G + 186} 338 ${G} Z"/></clipPath>
+      <filter id="${id}-clay" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#2a1a0a" flood-opacity=".22"/></filter>
       <filter id="${id}-sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#2a1a0a" flood-opacity=".25"/></filter>
     </defs>`);
 
@@ -116,6 +121,14 @@
         band += `<rect x="${x - 3.5}" y="${438 - 3.5}" width="7" height="7" transform="rotate(45 ${x} 438)" fill="${c}"/>`;
       }
       out.push(`<g opacity=".95"><path d="M140 424 H260 M142 452 H258" stroke="#fbf6ec" stroke-width="2" stroke-dasharray="3 3"/>${band}</g>`);
+    } else if (mound) {
+      // تلّة صلصال عشبية بنافذة مقطعية تُظهر التربة والجذور
+      out.push(`<ellipse cx="200" cy="${G + 196}" rx="150" ry="10" fill="#2a1a0a" opacity=".18"/>`);
+      out.push(`<path d="M62 ${G} Q66 ${G + 186} 200 ${G + 190} Q334 ${G + 186} 338 ${G} Z" fill="url(#${id}-earth)"/>`);
+      out.push(`<g clip-path="url(#${id}-bowl)"><path d="M40 ${G + 70} Q200 ${G + 52} 360 ${G + 74}" stroke="#5e3a20" stroke-width="3" fill="none" opacity=".35"/><path d="M40 ${G + 128} Q200 ${G + 112} 360 ${G + 132}" stroke="#4a2c18" stroke-width="3" fill="none" opacity=".35"/>
+        <g fill="#d8c2a0" opacity=".75"><ellipse cx="104" cy="${G + 46}" rx="9" ry="6"/><ellipse cx="292" cy="${G + 92}" rx="11" ry="7"/><ellipse cx="128" cy="${G + 140}" rx="7" ry="5"/><ellipse cx="262" cy="${G + 150}" rx="8" ry="5"/></g>
+        ${o.water === 2 ? `<g fill="#6ec1ff" opacity=".85">${[[110, 80], [290, 60], [150, 120], [250, 128], [320, 110]].map(([x, y]) => `<path d="M${x} ${G + y} q4 6 0 9 q-4 -3 0 -9z"/>`).join('')}</g>` : ''}</g>`);
+      out.push(`<path d="M62 ${G} Q66 ${G + 186} 200 ${G + 190} Q334 ${G + 186} 338 ${G}" stroke="#4a2c18" stroke-width="3" fill="none" opacity=".35"/>`);
     } else {
       out.push(`<rect x="0" y="${G}" width="400" height="${520 - G}" fill="url(#${id}-soil)"/>`);
       out.push(`<path d="M0 ${G} Q100 ${G - 6} 200 ${G} T400 ${G}" stroke="#5e8f3a" stroke-width="7" fill="none"/>`);
@@ -151,7 +164,13 @@
       });
       if (rs === 'damaged') rp += `<g fill="#2b1a0e"><circle cx="190" cy="${G + 40}" r="4"/><circle cx="214" cy="${G + 58}" r="3"/><circle cx="170" cy="${G + 52}" r="3"/></g>`;
       const hit = o.hotspots ? `<path class="hit" d="M200 ${G + 4} V${G + 150}" stroke="transparent" stroke-width="90"/>` : '';
-      out.push(`<g class="${cls('root')}" data-part="root"${hs('root', 'الجذر')}>${hit}${rp}</g>`);
+      out.push(`<g class="${cls('root')}" data-part="root"${hs('root', 'الجذر')}>${hit}${mound ? `<g clip-path="url(#${id}-bowl)">${rp}</g>` : rp}</g>`);
+    }
+    // سطح التلّة العشبي (فوق الجذور وتحت الساق)
+    if (mound) {
+      out.push(`<g filter="url(#${id}-clay)"><ellipse cx="200" cy="${G}" rx="142" ry="30" fill="url(#${id}-grass)"/><ellipse cx="180" cy="${G - 8}" rx="80" ry="12" fill="#fff" opacity=".18"/></g>`);
+      out.push(`<g fill="#8fbf5a">${[[96, -6], [118, 10], [276, 6], [300, -4], [150, 18], [246, 20]].map(([x, y]) => `<path d="M${x} ${G + y} q-3 -14 2 -20 q1 10 4 20z"/>`).join('')}</g>`);
+      out.push(`<g>${[[112, 4, 1], [292, 10, .85]].map(([x, y, sc]) => `<g transform="translate(${x} ${G + y - 14}) scale(${sc})"><path d="M0 4 V16" stroke="#5d8a3a" stroke-width="2.4"/>${[0, 72, 144, 216, 288].map((r) => `<ellipse rx="5" ry="8" cy="-6" fill="#e0263f" transform="rotate(${r})"/>`).join('')}<circle r="3.6" fill="#1d1a17"/></g>`).join('')}</g>`);
     }
 
     // ---- الساق ----
@@ -163,7 +182,7 @@
     }
     if (o.stem === 'weak') stem += `<path d="${stemPath}" stroke="#d8cf8a" stroke-width="2" stroke-dasharray="3 8" fill="none" opacity=".7"/>`;
     const stemHit = o.hotspots ? `<path class="hit" d="${stemPath}" stroke="transparent" stroke-width="40" fill="none"/>` : '';
-    out.push(`<g class="${cls('stem')}" data-part="stem"${hs('stem', 'الساق')}>${stemHit}${stem}</g>`);
+    out.push(`<g class="${cls('stem')}" data-part="stem"${hs('stem', 'الساق')}${mound ? ` filter="url(#${id}-clay)"` : ''}>${stemHit}${stem}</g>`);
 
     // ---- الأوراق ----
     const leafCol = o.leaves === 'yellow' ? ['#e0cf5a', '#a8912e'] : ['#5cc46f', '#1f7a3a'];
@@ -184,7 +203,7 @@
         <path d="M8 -4 C30 -20 60 -20 80 -8" stroke="#fff" stroke-width="2" fill="none" opacity=".25"/>
       </g>`;
     });
-    out.push(`<g class="${cls('leaf')}" data-part="leaf"${hs('leaf', 'الأوراق')}>${leaves}</g>`);
+    out.push(`<g class="${cls('leaf')}" data-part="leaf"${hs('leaf', 'الأوراق')}${mound ? ` filter="url(#${id}-clay)"` : ''}>${leaves}</g>`);
 
     // ---- الزهرة / الرأس ----
     const tilt = w * 38 + (o.stem === 'broken' ? 50 : 0);

@@ -46,7 +46,7 @@
       : doneIds.length ? `أشعر بتحسّن! أنجزتَ ${ar(doneIds.length)} من ${ar(D.ZONES.length)} محطات 💚` : 'مرحبًا يا عالم النبات الصغير! 🌱 المسني لتتعرّف عليّ';
     const stage = $('#hero-lulu');
     stage.innerHTML = `<div class="lulu-talk hero interactive" data-mood="${mood}">
-        <div class="lt-art">${PR.art.plant({ mode: 'pot', xray: true, hotspots: true, health, water: health > 60 ? 2 : 0, mood, title: 'لولو: المس أجزاءها لتتعرّف عليها' })}</div>
+        <div class="lt-art">${PR.art.plant({ mode: 'mound', hotspots: true, health, water: health > 60 ? 2 : 0, mood, title: 'لولو: المس أجزاءها لتتعرّف عليها' })}</div>
         <div class="lt-bubble" role="status" aria-live="polite"><b class="lt-name">🌱 لولو</b><p class="lt-text" id="lulu-line">${intro}</p></div></div>`;
     const line = $('#lulu-line'), art = $('.lt-art', stage);
     let resetT = null;
