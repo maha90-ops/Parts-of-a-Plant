@@ -174,7 +174,7 @@
       setStep(6);
       const pre = p.diagnosticResults.adjusted, post = p.postTest ? p.postTest.adjusted : null;
       const gain = post != null ? post - pre : 0;
-      stage.innerHTML = `<div class="card summary reveal"><div class="sum-top"><div class="final-lulu">${PR.art.plant({ mode: 'pot', health: 100, water: 2, mood: 'excited' })}</div>
+      stage.innerHTML = `<div class="card summary reveal"><div class="sum-top"><div class="final-lulu">${PR.lulu.img(100, 'excited')}</div>
         <div><p class="eyebrow">🏆 مهمة مكتملة</p><h2>🎉 لقد أنقذت لولو!</h2>
         <p class="big-t">أصبحت الآن عالم نبات صغيرًا يا ${esc(p.name)}!</p>
         ${PR.lulu.html('أحسنت! لقد أنقذتني! 🌱💚', 'excited', { cls: 'inline' })}

@@ -20,7 +20,7 @@
           </form>
         </section>
         <aside class="card join-side">
-          <div class="join-hero"><div class="join-lulu">${PR.art.plant({ mode: 'pot', health: 45, water: 0 })}</div>
+          <div class="join-hero"><div class="join-lulu">${PR.lulu.img(45, 'help')}</div>
             <div><p class="eyebrow">مهمتك في أربع خطوات</p>
             <ol class="join-steps">
               <li><span>🧠</span><div><b>اكتشف مستواك</b><small>٨ أسئلة قصيرة تحدّد مسارك</small></div></li>
@@ -49,7 +49,7 @@
     }
 
     const SLIDES = [
-      (p) => ({ art: PR.art.plant({ mode: 'pot', health: 32, water: 0 }), nabti: 'concern', eyebrow: 'الفصل الأول', title: 'لولو بدأت تذبل…',
+      (p) => ({ art: PR.lulu.img(32, 'sad'), nabti: 'concern', eyebrow: 'الفصل الأول', title: 'لولو بدأت تذبل…',
         text: `مرحبًا أيها العالم الصغير ${p.name}! لولو النبتة تحتاج إلى مساعدتك. هناك مشكلة في أحد أجزاء النبات، ومهمتك أن تكتشف وظيفة كل جزء وتستخدم معرفتك لإنقاذها.` }),
       (p) => ({ art: idCard(p), nabti: 'cheer', eyebrow: 'الفصل الثاني', title: 'أنت الآن: عالم النبات الصغير 🔬',
         text: 'هذه بطاقتك العلمية. ستجمع ⭐ النجوم و🌱 البذور و💧 القطرات، وتربح الشارات في كل منطقة.' }),

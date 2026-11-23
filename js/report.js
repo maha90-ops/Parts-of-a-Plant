@@ -134,7 +134,7 @@
           <div><span>مستوى الطالب</span><b>${esc(c.level)}</b></div>
         </div>
         <div class="cert-badges">${p.badges.map((b) => `<span title="${D.BADGES[b].name}">${D.BADGES[b].icon}</span>`).join('')}</div>
-        <div class="cert-sign"><div>${PR.art.nabti('cheer')}<small>نَبْتي — المساعد الذكي</small></div><div class="cert-lulu">${PR.art.plant({ mode: 'pot', health: 100, water: 2 })}<small>لولو 🌺</small></div></div>
+        <div class="cert-sign"><div>${PR.art.nabti('cheer')}<small>نَبْتي — المساعد الذكي</small></div><div class="cert-lulu">${PR.lulu.img(100, 'excited')}<small>لولو 🌺</small></div></div>
       </div></article>
       <div class="row-end no-print"><a class="btn" href="report.html">📄 التقرير</a><button class="btn" onclick="window.print()">🖨️ طباعة الشهادة</button><button class="btn btn-red lg" id="cert-pdf">⬇️ تنزيل الشهادة (PDF)</button></div>`;
     $('#cert-pdf').onclick = (e) => downloadPDF(p, e.currentTarget);

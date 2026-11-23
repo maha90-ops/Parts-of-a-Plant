@@ -447,3 +447,12 @@ html.cvd .mbar.hi .mbar-fill { background: linear-gradient(90deg, #4a95d6, #1d6f
 /* عنوان صغير ذهبي على الخلفيات الخضراء الداكنة (بدل الأحمر/الوردي ضعيف التباين) */
 .eyebrow.gold { color: #f2c33a; }
 .zone-banner .eyebrow { color: #f6d26b; }
+
+/* صور لولو المجسّمة */
+.lulu-photo { display: block; width: 100%; height: auto; object-fit: contain; filter: drop-shadow(0 8px 8px rgba(60, 40, 10, .22)); }
+.lulu-talk .lt-art:has(.lulu-photo) { filter: none; }
+.lulu-talk .lt-art .lulu-photo { max-height: 220px; margin-inline: auto; width: auto; max-width: 100%; }
+.lulu-talk.stacked .lt-art .lulu-photo { max-height: 240px; }
+.lulu-talk.compact .lt-art .lulu-photo { max-height: 120px; }
+.cert-lulu .lulu-photo, .final-lulu .lulu-photo, .join-lulu .lulu-photo { max-height: 260px; width: auto; margin-inline: auto; }
+.cert-lulu .lulu-photo { max-height: 150px; }
