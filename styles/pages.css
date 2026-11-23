@@ -822,3 +822,7 @@ html.reduce-motion .story-lines li { opacity: 1; transform: none; }
 .map-board .node-locked { opacity: 1; }
 .map-board .node-locked .node-lbl { opacity: 1; color: var(--ink); }
 .map-board .node-locked .node-btn { opacity: .92; }
+@media (min-width: 681px) {
+  .map-board .node-lbl small:not(.st-t) { display: none; }
+  .map-board .route { stroke-width: 4; }
+}

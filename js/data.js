@@ -117,12 +117,12 @@
 
   /* ---------- المناطق (خريطة الرحلة) ---------- */
   const ZONES = [
-    { id: 'roots', kind: 'part', part: 'root', title: 'مدينة الجذور', icon: '🌱', learn: 'وظيفة الجذر', href: 'zone.html?z=roots', badge: 'root_detective', activity: 'rootMaze', x: 86, y: 68 },
-    { id: 'stem', kind: 'part', part: 'stem', title: 'طريق الساق', icon: '🌿', learn: 'وظيفة الساق', href: 'zone.html?z=stem', badge: 'water_expert', activity: 'waterJourney', x: 22, y: 66 },
-    { id: 'leaves', kind: 'part', part: 'leaf', title: 'مصنع الأوراق', icon: '🍃', learn: 'وظيفة الأوراق', href: 'zone.html?z=leaves', badge: 'leaf_guardian', activity: 'leafFactory', x: 46, y: 50 },
-    { id: 'flower', kind: 'part', part: 'flower', title: 'حديقة الأزهار', icon: '🌸', learn: 'وظيفة الزهرة', href: 'zone.html?z=flower', badge: 'flower_friend', activity: 'flowerCycle', x: 31, y: 30 },
-    { id: 'lab', kind: 'lab', title: 'مختبر العالم الصغير', icon: '🔬', learn: 'ربط الأجزاء بالوظائف', href: 'plant-lab.html', badge: 'little_scientist', x: 80, y: 30 },
-    { id: 'rescue', kind: 'rescue', title: 'مركز إنقاذ لولو', icon: '🚨', learn: 'المهمة النهائية', href: 'rescue.html', badge: 'lulu_savior', x: 56, y: 22 },
+    { id: 'roots', kind: 'part', part: 'root', title: 'مدينة الجذور', icon: '🌱', learn: 'وظيفة الجذر', href: 'zone.html?z=roots', badge: 'root_detective', activity: 'rootMaze', x: 80, y: 79 },
+    { id: 'stem', kind: 'part', part: 'stem', title: 'طريق الساق', icon: '🌿', learn: 'وظيفة الساق', href: 'zone.html?z=stem', badge: 'water_expert', activity: 'waterJourney', x: 14, y: 58 },
+    { id: 'leaves', kind: 'part', part: 'leaf', title: 'مصنع الأوراق', icon: '🍃', learn: 'وظيفة الأوراق', href: 'zone.html?z=leaves', badge: 'leaf_guardian', activity: 'leafFactory', x: 46, y: 52 },
+    { id: 'flower', kind: 'part', part: 'flower', title: 'حديقة الأزهار', icon: '🌸', learn: 'وظيفة الزهرة', href: 'zone.html?z=flower', badge: 'flower_friend', activity: 'flowerCycle', x: 24, y: 33 },
+    { id: 'lab', kind: 'lab', title: 'مختبر العالم الصغير', icon: '🔬', learn: 'ربط الأجزاء بالوظائف', href: 'plant-lab.html', badge: 'little_scientist', x: 82, y: 45 },
+    { id: 'rescue', kind: 'rescue', title: 'مركز إنقاذ لولو', icon: '🚨', learn: 'المهمة النهائية', href: 'rescue.html', badge: 'lulu_savior', x: 55, y: 21 },
   ];
 
   /* ---------- الشارات والمستويات ---------- */
