@@ -456,3 +456,9 @@ html.cvd .mbar.hi .mbar-fill { background: linear-gradient(90deg, #4a95d6, #1d6f
 .lulu-talk.compact .lt-art .lulu-photo { max-height: 120px; }
 .cert-lulu .lulu-photo, .final-lulu .lulu-photo, .join-lulu .lulu-photo { max-height: 260px; width: auto; margin-inline: auto; }
 .cert-lulu .lulu-photo { max-height: 150px; }
+
+/* نَبْتي المجسّم (صورة) */
+.nabti-img { display: block; width: auto; max-width: 100%; height: auto; object-fit: contain; }
+.nabti-avatar .nabti-img { width: 100%; height: 100%; }
+#hero-nabti .nabti-img { width: min(150px, 34vw); filter: drop-shadow(0 12px 10px rgba(60, 40, 10, .25)); }
+.cert-sign .nabti-img { width: 90px; height: auto; }

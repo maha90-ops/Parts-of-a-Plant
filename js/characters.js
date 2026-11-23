@@ -274,7 +274,15 @@
   }
 
   /* -------------------- نَبْتي: المساعد الذكي -------------------- */
+  /* نَبْتي المجسّم: صورة حسب التعبير (قلق / مشجّع / سعيد) */
+  const NABTI_IMG = { worried: ['nabti-worried', 592], cheer: ['nabti-cheer', 669], happy: ['nabti-happy', 591] };
   function nabti(mood) {
+    const st = ['concern', 'bad', 'help', 'sad'].includes(mood) ? 'worried' : ['cheer', 'excited', 'good'].includes(mood) ? 'cheer' : 'happy';
+    const [f, w] = NABTI_IMG[st];
+    const alt = { worried: 'نَبْتي قلق', cheer: 'نَبْتي يشجّعك', happy: 'نَبْتي المساعد الذكي' }[st];
+    return `<img class="nabti-svg nabti-img nabti-${st}" src="assets/nabti/${f}.webp" width="${w}" height="874" alt="${alt}" decoding="async">`;
+  }
+  function nabtiSvg(mood) {
     mood = mood || 'happy';
     let eyes = '', mouth = '';
     const eyeC = '#8ff0b5';
