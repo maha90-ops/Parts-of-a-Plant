@@ -61,7 +61,7 @@
       // ٤) فسّر
       stage('explain');
       panel.insertAdjacentHTML('beforeend', '<div id="exp-q"></div>');
-      const resp = await PR.QuestionCard($('#exp-q', panel), x.explain, { path: p.currentPath, zone: 'lab', activity: 'experiment', label: '💡 ماذا تعلّمت؟', onDecision: (t) => log(p, t) });
+      const resp = await PR.QuestionCard($('#exp-q', panel), x.explain, { path: p.currentPath, zone: 'lab', activity: 'experiment', fact: D.FACTS[x.id], label: '💡 ماذا تعلّمت؟', onDecision: (t) => log(p, t) });
       rec(p, Object.assign({}, resp, { qid: x.id, attempts: resp.attempts + (predOk ? 0 : 1), prediction: predOk }));
     }
     box.innerHTML = `<div class="center"><div class="badge-medal">🔬</div><h3>أنهيت التجارب الأربع مثل العلماء!</h3><p class="muted">توقّعتَ، ثم جرّبتَ، ثم شاهدتَ، ثم فسّرتَ.</p></div>`;
