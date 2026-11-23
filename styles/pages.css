@@ -866,3 +866,12 @@ html.reduce-motion .story-lines li { opacity: 1; transform: none; }
 }
 /* بطاقة القصة في الصفحة الرئيسية: عمود واحد بعرض البطاقة كاملًا */
 .hero .story { display: block; max-width: none; }
+
+/* الصفحة الرئيسية تملأ الشاشة الأولى بالضبط: لا يظهر القسم الأخضر التالي قبل النزول */
+@media (min-width: 900px) {
+  .hero { min-height: calc(100vh - 200px); min-height: calc(100svh - 200px); }
+  .hero-in { padding-top: 16px; padding-bottom: 40px; }
+  .hero-stage { min-height: 0; }
+  .lulu-talk.hero .lt-art.lulu-img { width: min(220px, 25vh); }
+  #hero-nabti .nabti-img { width: min(130px, 15vh); }
+}
