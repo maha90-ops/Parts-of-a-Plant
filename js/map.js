@@ -4,22 +4,37 @@
   const PR = window.PR;
   const D = PR.data, E = PR.engine;
 
+  /* خلفية الخريطة: صورة الحديقة + لمسات فلسطينية (زيتون، شقائق النعمان، قرية حجرية) */
   function landscape() {
-    const tree = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-3" y="0" width="6" height="22" rx="2" fill="#6b4a2a"/><circle cy="-6" r="17" fill="#71913f"/><circle cx="-12" cy="2" r="11" fill="#7f9f4a"/><circle cx="12" cy="2" r="11" fill="#5f7f35"/><g fill="#2f3a20"><circle cx="-5" cy="-8" r="1.6"/><circle cx="6" cy="-2" r="1.6"/><circle cx="-10" cy="4" r="1.4"/></g></g>`;
-    const house = (x, y) => `<g transform="translate(${x} ${y})"><rect x="-16" y="-20" width="32" height="22" fill="#e9dcc0" stroke="#b9a37c"/><path d="M-10 -20 a10 9 0 0 1 20 0z" fill="#d8c8a6" stroke="#b9a37c"/><rect x="-4" y="-10" width="8" height="12" fill="#6b4a2a"/></g>`;
-    const anem = (x, y) => `<g transform="translate(${x} ${y})"><circle r="4.5" fill="#c8102e"/><circle r="1.6" fill="#1b1b18"/></g>`;
-    return `<svg viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid slice">
-      <defs><linearGradient id="msky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6e6c4"/><stop offset=".45" stop-color="#eef0d6"/><stop offset="1" stop-color="#cfe0a8"/></linearGradient></defs>
-      <rect width="1000" height="620" fill="url(#msky)"/>
-      <path d="M0 170 Q180 110 360 150 T720 130 T1000 150 V620 H0Z" fill="#dfe6b8"/>
-      <path d="M0 260 Q220 200 460 250 T1000 230 V620 H0Z" fill="#cbdb9c"/>
-      <path d="M0 380 Q260 320 520 370 T1000 350 V620 H0Z" fill="#b9d08a"/>
-      <path d="M0 500 Q260 450 520 495 T1000 480 V620 H0Z" fill="#a7c47a"/>
-      <g fill="none" stroke="#9c8358" stroke-width="2" opacity=".35"><path d="M0 285 Q230 225 470 275 T1000 255"/><path d="M0 405 Q260 345 520 395 T1000 375"/><path d="M0 525 Q260 475 520 520 T1000 505"/></g>
-      <g transform="translate(880 520)"><ellipse rx="70" ry="22" fill="#6aa6d6" opacity=".7"/><ellipse rx="50" ry="12" fill="#9fd0f5" opacity=".7"/></g>
-      ${tree(120, 250, 1.1)}${tree(250, 420, 1)}${tree(560, 300, .9)}${tree(930, 290, 1.1)}${tree(780, 430, .9)}${tree(470, 520, 1)}${tree(60, 470, 1.2)}
-      ${house(690, 108)}${house(735, 118)}${house(650, 125)}
-      ${[[150, 330], [170, 345], [130, 352], [200, 320], [90, 300], [320, 540], [600, 560], [640, 545]].map(([x, y]) => anem(x, y)).join('')}
+    const olive = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${s})" filter="url(#msoft)">
+      <ellipse cy="64" rx="46" ry="9" fill="#3d4a22" opacity=".25"/>
+      <path d="M-8 64 C-6 40 -16 30 -4 12 M6 64 C8 44 16 34 4 14" stroke="#6e5236" stroke-width="11" fill="none" stroke-linecap="round"/>
+      <path d="M-4 14 C-2 30 4 40 6 62" stroke="#8a6a46" stroke-width="5" fill="none" opacity=".6"/>
+      <circle cx="-30" cy="-6" r="28" fill="url(#oleaf)"/><circle cx="28" cy="-8" r="30" fill="url(#oleaf)"/>
+      <circle cx="0" cy="-30" r="34" fill="url(#oleaf)"/><circle cx="-12" cy="6" r="22" fill="url(#oleaf)"/><circle cx="16" cy="8" r="20" fill="url(#oleaf)"/>
+      <g fill="#36402a"><ellipse cx="-22" cy="-10" rx="4" ry="5.5"/><ellipse cx="14" cy="-26" rx="4" ry="5.5"/><ellipse cx="30" cy="2" rx="4" ry="5.5"/><ellipse cx="-4" cy="4" rx="4" ry="5.5"/></g></g>`;
+    const anem = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${s || 1})" filter="url(#msoft)">
+      <path d="M0 4 C2 20 -2 30 0 42" stroke="#5d8a3a" stroke-width="4" fill="none"/>
+      <g fill="url(#apetal)">${[0, 72, 144, 216, 288].map((r) => `<ellipse rx="10" ry="15" cy="-12" transform="rotate(${r})"/>`).join('')}</g>
+      <circle r="7" fill="#1d1a17"/><circle r="2.5" cx="-2" cy="-2" fill="#4a4340"/></g>`;
+    const house = (x, y, s, dome) => `<g transform="translate(${x} ${y}) scale(${s})" filter="url(#msoft)">
+      <rect x="-34" y="-40" width="68" height="44" rx="4" fill="url(#stone)"/>
+      ${dome ? '<path d="M-20 -40 a20 18 0 0 1 40 0z" fill="#e3d2ad"/>' : '<rect x="-36" y="-44" width="72" height="7" rx="3" fill="#d9c49b"/>'}
+      <path d="M-8 4 V-16 a8 8 0 0 1 16 0 V4z" fill="#6b4a2a"/><rect x="-26" y="-28" width="10" height="12" rx="5" fill="#3f6d8a"/><rect x="16" y="-28" width="10" height="12" rx="5" fill="#3f6d8a"/></g>`;
+    return `<img class="map-photo" src="assets/map/garden.webp" srcset="assets/map/garden-sm.webp 900w, assets/map/garden.webp 1600w" sizes="(max-width: 980px) 100vw, 900px" alt="" width="1600" height="893" decoding="async">
+    <svg viewBox="0 0 2000 1116" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <filter id="msoft" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#2e2414" flood-opacity=".35"/></filter>
+        <radialGradient id="oleaf" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#c3cf9c"/><stop offset=".55" stop-color="#8fa265"/><stop offset="1" stop-color="#5f7340"/></radialGradient>
+        <radialGradient id="apetal" cx=".4" cy=".3" r=".9"><stop offset="0" stop-color="#ff5a5f"/><stop offset=".6" stop-color="#d4142f"/><stop offset="1" stop-color="#9c0c22"/></radialGradient>
+        <linearGradient id="stone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4e7cb"/><stop offset="1" stop-color="#d6c19a"/></linearGradient>
+      </defs>
+      <!-- قرية حجرية على تلة مركز الإنقاذ -->
+      ${house(960, 215, 1.4, true)}${house(1070, 200, 1.15)}${house(1290, 215, 1.3, true)}
+      <!-- أشجار زيتون -->
+      ${olive(1390, 150, 1.05)}${olive(890, 180, .9)}${olive(130, 380, 1.15)}${olive(1880, 430, 1.1)}${olive(1060, 900, .8)}
+      <!-- شقائق النعمان -->
+      ${[[250, 520, 1], [290, 545, .8], [215, 560, .85], [700, 1010, .9], [745, 1035, .75], [1130, 640, .8], [1170, 660, .65], [1740, 560, .8], [1780, 585, .7], [560, 430, .7], [1500, 330, .7]].map(([x, y, s]) => anem(x, y, s)).join('')}
     </svg>`;
   }
 
@@ -34,7 +49,7 @@
 
     // ---- المسار بين المناطق ----
     const Z = D.ZONES;
-    const START = { x: 95, y: 93 };
+    const START = { x: 66, y: 86 };
     let route = `<path d="M${START.x} ${START.y} Q${(START.x + Z[0].x) / 2 + 4} ${(START.y + Z[0].y) / 2} ${Z[0].x} ${Z[0].y}" class="route route-done" vector-effect="non-scaling-stroke"/>`;
     for (let i = 0; i < Z.length - 1; i++) {
       const a = Z[i], b = Z[i + 1];

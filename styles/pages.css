@@ -793,3 +793,32 @@ html.reduce-motion .story-lines li { opacity: 1; transform: none; }
 /* v5: أزرار البطل صلبة حتى لا تظهر الزخارف الحمراء من خلفها */
 .hero-actions .btn-soft { background: #fff; position: relative; z-index: 1; }
 .story-card { position: relative; z-index: 1; }
+
+/* ===== v6: خريطة الحديقة (صورة) مع لمسات فلسطينية ===== */
+.map-board { aspect-ratio: 2000 / 1116; background: #cfdca6; border: 0; }
+.map-board.tatreez-frame::before, .map-board.tatreez-frame::after { z-index: 3; opacity: .95; }
+.map-art .map-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; filter: saturate(1.05) sepia(.06); }
+.map-art svg { position: absolute; inset: 0; }
+.map-board .route { stroke: rgba(255, 253, 248, .85); stroke-width: 5; filter: drop-shadow(0 1px 1px rgba(0,0,0,.3)); }
+.map-board .route-done { stroke: var(--green); stroke-width: 6; }
+.map-board .node-lbl { background: rgba(255, 253, 248, .96); }
+.map-board .node-btn { width: 70px; height: 70px; font-size: 1.9rem; }
+@media (max-width: 680px) {
+  .map-board { aspect-ratio: auto; }
+  .map-board.tatreez-frame { padding: 28px 14px; }
+  .map-art .map-photo { opacity: .45; }
+  .map-art svg { display: none; }
+}
+@media (min-width: 681px) {
+  .map-board .node { width: 136px; }
+  .map-board .node-btn { width: 62px; height: 62px; font-size: 1.65rem; border-width: 3px; }
+  .map-board .node-lbl { margin-top: 5px; padding: 3px 9px; font-size: .9rem; line-height: 1.3; }
+  .map-board .node-lbl small { font-size: .72rem; }
+  .map-board .node-locked .node-lbl small:not(.st-t) { display: none; }
+  .map-board .node-start .node-lbl { margin-top: 3px; }
+  .map-board .node-start .node-lbl small { display: none; }
+  .map-board .node-start .node-btn { width: 46px; height: 46px; font-size: 1.2rem; }
+}
+.map-board .node-locked { opacity: 1; }
+.map-board .node-locked .node-lbl { opacity: 1; color: var(--ink); }
+.map-board .node-locked .node-btn { opacity: .92; }
