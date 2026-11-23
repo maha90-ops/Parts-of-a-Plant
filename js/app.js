@@ -142,7 +142,7 @@
      moods: happy (سعيدة) | surprised (متفاجئة) | sad (حزينة) | help (تحتاج المساعدة) | excited (سعيدة جدًا) */
   const LULU_HEALTH = { happy: 90, surprised: 70, sad: 30, help: 45, excited: 100 };
   /* صور لولو المجسّمة حسب الحالة: ذابلة / عادية / متعافية */
-  const LULU_IMG = { wilted: 'assets/lulu/lulu-wilted.webp', ok: 'assets/lulu/lulu-hero.webp', happy: 'assets/lulu/lulu-hero.webp' }; // تُستبدل بـ lulu-happy.webp عند إضافة صورة «لولو المتعافية»
+  const LULU_IMG = { wilted: 'assets/lulu/lulu-wilted.webp', ok: 'assets/lulu/lulu-hero.webp', happy: 'assets/lulu/lulu-happy.webp' };
   const LULU_ALT = { wilted: 'لولو ذابلة وحزينة', ok: 'لولو تبتسم', happy: 'لولو متعافية وسعيدة جدًا' };
   PR.lulu = {
     state(health, mood) { return mood === 'excited' || health >= 95 ? 'happy' : mood === 'sad' || mood === 'help' || health < 50 ? 'wilted' : 'ok'; },
