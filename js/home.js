@@ -41,12 +41,23 @@
     });
 
     /* ---------- ٢) لولو التفاعلية في قسم البداية ---------- */
+    // مناطق اللمس على صورة لولو المجسّمة (بالنسبة المئوية من أبعاد الصورة)
+    const LULU_SPOTS = [
+      { id: 'flower', part: 'flower', label: 'الزهرة', x: 12, y: 1, w: 76, h: 36 },
+      { id: 'leaf-r', part: 'leaf', label: 'الأوراق', x: 55, y: 38, w: 28, h: 24 },
+      { id: 'leaf-l', part: 'leaf', label: 'الأوراق', x: 17, y: 38, w: 28, h: 24 },
+      { id: 'stem', part: 'stem', label: 'الساق', x: 45, y: 37, w: 10, h: 33 },
+      { id: 'root', part: 'root', label: 'الجذر', x: 4, y: 70, w: 92, h: 30 },
+    ];
     const mood = doneIds.length === D.ZONES.length ? 'excited' : health >= 75 ? 'happy' : 'help';
     const intro = doneIds.length === D.ZONES.length ? 'أحسنت! لقد أنقذتني! 🌱💚'
       : doneIds.length ? `أشعر بتحسّن! أنجزتَ ${ar(doneIds.length)} من ${ar(D.ZONES.length)} محطات 💚` : 'مرحبًا يا عالم النبات الصغير! 🌱 المسني لتتعرّف عليّ';
     const stage = $('#hero-lulu');
     stage.innerHTML = `<div class="lulu-talk hero interactive" data-mood="${mood}">
-        <div class="lt-art">${PR.art.plant({ mode: 'mound', hotspots: true, health, water: health > 60 ? 2 : 0, mood, title: 'لولو: المس أجزاءها لتتعرّف عليها' })}</div>
+        <div class="lt-art lulu-img">
+          <img src="assets/lulu/lulu-hero.webp" width="385" height="711" alt="لولو: زهرة شقائق نعمان حمراء بوجه مبتسم، تنمو من تلّة تربة تظهر فيها جذورها" decoding="async">
+          ${LULU_SPOTS.map((h) => `<button type="button" class="part hs hs-${h.id}" data-part="${h.part}" aria-label="${h.label}" style="left:${h.x}%;top:${h.y}%;width:${h.w}%;height:${h.h}%"></button>`).join('')}
+        </div>
         <div class="lt-bubble" role="status" aria-live="polite"><b class="lt-name">🌱 لولو</b><p class="lt-text" id="lulu-line">${intro}</p></div></div>`;
     const line = $('#lulu-line'), art = $('.lt-art', stage);
     let resetT = null;

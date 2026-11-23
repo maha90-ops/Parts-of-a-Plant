@@ -835,3 +835,14 @@ html.reduce-motion .story-lines li { opacity: 1; transform: none; }
   .hero-bg.hero-photo::before { content: ''; position: absolute; inset-inline: 0; bottom: 0; height: min(100%, 150vw); background: url('../assets/hero/countryside.webp') 12% bottom / cover no-repeat; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 35%); mask-image: linear-gradient(to bottom, transparent 0, #000 35%); }
   .hero-bg.hero-photo::after { display: none; }
 }
+
+/* ===== v6: لولو المجسّمة (صورة) مع مناطق لمس ===== */
+.lulu-talk.hero .lt-art.lulu-img { position: relative; width: min(230px, 56vw); aspect-ratio: 385 / 711; filter: none; }
+.lulu-img img { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 16px 14px rgba(60, 40, 10, .28)); }
+.lulu-img::after { content: ''; position: absolute; left: 12%; right: 12%; bottom: -10px; height: 18px; border-radius: 50%; background: radial-gradient(closest-side, rgba(50, 35, 15, .35), transparent); z-index: -1; }
+.lulu-img .hs { position: absolute; padding: 0; margin: 0; border: 3px dashed transparent; border-radius: 50%; background: transparent; cursor: pointer; transition: border-color .2s, box-shadow .2s, background .2s; }
+.lulu-img .hs-root { border-radius: 40% 40% 26% 26%; }
+.lulu-img .hs-stem { border-radius: 20px; }
+.lulu-img .hs:hover, .lulu-img .hs:focus-visible, .lulu-img .hs.is-active { border-color: #f2c33a; background: rgba(255, 236, 160, .18); box-shadow: 0 0 0 3px rgba(255, 255, 255, .7), 0 0 18px rgba(242, 195, 58, .8); outline: none; }
+.lulu-talk.interactive .lulu-img .part:hover, .lulu-talk.interactive .lulu-img .part.is-active { filter: none; }
+@media (prefers-reduced-motion: reduce) { .lulu-img .hs { transition: none; } }
